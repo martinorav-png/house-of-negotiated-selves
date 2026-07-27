@@ -1,0 +1,234 @@
+<!DOCTYPE html><html lang="en" class="light"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin=""><script id="tailwind-config">try{
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "outline": "#8a7170",
+                      "inverse-surface": "#32302e",
+                      "surface-container-low": "#f8f2ef",
+                      "on-tertiary-fixed-variant": "#574144",
+                      "tertiary": "#70585b",
+                      "background": "#fef8f4",
+                      "on-tertiary-container": "#4b3639",
+                      "secondary-container": "#ff5c47",
+                      "on-surface": "#1d1b19",
+                      "surface-container-high": "#ede7e3",
+                      "secondary-fixed-dim": "#ffb4a8",
+                      "tertiary-container": "#bb9fa2",
+                      "primary": "#a43a3d",
+                      "tertiary-fixed-dim": "#debfc2",
+                      "primary-container": "#ff7f7f",
+                      "on-secondary-fixed-variant": "#920703",
+                      "surface-container-highest": "#e7e1de",
+                      "inverse-on-surface": "#f5f0ec",
+                      "surface-bright": "#fef8f4",
+                      "on-secondary-container": "#610000",
+                      "secondary-fixed": "#ffdad4",
+                      "primary-fixed": "#ffdad8",
+                      "on-error-container": "#93000a",
+                      "on-secondary-fixed": "#410000",
+                      "surface-dim": "#ded9d5",
+                      "on-primary-container": "#74161e",
+                      "secondary": "#b52619",
+                      "on-surface-variant": "#564241",
+                      "surface-container": "#f3ede9",
+                      "surface": "#fef8f4",
+                      "on-tertiary": "#ffffff",
+                      "error": "#ba1a1a",
+                      "on-primary-fixed": "#410007",
+                      "inverse-primary": "#ffb3b1",
+                      "on-error": "#ffffff",
+                      "outline-variant": "#ddc0be",
+                      "surface-tint": "#a43a3d",
+                      "surface-container-lowest": "#ffffff",
+                      "primary-fixed-dim": "#ffb3b1",
+                      "on-primary": "#ffffff",
+                      "error-container": "#ffdad6",
+                      "surface-variant": "#e7e1de",
+                      "on-secondary": "#ffffff",
+                      "tertiary-fixed": "#fbdbde",
+                      "on-background": "#1d1b19",
+                      "on-tertiary-fixed": "#281719",
+                      "on-primary-fixed-variant": "#842228"
+              },
+              "borderRadius": {
+                      "DEFAULT": "1rem",
+                      "lg": "2rem",
+                      "xl": "3rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "margin-mobile": "20px",
+                      "margin-desktop": "64px",
+                      "gutter": "24px",
+                      "unit": "8px",
+                      "container-max": "1100px"
+              },
+              "fontFamily": {
+                      "body-md": [
+                              "Bricolage Grotesque", "sans-serif"
+                      ],
+                      "display-lg-mobile": [
+                              "Instrument Serif", "serif"
+                      ],
+                      "headline-md": [
+                              "Instrument Serif", "serif"
+                      ],
+                      "body-lg": [
+                              "Bricolage Grotesque", "sans-serif"
+                      ],
+                      "label-sm": [
+                              "Space Mono", "monospace"
+                      ],
+                      "display-lg": [
+                              "Instrument Serif", "serif"
+                      ]
+              },
+              "fontSize": {
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "1.5",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "display-lg-mobile": [
+                              "36px",
+                              {
+                                      "lineHeight": "1.1",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-md": [
+                              "32px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "1.6",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "1",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "display-lg": [
+                              "48px",
+                              {
+                                      "lineHeight": "1.1",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "400"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+    }catch(_e){}</script><link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400&amp;family=Instrument+Serif:ital@0;1&amp;family=Space+Mono:wght@400;700&amp;display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=block" rel="stylesheet"><meta charset="utf-8"></head><body class="min-h-screen flex flex-col relative overflow-hidden font-body-md text-body-md">
+<!-- Ambient Background Lighting -->
+<div class="absolute inset-0 pointer-events-none flex justify-center items-center opacity-40">
+<div class="w-[80vw] h-[80vw] rounded-full bg-gradient-to-tr from-secondary-fixed-dim/30 to-primary-container/20 blur-[100px] pulse-slow"></div>
+</div>
+<!-- Top App Bar -->
+<header class="fixed top-0 w-full z-40 bg-background/80 backdrop-blur-md border-b-2 border-secondary-fixed/30 transition-opacity duration-300">
+<div class="flex justify-between items-center w-full px-margin-desktop py-4 max-w-container-max mx-auto md:px-margin-desktop px-margin-mobile">
+<h1 class="font-label-sm text-label-sm uppercase tracking-widest text-primary dark:text-primary-fixed font-bold">ART INSTALLATION</h1>
+<button class="hover:opacity-80 transition-opacity duration-300 text-primary dark:text-primary-fixed" aria-label="Close">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">close</span>
+</button>
+</div>
+</header>
+<!-- Side Nav Bar (Web Only) -->
+<nav class="hidden md:flex fixed right-margin-desktop top-1/2 -translate-y-1/2 flex-col items-center gap-unit w-24 h-auto z-40 bg-transparent">
+<div class="mb-8 text-center">
+<div class="w-16 h-16 rounded-full mx-auto mb-2 overflow-hidden bg-gradient-to-br from-primary-fixed to-secondary-container p-1 shadow-lg shadow-primary-container/20">
+<div class="w-full h-full rounded-full bg-background flex items-center justify-center">
+<img src="https://lh3.googleusercontent.com/aida-public/AB6AXuD834QBRlrB75HwUwOmt_pRyIAKjJs2lCpTzj3m8F5JA3Ytt14UPTE0P7iGGw9T80uIMTzQCPs17fVtZhjzul7QXJ-tovbuz4yc6i9ieo0_OSZctvw81-1V57tbJy20gEMBfHw6pOkszvZOaJKEUbyc6Dvvh4NL10mFWihx9Zn0SVWdUQzpbEa_vvYdbtMOLsUR9_9o2JKeqZtf-EJxfte_6vHCwZ7owVeB9s77c0TLAqzFPFyWC9wgsKEED_yOlIakgwjj0qjOCQ" alt="Debra Guide Orb" class="w-10 h-10 rounded-full object-cover pulse-slow">
+</div>
+</div>
+<h2 class="font-headline-md text-headline-md text-primary">DEBRA</h2>
+<p class="font-label-sm text-label-sm text-secondary mt-1">Your Guide</p>
+</div>
+<div class="flex flex-col items-center gap-4">
+<button class="flex flex-col items-center justify-center bg-secondary-container text-on-secondary-container rounded-full p-4 animate-pulse hover:scale-105 active:scale-95 transition-transform duration-500 ease-in-out shadow-lg shadow-secondary-container/20" aria-label="Companion">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">radio_button_checked</span>
+</button>
+<span class="font-label-sm text-label-sm text-secondary mt-2 opacity-80">Companion</span>
+</div>
+<button class="mt-12 font-label-sm text-label-sm text-primary underline hover:opacity-80 transition-opacity duration-300">
+            Exit Experience
+        </button>
+</nav>
+<!-- Main Content Canvas -->
+<main class="flex-grow flex flex-col items-center justify-center relative z-10 pt-24 pb-32 px-margin-mobile md:px-margin-desktop w-full max-w-container-max mx-auto h-screen">
+<div class="text-center mb-8 z-20">
+<h2 class="font-display-lg-mobile md:font-display-lg text-display-lg-mobile md:text-display-lg text-on-surface mb-2 tracking-tight">Your Companion</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-md mx-auto">A reflection of your intent, shaped by soft geometry and warm light.</p>
+</div>
+<!-- Avatar Stage -->
+<div class="relative w-full max-w-lg h-[50vh] min-h-[400px] flex items-center justify-center group perspective-1000">
+<!-- Soft Underglow -->
+<div class="absolute bottom-0 w-3/4 h-8 bg-black/5 rounded-[100%] blur-xl group-hover:bg-primary-container/10 transition-colors duration-1000"></div>
+<!-- The Avatar Image Placeholder -->
+<div class="relative z-10 w-full h-full flex items-center justify-center transition-transform duration-1000 ease-out transform group-hover:scale-105">
+<img class="object-contain w-full h-full max-h-full drop-shadow-2xl opacity-95" data-alt="A full-body humanoid figure in a relaxed A-pose, rendered in soft matte cream textures. The figure appears speculative and gentle, lacking distinct facial features to emphasize a universal connection. It stands against a warm, intimate minimalist background with soft, high-key lighting that creates gentle atmospheric depth without harsh shadows. The color palette relies on pristine whites, soft peach, and deep red coral accents, evoking a calm, near-future aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDSOajxTlPVuCjb-8Max30apQiw_FHncyI3Rq63YfyvGMODQMDAzl_TGqcix6ZJWSZQRlAEvctbikVOOctyY-vEWWcYrrJEfpu6fV5OjXvmzfE68oZAXeLlDju-Gn7uH5EXF6qh3yFK_Bgho3d0La3PxchQLrYNlDVJryVqNaRFUZJo4eyCjyiwrdZIrOyxxYRg9miYrbkkJBGN_IpAWNfI32T_GRArOZDHZRZCbWmomZd18uhwuktUhMPkdUeb_uWRuEeHWfxdXA">
+</div>
+<!-- HUD Elements (Floating) -->
+<div class="absolute left-0 md:-left-12 top-1/4 flex items-center gap-4 z-20 opacity-0 transform -translate-x-4 transition-all duration-1000 delay-300 hud-element">
+<div class="bg-surface/80 backdrop-blur-md border border-outline-variant rounded-full px-4 py-2 shadow-lg shadow-black/5">
+<span class="font-label-sm text-label-sm text-primary tracking-widest">CONFIDENCE: 98.4%</span>
+</div>
+<div class="hud-line hidden md:block"></div>
+</div>
+<div class="absolute right-0 md:-right-12 bottom-1/4 flex items-center gap-4 flex-row-reverse z-20 opacity-0 transform translate-x-4 transition-all duration-1000 delay-500 hud-element">
+<div class="bg-surface/80 backdrop-blur-md border border-outline-variant rounded-full px-4 py-2 shadow-lg shadow-black/5">
+<span class="font-label-sm text-label-sm text-secondary tracking-widest">SEED ACCENT: CORAL RED</span>
+</div>
+<div class="hud-line hidden md:block"></div>
+</div>
+<!-- Debra Guidance Tooltip -->
+<div class="absolute top-8 right-8 md:top-12 md:-right-24 z-30 opacity-0 transform translate-y-4 transition-all duration-1000 delay-700 hud-element">
+<div class="flex items-start gap-3 bg-surface-container-high rounded-2xl p-4 shadow-xl border border-surface-variant max-w-[200px]">
+<div class="w-8 h-8 shrink-0 rounded-full bg-gradient-to-tr from-secondary-fixed-dim to-primary-container pulse-slow mt-1"></div>
+<div>
+<p class="font-body-md text-body-md text-on-surface leading-snug">"They are waiting for you."</p>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Bottom Action Area -->
+<div class="fixed bottom-0 left-0 w-full z-40 bg-gradient-to-t from-background via-background/90 to-transparent pt-12 pb-8 flex justify-center items-end px-margin-mobile">
+<button class="bg-primary-container hover:bg-primary-container/90 text-on-primary-container font-label-sm text-label-sm uppercase tracking-widest rounded-full px-8 py-4 shadow-[0_20px_40px_rgba(164,58,61,0.15)] hover:shadow-[0_20px_40px_rgba(164,58,61,0.25)] hover:-translate-y-1 transition-all duration-300 flex items-center gap-3">
+            Step into the installation
+            <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">arrow_forward</span>
+</button>
+</div>
+<!-- Script for Entrance Animations -->
+<script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Trigger HUD element animations
+            setTimeout(() => {
+                document.body.classList.add('loaded');
+                const hudElements = document.querySelectorAll('.hud-element');
+                hudElements.forEach((el, index) => {
+                    setTimeout(() => {
+                        el.style.opacity = '1';
+                        el.style.transform = 'translate(0, 0)';
+                    }, index * 200);
+                });
+            }, 500);
+        });
+    </script>
+
+</body></html>

@@ -1,0 +1,64 @@
+:root {
+  /* Soft Future Companion Intake — Stitch design system */
+  --background: #fef8f4;
+  --surface: #fef8f4;
+  --surface-low: #f8f2ef;
+  --surface-container: #f3ede9;
+  --surface-high: #ede7e3;
+  --surface-highest: #e7e1de;
+  --surface-lowest: #ffffff;
+  --on-surface: #1d1b19;
+  --on-surface-variant: #564241;
+  --outline: #8a7170;
+  --outline-variant: #ddc0be;
+
+  --primary: #a43a3d;
+  --primary-container: #ff7f7f;
+  --on-primary: #ffffff;
+  --on-primary-container: #74161e;
+  --secondary: #b52619;
+  --secondary-container: #ff5c47;
+  --secondary-fixed: #ffdad4;
+  --secondary-fixed-dim: #ffb4a8;
+  --on-secondary-container: #610000;
+  --on-secondary-fixed-variant: #920703;
+
+  --inverse-surface: #32302e;
+  --dark: #0c0b0a;
+
+  --font-body: 'Bricolage Grotesque', system-ui, sans-serif;
+  --font-label: 'Space Mono', ui-monospace, monospace;
+  --font-soft: 'Instrument Serif', Georgia, serif;
+  --font-display: var(--font-body);
+  --font-mono: var(--font-label);
+
+  --margin-mobile: 20px;
+  --margin-desktop: 64px;
+  --radius: 1rem;
+  --radius-lg: 2rem;
+  --radius-full: 9999px;
+  --touch: 48px;
+
+  /* aliases used by existing components */
+  --bg-deep: var(--background);
+  --bg: var(--background);
+  --bg-panel: var(--surface-lowest);
+  --bg-elevated: var(--surface-lowest);
+  --line: color-mix(in srgb, var(--outline-variant) 60%, transparent);
+  --line-strong: var(--outline-variant);
+  --mist: var(--on-surface-variant);
+  --text: var(--on-surface);
+  --text-dim: var(--outline);
+  --accent: var(--primary);
+  --accent-deep: var(--secondary);
+  --accent-soft: var(--primary-container);
+  --blush: var(--secondary-fixed);
+  --peach: var(--surface-low);
+  --rose-glow: rgba(164, 58, 61, 0.18);
+  --warm-glow: rgba(255, 92, 71, 0.16);
+  --cyan: var(--primary);
+  --cyan-dim: var(--rose-glow);
+  --amber: var(--secondary);
+  --amber-dim: rgba(181, 38, 25, 0.25);
+  --warmth: 0;
+}

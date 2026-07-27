@@ -1,0 +1,40 @@
+.entry-screen {
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: #f5f0ec;
+}
+
+.entry-screen__orb {
+  margin-bottom: 2rem;
+}
+
+.entry-screen__copy {
+  max-width: 28ch;
+}
+
+.entry-screen__title {
+  margin: 0;
+  font-family: var(--font-soft);
+  font-size: clamp(1.75rem, 4vw, 3rem);
+  font-weight: 400;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: #e8e2de;
+}
+
+.entry-screen__title em {
+  font-style: italic;
+  color: var(--primary-container);
+}
+
+.entry-screen__sub {
+  margin: 1.25rem 0 0;
+  font-size: 1.05rem;
+  color: rgba(245, 240, 236, 0.55);
+}
+
+.entry-screen__cta {
+  margin-top: 2.5rem;
+  align-self: center;
+}

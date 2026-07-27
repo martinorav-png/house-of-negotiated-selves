@@ -1,0 +1,98 @@
+.self-screen__station {
+  margin: 0 0 1.5rem;
+  color: var(--on-surface-variant);
+}
+
+.self-screen__body {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2.5rem;
+  flex: 1;
+}
+
+@media (min-width: 900px) {
+  .self-screen__body {
+    grid-template-columns: 1.2fr 0.8fr;
+    gap: 4rem;
+    align-items: start;
+  }
+}
+
+.self-screen__ring {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.self-screen__card-wrap {
+  width: min(280px, 72vw);
+  position: relative;
+}
+
+.self-screen__card-wrap.is-flash .reflective-card-container {
+  animation: reflectiveFlash 0.65s ease;
+}
+
+.self-screen__ring-label {
+  margin: 0;
+  font-family: var(--font-label);
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--outline);
+}
+
+.capture-panel {
+  margin-top: 1.75rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.voice-meter {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  height: 48px;
+}
+
+.voice-meter i {
+  display: block;
+  width: 4px;
+  height: 8px;
+  background: var(--outline-variant);
+  border-radius: 2px;
+}
+
+.voice-meter--live i {
+  background: var(--primary);
+  animation: voiceBar 0.55s ease-in-out infinite alternate;
+}
+
+@keyframes voiceBar {
+  from {
+    height: 8px;
+  }
+  to {
+    height: 44px;
+  }
+}
+
+.self-screen__debra {
+  position: fixed;
+  left: var(--margin-mobile);
+  bottom: 6.5rem;
+  z-index: 35;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  max-width: min(360px, calc(100vw - 2 * var(--margin-mobile)));
+}
+
+@media (min-width: 900px) {
+  .self-screen__debra {
+    left: var(--margin-desktop);
+  }
+}

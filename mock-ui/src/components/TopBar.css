@@ -1,0 +1,49 @@
+.topbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 40;
+  background: color-mix(in srgb, var(--background) 92%, transparent);
+  backdrop-filter: blur(12px);
+  border-bottom: 2px solid color-mix(in srgb, var(--secondary-fixed) 35%, transparent);
+}
+
+.topbar__row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem var(--margin-mobile);
+}
+
+@media (min-width: 900px) {
+  .topbar__row {
+    padding-left: var(--margin-desktop);
+    padding-right: var(--margin-desktop);
+  }
+}
+
+.topbar__close {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  color: var(--primary);
+  font-size: 1rem;
+  display: grid;
+  place-items: center;
+}
+
+.topbar__close:hover {
+  background: var(--surface-high);
+}
+
+.topbar__rail {
+  height: 3px;
+  background: var(--surface-highest);
+}
+
+.topbar__fill {
+  height: 100%;
+  background: var(--primary);
+  transition: width 0.45s ease;
+}
