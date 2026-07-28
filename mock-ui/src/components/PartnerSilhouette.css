@@ -1,0 +1,93 @@
+.partner-silhouette {
+  position: relative;
+  padding: 0.75rem;
+  background: var(--void);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.partner-silhouette__svg {
+  width: 100%;
+  max-width: 100px;
+  margin: 0 auto;
+  display: block;
+  opacity: 0.55;
+}
+
+.partner-silhouette__head,
+.partner-silhouette__torso,
+.partner-silhouette__legs,
+.partner-silhouette__arms {
+  fill: none;
+  stroke: var(--phosphor);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.partner-silhouette__label {
+  margin: 0.5rem 0 0;
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  letter-spacing: 0.12em;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.partner-silhouette--glitch-1 .partner-silhouette__svg {
+  filter: contrast(1.1);
+}
+
+.partner-silhouette--glitch-2 .partner-silhouette__svg {
+  animation: silhouetteGlitch 4.5s steps(2) infinite;
+  filter: contrast(1.12);
+}
+
+.partner-silhouette--glitch-3 .partner-silhouette__svg {
+  animation: silhouetteGlitch 3.2s steps(2) infinite;
+  filter: contrast(1.18) hue-rotate(8deg);
+}
+
+.partner-silhouette--glitch-2::after,
+.partner-silhouette--glitch-3::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    90deg,
+    transparent,
+    transparent 3px,
+    color-mix(in srgb, var(--phosphor) 4%, transparent) 3px,
+    color-mix(in srgb, var(--phosphor) 4%, transparent) 4px
+  );
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+@keyframes silhouetteGlitch {
+  0%,
+  92%,
+  100% {
+    transform: translate(0);
+  }
+  94% {
+    transform: translate(-1px, 0);
+  }
+  96% {
+    transform: translate(1px, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .partner-silhouette--glitch-2 .partner-silhouette__svg,
+  .partner-silhouette--glitch-3 .partner-silhouette__svg {
+    animation: none;
+    filter: contrast(1.08);
+  }
+
+  .partner-silhouette--glitch-2::after,
+  .partner-silhouette--glitch-3::after {
+    opacity: 0.35;
+  }
+}

@@ -7,3 +7,19 @@ mock-ui/dist/
 mock-ui/node_modules/
 mock-ui/stitch/assets/
 
+# Flutter mirror subproject
+mirror/.dart_tool/
+mirror/build/
+mirror/.flutter-plugins-dependencies
+
+
+# Local agent / temp artifacts
+.claude/
+.codex/
+.cursor/
+.tmp_*
+
+# Large journey board exports (exceed GitHub 100MB limit)
+userjourney.pdf
+userjourney2.pdf
+

@@ -1,0 +1,139 @@
+/* B — Porcelain Confessional: cool museum porcelain, deep wine actions. No blush. */
+.kiosk[data-direction='porcelain-confessional'] {
+  --void: #f4f2ef;
+  --surface: #f7f5f2;
+  --panel: #ebe8e3;
+  --panel-raised: #e3dfd8;
+  --border: #c9c3b8;
+  --border-bright: #a89f90;
+  --text: #1a1814;
+  --text-secondary: #4a453c;
+  --text-muted: #6b6458;
+  --phosphor: #5c1f2a;
+  --phosphor-dim: #5c1f2a;
+  --phosphor-glow: rgba(92, 31, 42, 0.14);
+  --phosphor-muted: rgba(92, 31, 42, 0.72);
+  --amber: #8b4518;
+  --amber-glow: rgba(139, 69, 24, 0.18);
+  --alert: #9b1c1c;
+  --field-bg: #ffffff;
+  --field-fg: #1a1814;
+  --field-border: #a89f90;
+  --accent: var(--phosphor);
+  --accent-dim: #3d1219;
+  --debra-line: #5c1f2a;
+  --radius: 6px;
+  --radius-md: 8px;
+  --font-display: 'Outfit', system-ui, sans-serif;
+  --font-body: 'Libre Franklin', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+  --scanline-opacity: 0;
+  --ambient-glow: linear-gradient(
+    180deg,
+    rgba(26, 24, 20, 0.03) 0%,
+    transparent 28%,
+    transparent 100%
+  );
+}
+
+.kiosk[data-direction='porcelain-confessional']::after {
+  opacity: 0;
+}
+
+.kiosk[data-direction='porcelain-confessional'] .chip,
+.kiosk[data-direction='porcelain-confessional'] .btn-primary,
+.kiosk[data-direction='porcelain-confessional'] .btn-secondary,
+.kiosk[data-direction='porcelain-confessional'] .topbar__close,
+.kiosk[data-direction='porcelain-confessional'] .field,
+.kiosk[data-direction='porcelain-confessional'] .field-area {
+  border-radius: var(--radius);
+}
+
+.kiosk[data-direction='porcelain-confessional'] .btn-primary {
+  background: var(--phosphor);
+  color: #faf8f5;
+  border-color: var(--phosphor);
+  font-family: var(--font-body);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  box-shadow: 0 6px 18px rgba(26, 24, 20, 0.12);
+}
+
+.kiosk[data-direction='porcelain-confessional'] .btn-primary:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--phosphor) 88%, #000);
+  box-shadow: 0 8px 22px rgba(26, 24, 20, 0.16);
+}
+
+.kiosk[data-direction='porcelain-confessional'] .chip {
+  font-family: var(--font-body);
+  text-transform: none;
+  letter-spacing: 0.01em;
+  font-size: 0.88rem;
+  background: #fff;
+  box-shadow: 0 1px 0 rgba(26, 24, 20, 0.06);
+}
+
+.kiosk[data-direction='porcelain-confessional'] .chip.is-selected {
+  background: var(--phosphor);
+  color: #faf8f5;
+  border-color: var(--phosphor);
+}
+
+.kiosk[data-direction='porcelain-confessional'] .label-sm {
+  color: var(--text-muted);
+}
+
+.kiosk[data-direction='porcelain-confessional'] .system-log {
+  background: #fff;
+  border: 1px solid var(--border);
+  box-shadow: 0 8px 24px rgba(26, 24, 20, 0.06);
+}
+
+.kiosk[data-direction='porcelain-confessional'] .system-log__header {
+  font-size: 0;
+  background: var(--panel);
+}
+
+.kiosk[data-direction='porcelain-confessional'] .system-log__header::after {
+  content: 'Session ledger';
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.kiosk[data-direction='porcelain-confessional'] .system-log__line {
+  color: var(--text-secondary);
+}
+
+.kiosk[data-direction='porcelain-confessional'] .system-log__prefix {
+  color: var(--phosphor);
+}
+
+.kiosk[data-direction='porcelain-confessional'] .debra-orb {
+  box-shadow:
+    0 16px 40px rgba(26, 24, 20, 0.18),
+    0 0 0 1px rgba(26, 24, 20, 0.08);
+  border-color: rgba(92, 31, 42, 0.25);
+  animation: none;
+}
+
+.kiosk[data-direction='porcelain-confessional'] .entry-screen__debra {
+  color: var(--phosphor);
+}
+
+.kiosk[data-direction='porcelain-confessional'] .entry-screen__title {
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.kiosk[data-direction='porcelain-confessional'] .field:focus,
+.kiosk[data-direction='porcelain-confessional'] .field-area:focus {
+  border-color: var(--phosphor);
+  box-shadow: 0 0 0 1px var(--phosphor), 0 10px 28px rgba(92, 31, 42, 0.1);
+}
+
+.kiosk[data-direction='porcelain-confessional'] .prompt {
+  color: var(--field-fg);
+  max-width: 24ch;
+}

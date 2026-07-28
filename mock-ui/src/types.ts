@@ -1,4 +1,5 @@
 export type Stage =
+  | 'gallery'
   | 'entry'
   | 'self'
   | 'desire'
@@ -20,8 +21,6 @@ export interface MatchPersona {
   hue: number
   accent: string
   image?: string
-  question: string
-  choices: { label: string; traits: Partial<Record<TraitKey, number>> }[]
 }
 
 export interface SessionState {

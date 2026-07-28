@@ -1,0 +1,124 @@
+/* A — Night Companion: intimate late-night interview. Copper for Debra only. */
+.kiosk[data-direction='night-companion'] {
+  --void: #0a0d14;
+  --surface: #0f131c;
+  --panel: #161b27;
+  --panel-raised: #1c2333;
+  --border: #2a3348;
+  --border-bright: #3d4a66;
+  --text: #e8e6f0;
+  --text-secondary: #a8a3b8;
+  --text-muted: #8b869c;
+  --phosphor: #c4b5fd;
+  --phosphor-dim: #3b2f5c;
+  --phosphor-glow: rgba(196, 181, 253, 0.2);
+  --phosphor-muted: rgba(196, 181, 253, 0.7);
+  --amber: #d4a574;
+  --amber-glow: rgba(212, 165, 116, 0.35);
+  --alert: #e86a6a;
+  --field-bg: #080a10;
+  --field-fg: #f2f0f8;
+  --field-border: #3d4a66;
+  --accent: var(--phosphor);
+  --accent-dim: var(--phosphor-dim);
+  --debra-line: var(--amber);
+  --radius: 8px;
+  --radius-md: 12px;
+  --font-display: 'Sora', system-ui, sans-serif;
+  --font-body: 'Source Sans 3', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+  --scanline-opacity: 0;
+  --ambient-glow:
+    radial-gradient(ellipse 55% 45% at 50% 0%, rgba(212, 165, 116, 0.08), transparent 55%),
+    radial-gradient(ellipse 40% 35% at 80% 80%, rgba(196, 181, 253, 0.06), transparent 50%);
+}
+
+.kiosk[data-direction='night-companion']::after {
+  opacity: 0;
+}
+
+.kiosk[data-direction='night-companion'] .chip,
+.kiosk[data-direction='night-companion'] .btn-primary,
+.kiosk[data-direction='night-companion'] .btn-secondary,
+.kiosk[data-direction='night-companion'] .topbar__close {
+  border-radius: var(--radius);
+}
+
+.kiosk[data-direction='night-companion'] .btn-primary {
+  background: var(--phosphor-dim);
+  color: #f0ebff;
+  border-color: var(--phosphor);
+  font-family: var(--font-body);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: none;
+}
+
+.kiosk[data-direction='night-companion'] .chip {
+  font-family: var(--font-body);
+  text-transform: none;
+  letter-spacing: 0.01em;
+  font-size: 0.85rem;
+}
+
+.kiosk[data-direction='night-companion'] .label-sm {
+  color: var(--amber);
+  letter-spacing: 0.16em;
+}
+
+.kiosk[data-direction='night-companion'] .system-log {
+  background: transparent;
+  border: none;
+  border-top: 1px solid var(--border);
+  border-radius: 0;
+}
+
+.kiosk[data-direction='night-companion'] .system-log__header {
+  font-size: 0;
+  background: transparent;
+  border: none;
+  padding: 0.75rem 0 0.35rem;
+}
+
+.kiosk[data-direction='night-companion'] .system-log__header::after {
+  content: 'Quiet notes';
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.kiosk[data-direction='night-companion'] .system-log__feed {
+  padding: 0.35rem 0;
+  max-height: 160px;
+}
+
+.kiosk[data-direction='night-companion'] .system-log__line {
+  color: var(--text-secondary);
+  font-size: 0.72rem;
+}
+
+.kiosk[data-direction='night-companion'] .system-log__prefix {
+  color: var(--amber);
+}
+
+.kiosk[data-direction='night-companion'] .confidence-meter__value {
+  color: var(--phosphor);
+}
+
+.kiosk[data-direction='night-companion'] .debra-orb {
+  box-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.45),
+    0 0 48px var(--amber-glow);
+  border-color: color-mix(in srgb, var(--amber) 40%, transparent);
+}
+
+.kiosk[data-direction='night-companion'] .entry-screen__debra {
+  color: var(--amber);
+  font-weight: 600;
+}
+
+.kiosk[data-direction='night-companion'] .field:focus,
+.kiosk[data-direction='night-companion'] .field-area:focus {
+  box-shadow: 0 0 0 1px var(--phosphor), 0 12px 32px rgba(196, 181, 253, 0.12);
+}

@@ -143,7 +143,7 @@ export function ReflectiveCard({
               surfaceScale={displacementStrength}
               specularConstant={specularConstant}
               specularExponent={20}
-              lightingColor="#ffffff"
+              lightingColor="white"
               result="light"
             >
               <fePointLight x={0} y={0} z={300} />
@@ -196,7 +196,7 @@ export function ReflectiveCard({
             <>
               <p className="reflective-cam-gate__msg">
                 {camStatus === 'denied'
-                  ? 'Camera blocked — allow access in the browser address bar, then retry.'
+                  ? 'Camera blocked. Allow access in the browser address bar, then try again.'
                   : camStatus === 'unavailable'
                     ? 'Camera unavailable here. Open http://localhost:5175 in Chrome or Safari.'
                     : 'Activate the ringlight to mirror your reflection.'}

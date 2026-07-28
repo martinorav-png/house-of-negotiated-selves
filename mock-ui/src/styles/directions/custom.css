@@ -1,0 +1,23 @@
+.kiosk[data-direction='custom'] {
+  --border: color-mix(in srgb, var(--void) 70%, var(--phosphor) 30%);
+  --border-bright: color-mix(in srgb, var(--void) 55%, var(--phosphor) 45%);
+  --text: var(--field-fg);
+  --text-secondary: color-mix(in srgb, var(--field-fg) 65%, var(--void));
+  --text-muted: color-mix(in srgb, var(--field-fg) 40%, var(--void));
+  --phosphor-glow: color-mix(in srgb, var(--phosphor) 22%, transparent);
+  --phosphor-muted: color-mix(in srgb, var(--phosphor) 55%, transparent);
+  --field-border: var(--border-bright);
+  --accent: var(--phosphor);
+  --accent-dim: var(--phosphor-dim);
+  --debra-line: var(--amber);
+  --ambient-glow: radial-gradient(
+      ellipse 45% 40% at 20% 25%,
+      color-mix(in srgb, var(--phosphor) 8%, transparent),
+      transparent 55%
+    ),
+    radial-gradient(
+      ellipse 35% 30% at 80% 70%,
+      color-mix(in srgb, var(--amber) 10%, transparent),
+      transparent 50%
+    );
+}

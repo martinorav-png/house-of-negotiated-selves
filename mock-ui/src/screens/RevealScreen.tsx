@@ -1,62 +1,97 @@
+import { BottomNav } from '../components/BottomNav'
+import { ConfidenceMeter } from '../components/ConfidenceMeter'
 import { DebraOrb } from '../components/DebraOrb'
+import { SystemLog } from '../components/SystemLog'
 import { TopBar } from '../components/TopBar'
-import { MATCH_PERSONAS } from '../data/content'
+import { DEBRA_STATION, MATCH_PERSONAS } from '../data/content'
 import type { SessionState } from '../types'
 import './RevealScreen.css'
 
 type Props = {
   session: SessionState
+  visitorId?: string
   onRestart: () => void
 }
 
-export function RevealScreen({ session, onRestart }: Props) {
+export function RevealScreen({ session, visitorId, onRestart }: Props) {
   const locked = MATCH_PERSONAS.find((p) => p.id === session.lockedPersonaId)
 
   return (
     <section className="screen reveal-screen">
-      <TopBar onClose={onRestart} progress={100} />
+      <TopBar
+        onClose={onRestart}
+        progress={100}
+        stationCode="CHAMBER"
+        visitorId={visitorId}
+        confidence={session.confidence}
+      />
 
-      <div className="reveal-screen__banner">
-        <h1>Your Companion</h1>
-      </div>
-      <p className="reveal-screen__sub">
-        A reflection of your intent, shaped by soft geometry and warm light.
-      </p>
+      <div className="reveal-screen__body">
+        <main className="reveal-screen__main">
+          <header className="reveal-screen__intro">
+            <h1 className="reveal-screen__title">Your companion</h1>
+            <p className="reveal-screen__sub">
+              Session reveal. Chamber entrance authorized.
+            </p>
+          </header>
 
-      <div className="reveal-screen__frame">
-        <span className="reveal-screen__tag">05 Reveal</span>
-        <img src="/stitch/05-reveal-asset-7.jpg" alt="" className="reveal-screen__image" />
-        <div className="reveal-screen__stats">
-          <span>Confidence: {session.confidence.toFixed(1)}%</span>
-          <span>Seed accent: coral red</span>
-        </div>
-      </div>
-
-      <p className="reveal-screen__quote">“They are waiting for you.”</p>
-
-      <aside className="reveal-screen__side">
-        <div className="reveal-screen__side-item">
-          <DebraOrb size="sm" />
-          <div>
-            <strong>Debra</strong>
-            <span>Your Guide</span>
+          <div className="reveal-screen__card">
+            <div className="reveal-screen__image-wrap">
+              <img
+                src="/stitch/05-reveal-asset-7.jpg"
+                alt=""
+                className="reveal-screen__image"
+              />
+              <span className="reveal-screen__live">Live rendering</span>
+            </div>
+            <div className="reveal-screen__meta">
+              <div>
+                <p className="reveal-screen__name">{locked?.name ?? 'Unknown'}</p>
+                <p className="reveal-screen__tag">Synthetic companion</p>
+              </div>
+              <div className="reveal-screen__prob">
+                <span>Probability</span>
+                <ConfidenceMeter value={session.confidence} label="Match" />
+              </div>
+              <p className="reveal-screen__blurb">
+                Built to mirror what you shared freely. Tuned for long negotiation,
+                not a quick match.
+              </p>
+              <blockquote className="reveal-screen__quote">
+                {DEBRA_STATION.chamberInvite}
+              </blockquote>
+            </div>
           </div>
-        </div>
-        <div className="reveal-screen__side-item">
-          <div
-            className="reveal-screen__seed"
-            style={{ backgroundImage: locked?.image ? `url(${locked.image})` : undefined }}
-          />
-          <span>Companion</span>
-        </div>
-        <button type="button" className="reveal-screen__exit" onClick={onRestart}>
-          Exit Experience
-        </button>
-      </aside>
 
-      <button type="button" className="btn-primary reveal-screen__cta" onClick={onRestart}>
-        Step into the installation <span aria-hidden>→</span>
-      </button>
+          <div className="reveal-screen__debra-panel">
+            <DebraOrb size="md" />
+            <div>
+              <p className="reveal-screen__debra-label">Debra AI interface</p>
+              <p className="reveal-screen__debra-line" role="status" aria-live="polite">
+                {DEBRA_STATION.chamberInvite}
+              </p>
+            </div>
+          </div>
+        </main>
+
+        <aside className="reveal-screen__rail">
+          <div className="reveal-screen__identity">
+            <h2>Debra OS</h2>
+            <p>v.2.0.4-mirror</p>
+          </div>
+          <SystemLog lines={session.systemLogs} maxVisible={8} title="Session log" />
+          <button type="button" className="reveal-screen__terminate" onClick={onRestart}>
+            End session
+          </button>
+        </aside>
+      </div>
+
+      <BottomNav
+        onBack={onRestart}
+        onNext={onRestart}
+        nextLabel="Continue session"
+        advisory="Chamber ready"
+      />
     </section>
   )
 }

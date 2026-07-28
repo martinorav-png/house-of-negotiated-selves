@@ -1,0 +1,54 @@
+/* ARCHIVED — not imported by global.css.
+   Soft Future blush/coral baseline kept for historical comparison only.
+   Active Soft Future successors: night-companion, porcelain-confessional, liquid-mirror.
+   getDirection() rejects status: 'archive', so ?direction=soft-future falls back to institutional. */
+
+.kiosk[data-direction='soft-future'] {
+  --void: #fef8f4;
+  --surface: #fef8f4;
+  --panel: #f3ede9;
+  --panel-raised: #ede7e3;
+  --border: #ddc0be;
+  --border-bright: #c9a8a5;
+  --text: #1d1b19;
+  --text-secondary: #564241;
+  --text-muted: #8a7170;
+  --phosphor: #a43a3d;
+  --phosphor-dim: #ff7f7f;
+  --phosphor-glow: rgba(164, 58, 61, 0.18);
+  --phosphor-muted: rgba(164, 58, 61, 0.65);
+  --amber: #ff5c47;
+  --amber-glow: rgba(255, 92, 71, 0.2);
+  --alert: #b52619;
+  --field-bg: #ffffff;
+  --field-fg: #1d1b19;
+  --field-border: #ddc0be;
+  --accent: #a43a3d;
+  --accent-dim: #ff7f7f;
+  --debra-line: #564241;
+  --radius: 1rem;
+  --radius-md: 1.25rem;
+  --font-display: 'Instrument Serif', Georgia, serif;
+  --font-body: 'Bricolage Grotesque', system-ui, sans-serif;
+  --font-mono: 'Space Mono', ui-monospace, monospace;
+  --scanline-opacity: 0;
+  --ambient-glow: radial-gradient(
+      ellipse 50% 45% at 25% 30%,
+      rgba(255, 180, 168, 0.22),
+      transparent 60%
+    ),
+    radial-gradient(ellipse 45% 40% at 75% 70%, rgba(222, 191, 194, 0.2), transparent 55%);
+}
+
+.kiosk[data-direction='soft-future'] .chip {
+  border-radius: 9999px;
+}
+
+.kiosk[data-direction='soft-future'] .btn-primary,
+.kiosk[data-direction='soft-future'] .btn-secondary {
+  border-radius: 9999px;
+}
+
+.kiosk[data-direction='soft-future']::after {
+  opacity: 0;
+}

@@ -1,10 +1,11 @@
 {
-  "name": "house-of-negotiated-selves",
+  "name": "ars-electronica",
   "private": true,
   "type": "module",
   "scripts": {
     "env:create": "bash scripts/create-env.sh",
     "samples:debra": "node scripts/generate-debra-samples.mjs",
+    "install:mock": "npm --prefix mock-ui install",
     "mock": "npm --prefix mock-ui run dev",
     "mock:build": "npm --prefix mock-ui run build"
   }

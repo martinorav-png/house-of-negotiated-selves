@@ -1,16 +1,13 @@
-import { useMemo, useState } from 'react'
-import { BottomNav } from '../components/BottomNav'
-import { DebraOrb } from '../components/DebraOrb'
-import { PersonaPfp } from '../components/PersonaPfp'
-import { ThoughtBubble } from '../components/ThoughtBubble'
-import { TopBar } from '../components/TopBar'
-import { TraitTicks } from '../components/TraitTicks'
-import { MATCH_PERSONAS, pickLockedPersona } from '../data/content'
-import type { SessionState, TraitKey } from '../types'
+import { useState } from 'react'
+import { LieDetector } from '../components/LieDetector'
+import { StationShell } from '../components/StationShell'
+import { DEBRA_STATION, STATION3_STEPS, seedPersonaFromAnswers } from '../data/content'
+import type { SessionState } from '../types'
 import './MatchesScreen.css'
 
 type Props = {
   session: SessionState
+  visitorId?: string
   onRestart: () => void
   onBack: () => void
   onComplete: (payload: {
@@ -22,136 +19,184 @@ type Props = {
   }) => void
 }
 
-const EXCHANGES = 4
-
-export function MatchesScreen({ session, onRestart, onBack, onComplete }: Props) {
-  const [activeIndex, setActiveIndex] = useState(2)
-  const [answers, setAnswers] = useState(session.matchAnswers)
-  const [weights, setWeights] = useState(session.traitWeights)
+export function MatchesScreen({ session, visitorId, onRestart, onBack, onComplete }: Props) {
+  const [step, setStep] = useState(0)
+  const [answers, setAnswers] = useState<string[]>([])
   const [logs, setLogs] = useState(session.systemLogs)
-  const [bubbleKey, setBubbleKey] = useState(0)
-  const [locking, setLocking] = useState(false)
-  const [lockedId, setLockedId] = useState<string | null>(null)
+  const [confidence, setConfidence] = useState(session.confidence)
+  const [blankValues, setBlankValues] = useState<Record<string, string>>({})
+  const [text, setText] = useState('')
+  const [finishing, setFinishing] = useState(false)
+  const [yesNoBusy, setYesNoBusy] = useState(false)
 
-  const persona = MATCH_PERSONAS[activeIndex]
-  const answeredIds = useMemo(() => answers.map((a) => a.personaId), [answers])
-  const exchange = answers.length
-  const progress = 50 + (Math.min(exchange + 1, EXCHANGES) / EXCHANGES) * 25
+  const current = STATION3_STEPS[step]
+  const total = STATION3_STEPS.length
+  const progress = 40 + ((step + 1) / total) * 30
 
-  function answer(label: string, traits: Partial<Record<TraitKey, number>>) {
-    if (locking) return
+  function finish(nextAnswers: string[], nextLogs: string[], nextConfidence: number) {
+    setFinishing(true)
+    const locked = seedPersonaFromAnswers([...session.selfAnswers, ...session.desireAnswers, ...nextAnswers])
+    const finalLogs = [
+      ...nextLogs,
+      DEBRA_STATION.chamberInvite,
+      `match seed locked · ${locked}`,
+      'profile complete · chamber ready',
+    ]
+    setLogs(finalLogs)
+    window.setTimeout(() => {
+      onComplete({
+        matchAnswers: nextAnswers.map((label, i) => ({
+          personaId: `s3-${i}`,
+          label,
+        })),
+        traitWeights: session.traitWeights,
+        lockedPersonaId: locked,
+        logs: finalLogs,
+        confidence: Math.min(98.4, nextConfidence + 8),
+      })
+    }, 1800)
+  }
 
-    const nextWeights = { ...weights }
-    for (const [key, value] of Object.entries(traits) as [TraitKey, number][]) {
-      nextWeights[key] = (nextWeights[key] ?? 0) + value
-    }
-
-    const nextAnswers = [...answers, { personaId: persona.id, label }]
-    const nextLogs = [...logs, `preference logged · ${persona.name.toLowerCase()}`]
-    setWeights(nextWeights)
+  function advance(value: string) {
+    if (finishing) return
+    const nextAnswers = [...answers, value]
+    const nextLogs = current.log ? [...logs, current.log] : logs
+    const nextConfidence = Math.min(98.4, confidence + 5.2)
+    if (current.log) setLogs(nextLogs)
+    setConfidence(nextConfidence)
     setAnswers(nextAnswers)
-    setLogs(nextLogs)
+    setText('')
+    setBlankValues({})
+    setYesNoBusy(false)
 
-    if (nextAnswers.length >= EXCHANGES) {
-      const locked = pickLockedPersona(
-        nextWeights,
-        nextAnswers.map((a) => a.personaId),
-      )
-      setLockedId(locked)
-      setLocking(true)
-      setLogs((l) => [...l, `match seed locked · ${locked}`])
-      window.setTimeout(() => {
-        onComplete({
-          matchAnswers: nextAnswers,
-          traitWeights: nextWeights,
-          lockedPersonaId: locked,
-          logs: [...nextLogs, `match seed locked · ${locked}`],
-          confidence:
-            68 +
-            nextAnswers.length * 5 +
-            Math.min(12, Object.values(nextWeights).reduce((a, b) => a + b, 0)),
-        })
-      }, 1400)
+    if (step >= total - 1) {
+      finish(nextAnswers, nextLogs, nextConfidence)
       return
     }
-
-    const nextIndex = (activeIndex + 1) % MATCH_PERSONAS.length
-    setActiveIndex(nextIndex)
-    setBubbleKey((k) => k + 1)
+    setStep((s) => s + 1)
   }
 
-  function focusPersona(index: number) {
-    if (locking) return
-    setActiveIndex(index)
-    setBubbleKey((k) => k + 1)
+  function handleBlanksNext() {
+    if (!current.blanks) return
+    const filled = current.blanks.every((b) => blankValues[b.key]?.trim())
+    if (!filled) return
+    const value = current.blanks
+      .map((b) => `${b.label} ${blankValues[b.key].trim()}`)
+      .join(' · ')
+    advance(value)
   }
+
+  function handleTextNext() {
+    const value = text.trim()
+    if (!value) return
+    advance(value)
+  }
+
+  function handleYesNo(answer: 'yes' | 'no') {
+    setYesNoBusy(true)
+    advance(answer)
+  }
+
+  const blanksReady =
+    current.kind === 'blanks' &&
+    Boolean(current.blanks?.every((b) => blankValues[b.key]?.trim()))
+
+  const canNext =
+    current.kind === 'blanks'
+      ? blanksReady
+      : current.kind === 'text'
+        ? Boolean(text.trim())
+        : false
 
   return (
-    <section className="screen matches-screen">
-      <TopBar onClose={onRestart} progress={progress} />
-      <h1 className="matches-screen__title">03 Matches</h1>
-      <TraitTicks weights={weights} />
-
-      <div className="matches-screen__row" role="list">
-        {MATCH_PERSONAS.map((p, index) => {
-          const isActive = !locking && index === activeIndex
-          const isLocked = locking && p.id === lockedId
-          const answered = answeredIds.includes(p.id)
-          return (
-            <div key={p.id} className="matches-screen__slot" role="listitem">
-              <div className="matches-screen__bubble-anchor">
-                {isActive && (
-                  <ThoughtBubble
-                    key={bubbleKey}
-                    visible
-                    name={p.name}
-                    text={`“${p.question}”`}
-                    accent={p.accent}
-                  />
-                )}
-                {isActive && (
-                  <div className="matches-screen__choices">
-                    {p.choices.map((choice) => (
-                      <button
-                        key={choice.label}
-                        type="button"
-                        className="matches-screen__choice"
-                        onClick={() => answer(choice.label, choice.traits)}
-                      >
-                        {choice.label}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-              <PersonaPfp
-                name={p.name}
-                hue={p.hue}
-                accent={p.accent}
-                image={p.image}
-                active={isActive}
-                locked={isLocked}
-                dimmed={locking ? !isLocked : answered && !isActive}
-                idleBubble={!isActive && !locking}
-                onClick={() => focusPersona(index)}
-              />
-            </div>
-          )
-        })}
-      </div>
-
-      {locking && lockedId && (
-        <p className="matches-screen__lock">
-          Locked seed · {MATCH_PERSONAS.find((x) => x.id === lockedId)?.name}
-        </p>
+    <StationShell
+      stationCode="STN-03"
+      stationLabel="Matches"
+      confidence={confidence}
+      visitorId={visitorId}
+      progress={progress}
+      logs={logs}
+      debraLine={
+        finishing
+          ? DEBRA_STATION.chamberInvite
+          : current.debra
+      }
+      showSilhouette
+      glitchLevel={current.kind === 'yesno' ? 3 : 2}
+      onClose={onRestart}
+      nav={{
+        onBack:
+          finishing || yesNoBusy
+            ? undefined
+            : step === 0
+              ? onBack
+              : () => setStep((s) => Math.max(0, s - 1)),
+        onNext:
+          finishing || current.kind === 'yesno'
+            ? undefined
+            : current.kind === 'blanks'
+              ? handleBlanksNext
+              : handleTextNext,
+        nextDisabled: !canNext || finishing,
+        hideBack: finishing,
+        advisory: current.kind === 'yesno' ? 'Polygraph active' : 'Life vision intake',
+      }}
+    >
+      {current.kind !== 'yesno' && (
+        <h2 className={['prompt', current.stranger && 'stranger'].filter(Boolean).join(' ')}>
+          {current.prompt}
+        </h2>
       )}
 
-      <aside className="matches-screen__companion">
-        <DebraOrb size="sm" />
-        <span>Companion</span>
-      </aside>
+      {current.kind === 'blanks' && (
+        <div className="matches-screen__blanks">
+          {current.blanks?.map((blank) => (
+            <label key={blank.key} className="matches-screen__blank">
+              <span className="matches-screen__blank-label">{blank.label}</span>
+              <input
+                className="matches-screen__blank-input"
+                value={blankValues[blank.key] ?? ''}
+                placeholder={blank.placeholder}
+                maxLength={80}
+                disabled={finishing}
+                aria-label={blank.label}
+                onChange={(e) =>
+                  setBlankValues((prev) => ({ ...prev, [blank.key]: e.target.value }))
+                }
+              />
+            </label>
+          ))}
+        </div>
+      )}
 
-      <BottomNav onBack={onBack} />
-    </section>
+      {current.kind === 'text' && (
+        <label className="matches-screen__field">
+          {current.fieldLabel && (
+            <span className="matches-screen__field-label">{current.fieldLabel}</span>
+          )}
+          <input
+            className="matches-screen__text-input"
+            value={text}
+            placeholder={current.placeholder}
+            maxLength={200}
+            disabled={finishing}
+            aria-label={current.fieldLabel ?? current.prompt}
+            autoFocus
+            onChange={(e) => setText(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && text.trim()) handleTextNext()
+            }}
+          />
+        </label>
+      )}
+
+      {current.kind === 'yesno' && (
+        <LieDetector
+          prompt={current.prompt}
+          disabled={finishing || yesNoBusy}
+          onAnswer={handleYesNo}
+        />
+      )}
+    </StationShell>
   )
 }

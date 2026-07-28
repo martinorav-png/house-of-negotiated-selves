@@ -6,9 +6,11 @@
   border-radius: 50%;
   overflow: hidden;
   box-shadow:
-    0 0 28px rgba(255, 92, 71, 0.35),
-    0 8px 24px rgba(164, 58, 61, 0.2);
+    0 0 24px var(--amber-glow),
+    0 0 48px color-mix(in srgb, var(--amber) 15%, transparent),
+    0 4px 16px color-mix(in srgb, var(--void) 55%, transparent);
   animation: orbBreathe 3.6s ease-in-out infinite;
+  border: 1px solid color-mix(in srgb, var(--amber) 40%, transparent);
 }
 
 .debra-orb--sm {
@@ -20,10 +22,11 @@
 }
 
 .debra-orb--lg {
-  --orb-size: min(48vw, 260px);
+  --orb-size: min(38vw, 220px);
   box-shadow:
-    0 0 60px rgba(255, 92, 71, 0.45),
-    0 20px 50px rgba(0, 0, 0, 0.25);
+    0 0 80px var(--amber-glow),
+    0 0 120px color-mix(in srgb, var(--amber) 12%, transparent),
+    0 20px 50px color-mix(in srgb, var(--void) 65%, transparent);
 }
 
 .debra-orb__img {
@@ -39,6 +42,12 @@
     transform: scale(1);
   }
   50% {
-    transform: scale(1.035);
+    transform: scale(1.015);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .debra-orb {
+    animation: none;
   }
 }

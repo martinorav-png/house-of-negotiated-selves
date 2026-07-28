@@ -1,64 +1,55 @@
 :root {
-  /* Soft Future Companion Intake — Stitch design system */
-  --background: #fef8f4;
-  --surface: #fef8f4;
-  --surface-low: #f8f2ef;
-  --surface-container: #f3ede9;
-  --surface-high: #ede7e3;
-  --surface-highest: #e7e1de;
-  --surface-lowest: #ffffff;
-  --on-surface: #1d1b19;
-  --on-surface-variant: #564241;
-  --outline: #8a7170;
-  --outline-variant: #ddc0be;
+  /* Defaults (institutional). Direction CSS overrides via .kiosk[data-direction]. */
+  --void: #08080a;
+  --surface: #0f0f12;
+  --panel: #141418;
+  --panel-raised: #1a1a20;
+  --border: #2a2a32;
+  --border-bright: #3d3d48;
+  --text: #e8e6e1;
+  --text-secondary: #9a97a8;
+  --text-muted: #5c5968;
+  --phosphor: #3dff8a;
+  --phosphor-dim: #1a5c38;
+  --phosphor-glow: rgba(61, 255, 138, 0.22);
+  --phosphor-muted: rgba(61, 255, 138, 0.55);
+  --amber: #ffb347;
+  --amber-glow: rgba(255, 179, 71, 0.35);
+  --alert: #ff4545;
+  --field-bg: #0a0a0c;
+  --field-fg: #f4f2ed;
+  --field-border: #3d3d48;
+  --accent: var(--phosphor);
+  --accent-dim: var(--phosphor-dim);
+  --debra-line: var(--amber);
+  --font-display: 'Syne', system-ui, sans-serif;
+  --font-body: 'Archivo', system-ui, sans-serif;
+  --font-mono: 'Fragment Mono', ui-monospace, monospace;
+  --ambient-glow: radial-gradient(
+      ellipse 40% 35% at 15% 20%,
+      color-mix(in srgb, var(--phosphor) 4%, transparent),
+      transparent 55%
+    ),
+    radial-gradient(
+      ellipse 30% 25% at 85% 75%,
+      color-mix(in srgb, var(--amber) 5%, transparent),
+      transparent 50%
+    );
+  --scanline-opacity: 0.35;
 
-  --primary: #a43a3d;
-  --primary-container: #ff7f7f;
-  --on-primary: #ffffff;
-  --on-primary-container: #74161e;
-  --secondary: #b52619;
-  --secondary-container: #ff5c47;
-  --secondary-fixed: #ffdad4;
-  --secondary-fixed-dim: #ffb4a8;
-  --on-secondary-container: #610000;
-  --on-secondary-fixed-variant: #920703;
-
-  --inverse-surface: #32302e;
-  --dark: #0c0b0a;
-
-  --font-body: 'Bricolage Grotesque', system-ui, sans-serif;
-  --font-label: 'Space Mono', ui-monospace, monospace;
-  --font-soft: 'Instrument Serif', Georgia, serif;
-  --font-display: var(--font-body);
-  --font-mono: var(--font-label);
-
+  /* Stitch spacing scale */
+  --unit: 4px;
+  --gutter: 16px;
+  --margin-page: 32px;
+  --panel-padding: 20px;
   --margin-mobile: 20px;
-  --margin-desktop: 64px;
-  --radius: 1rem;
-  --radius-lg: 2rem;
-  --radius-full: 9999px;
+  --margin-desktop: var(--margin-page);
+  --radius: 2px;
+  --radius-md: 4px;
   --touch: 48px;
 
-  /* aliases used by existing components */
-  --bg-deep: var(--background);
-  --bg: var(--background);
-  --bg-panel: var(--surface-lowest);
-  --bg-elevated: var(--surface-lowest);
-  --line: color-mix(in srgb, var(--outline-variant) 60%, transparent);
-  --line-strong: var(--outline-variant);
-  --mist: var(--on-surface-variant);
-  --text: var(--on-surface);
-  --text-dim: var(--outline);
-  --accent: var(--primary);
-  --accent-deep: var(--secondary);
-  --accent-soft: var(--primary-container);
-  --blush: var(--secondary-fixed);
-  --peach: var(--surface-low);
-  --rose-glow: rgba(164, 58, 61, 0.18);
-  --warm-glow: rgba(255, 92, 71, 0.16);
-  --cyan: var(--primary);
-  --cyan-dim: var(--rose-glow);
-  --amber: var(--secondary);
-  --amber-dim: rgba(181, 38, 25, 0.25);
-  --warmth: 0;
+  --topbar-h: 64px;
+  --bottomnav-h: 80px;
+  --rail-w: 35%;
+  --main-w: 65%;
 }

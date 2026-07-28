@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Design Direction Gallery — House of Negotiated Selves</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;700&family=Fragment+Mono&family=Syne:wght@600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100dvh;
+        font-family: Archivo, system-ui, sans-serif;
+        background: #0c0c0e;
+        color: #e4e2dc;
+        padding: clamp(1.5rem, 4vw, 3rem);
+      }
+
+      .eyebrow {
+        font-family: 'Fragment Mono', monospace;
+        font-size: 0.65rem;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: #6a9e7a;
+        margin: 0 0 0.75rem;
+      }
+
+      h1 {
+        font-family: Syne, system-ui, sans-serif;
+        font-size: clamp(1.75rem, 4vw, 2.5rem);
+        font-weight: 700;
+        letter-spacing: -0.03em;
+        margin: 0 0 0.75rem;
+      }
+
+      .lede {
+        margin: 0 0 2rem;
+        color: #9a97a8;
+        line-height: 1.5;
+        max-width: 52ch;
+      }
+
+      .lede code {
+        font-family: 'Fragment Mono', monospace;
+        font-size: 0.85em;
+        color: #c8c4bc;
+      }
+
+      .toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .btn {
+        font-family: 'Fragment Mono', monospace;
+        font-size: 0.7rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        padding: 0.65rem 1rem;
+        border: 1px solid #3d3d48;
+        border-radius: 2px;
+        background: #141418;
+        color: #3dff8a;
+        cursor: pointer;
+        text-decoration: none;
+      }
+
+      .btn:hover {
+        border-color: #3dff8a;
+      }
+
+      .btn--ghost {
+        color: #9a97a8;
+      }
+
+      .grid {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1.25rem;
+      }
+
+      .card {
+        display: block;
+        text-decoration: none;
+        color: inherit;
+        border: 1px solid #2a2a32;
+        border-radius: 4px;
+        overflow: hidden;
+        transition: border-color 0.15s ease, transform 0.15s ease;
+      }
+
+      .card:hover {
+        border-color: var(--card-b);
+        transform: translateY(-2px);
+      }
+
+      .card-inner {
+        background: linear-gradient(
+          145deg,
+          color-mix(in srgb, var(--card-a) 85%, #000) 0%,
+          #101014 45%,
+          color-mix(in srgb, var(--card-b) 12%, #101014) 100%
+        );
+      }
+
+      .swatches {
+        display: flex;
+        height: 6px;
+      }
+
+      .swatches span {
+        flex: 1;
+      }
+
+      .card-body {
+        padding: 1.25rem 1.35rem 1.35rem;
+      }
+
+      .status {
+        font-family: 'Fragment Mono', monospace;
+        font-size: 0.58rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        padding: 0.2rem 0.45rem;
+        border-radius: 2px;
+        border: 1px solid #2a2a32;
+        color: #9a97a8;
+      }
+
+      .status--active {
+        color: #3dff8a;
+        border-color: #1a5c38;
+      }
+
+      .card h2 {
+        font-family: Syne, system-ui, sans-serif;
+        font-size: 1.15rem;
+        font-weight: 700;
+        margin: 0.75rem 0 0.35rem;
+      }
+
+      .card p {
+        margin: 0 0 1rem;
+        font-size: 0.88rem;
+        color: #9a97a8;
+        line-height: 1.45;
+      }
+
+      .meta {
+        margin: 0 0 1rem;
+        font-size: 0.75rem;
+        color: #c8c4bc;
+      }
+
+      .meta dt {
+        display: inline;
+        color: #5c5968;
+        font-family: 'Fragment Mono', monospace;
+        font-size: 0.6rem;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+      }
+
+      .meta dt::after {
+        content: ': ';
+      }
+
+      .meta dd {
+        display: inline;
+        margin: 0;
+      }
+
+      .meta div {
+        margin-bottom: 0.35rem;
+      }
+
+      .enter {
+        font-family: 'Fragment Mono', monospace;
+        font-size: 0.65rem;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--card-b);
+      }
+
+      .empty {
+        color: #9a97a8;
+        font-size: 0.9rem;
+      }
+    </style>
+  </head>
+  <body>
+    <p class="eyebrow">House of Negotiated Selves · Mock UI</p>
+    <h1>Design direction gallery</h1>
+    <p class="lede">
+      Pick a visual world to enter the six-screen intake flow. Soft Future was split into
+      three unique directions (Night, Porcelain, Liquid). Edit
+      <code>public/design-directions.json</code> to register more.
+    </p>
+
+    <div class="toolbar">
+      <a class="btn" href="/">Open app gallery</a>
+      <a class="btn btn--ghost" href="/?direction=night-companion">Night Companion</a>
+      <a class="btn btn--ghost" href="/?direction=porcelain-confessional">Porcelain</a>
+      <a class="btn btn--ghost" href="/?direction=liquid-mirror">Liquid Mirror</a>
+    </div>
+
+    <ul class="grid" id="grid">
+      <li class="empty">Loading directions…</li>
+    </ul>
+
+    <script>
+      function escapeHtml(s) {
+        const el = document.createElement('span')
+        el.textContent = s
+        return el.innerHTML
+      }
+
+      function renderCard(d) {
+        const li = document.createElement('li')
+        const a = document.createElement('a')
+        a.className = 'card'
+        a.href = `/?direction=${encodeURIComponent(d.id)}`
+        a.style.setProperty('--card-a', d.swatches[0])
+        a.style.setProperty('--card-b', d.swatches[1])
+        a.style.setProperty('--card-c', d.swatches[2])
+        a.style.setProperty('--card-d', d.swatches[3])
+
+        const swatchHtml = d.swatches
+          .map((c) => `<span style="background:${c}"></span>`)
+          .join('')
+
+        a.innerHTML = `
+          <div class="card-inner">
+            <div class="swatches" aria-hidden="true">${swatchHtml}</div>
+            <div class="card-body">
+              <span class="status status--${d.status}">${d.status}</span>
+              <h2>${escapeHtml(d.name)}</h2>
+              <p>${escapeHtml(d.tagline)}</p>
+              <dl class="meta">
+                <div><dt>Mood</dt><dd>${escapeHtml(d.mood)}</dd></div>
+                <div><dt>Fonts</dt><dd>${escapeHtml(d.fonts)}</dd></div>
+              </dl>
+              <span class="enter">Enter flow →</span>
+            </div>
+          </div>
+        `
+        li.appendChild(a)
+        return li
+      }
+
+      async function init() {
+        const grid = document.getElementById('grid')
+        let directions = []
+        try {
+          const res = await fetch('/design-directions.json')
+          const data = await res.json()
+          directions = (data.directions || []).filter((d) => d.status !== 'archive')
+        } catch {
+          directions = []
+        }
+
+        grid.replaceChildren()
+        if (!directions.length) {
+          const li = document.createElement('li')
+          li.className = 'empty'
+          li.textContent = 'Could not load design-directions.json'
+          grid.appendChild(li)
+          return
+        }
+        directions.forEach((d) => grid.appendChild(renderCard(d)))
+      }
+
+      init()
+    </script>
+  </body>
+</html>

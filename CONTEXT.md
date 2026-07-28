@@ -54,8 +54,9 @@ Interactive solo installation about the line between human autonomy and machine 
 ## What’s in this repo
 
 ```
-ars-electronica/
+ARS-electronica/
 ├── CONTEXT.md                 ← this file
+├── README.md
 ├── package.json               ← root scripts (mock, samples)
 ├── .env.example               ← ELEVENLABS_API_KEY only
 ├── scripts/
@@ -63,10 +64,15 @@ ars-electronica/
 │   ├── generate-debra-samples.mjs
 │   ├── create-env.sh
 │   └── slack-debra-vote-draft.md
-└── mock-ui/                   ← Vite + React kiosk mock (Soft Future Companion)
-    ├── src/                   ← screens + ReflectiveCard + DebraOrb
-    ├── public/stitch/         ← orb + match assets from Stitch
-    ├── stitch/                ← downloaded Stitch HTML + screenshots
+├── mock-ui/                   ← Vite + React kiosk mock (Soft Future Companion)
+│   ├── src/                   ← screens + ReflectiveCard + DebraOrb
+│   ├── public/stitch/         ← orb + match assets from Stitch
+│   ├── stitch/                ← downloaded Stitch HTML + screenshots
+│   └── README.md
+└── mirror/                    ← Flutter room simulation + future Pi kiosk UI
+    ├── lib/simulation/        ← 2D digital twin (top-down room view)
+    ├── lib/mirror/            ← production mirror UI (to do)
+    ├── AGENTS.md              ← architecture notes
     └── README.md
 ```
 
@@ -83,8 +89,8 @@ Clickable landscape kiosk prototype.
 **Run on a new machine:**
 
 ```bash
-git clone <this-repo-url>
-cd ars-electronica   # or repo folder name
+git clone https://github.com/martinorav-png/house-of-negotiated-selves.git ARS-electronica
+cd ARS-electronica
 cp .env.example .env # add ElevenLabs key only if generating Debra samples
 cd mock-ui && npm install && cd ..
 npm run mock
@@ -201,4 +207,4 @@ External planning: EKA board PDF/PNG in Documents; Notion page may exist under �
 5. Optional: copy `.env.example` → `.env` for Debra sample generation  
 6. Optional: open Figma file linked above for visual source of truth  
 
-**Bottom line:** This repo is Debra voice tooling + a full Soft Future Companion **kiosk mock** of survey → partner matches → companion reveal. Physical install + Unity + Meshy are designed but not implemented here yet.
+**Bottom line:** This repo is Debra voice tooling + a full Soft Future Companion **kiosk mock** of survey → partner matches → companion reveal, plus a Flutter **mirror/** subproject for room simulation and future Pi kiosk builds. Physical install + Unity + Meshy are designed but not implemented here yet.
