@@ -2,23 +2,47 @@
 
 Ars Electronica 2026 · Theme: **Future Begins – Negotiating Humanity**  
 Festival starts: **9 September 2026**  
-Package / repo name: `house-of-negotiated-selves`
+Package / repo: [`house-of-negotiated-selves`](https://github.com/martinorav-png/house-of-negotiated-selves)  
+Branch to pull: **`main`**
 
-This file is the handoff doc so another machine (or agent) can continue without chat history.
+This file is the handoff so another machine (or agent) can continue without chat history.
+
+---
+
+## Where we left off (Aug 2026)
+
+**Active visual direction: Datebooth** — dark boutique matching UI (charcoal void + soft rose). Romance / “perfect AI companion” framing with uncanny retail certainty (`AVAILABLE TONIGHT`).
+
+| Doc / code | Status |
+|------------|--------|
+| `DESIGN.md` | **Datebooth system** locked from approved Entry screen |
+| `datebooth-ui/` | **Active React app** — stations About You → How You Love → Matches → Forging → Reveal (no Entry intro screen in code yet) |
+| `mock-ui/` | Legacy Institutional + Soft Future gallery; still holds canonical station scripts in `src/data/content.ts` |
+| Entry Stitch/Firefly | Datebooth Entry designed; Entry not yet ported into `datebooth-ui` App flow |
+| Stitch MCP | Optional local MCP via `npx stitch-mcp-stdio` + `STITCH_API_KEY` in `~/.cursor/mcp.json` (never commit the key) |
+
+**Next useful steps on MacBook**
+
+1. `cd datebooth-ui && npm install && npm run dev` → http://localhost:5174  
+2. Port **Entry** screen into `datebooth-ui` (see `DESIGN.md` Entry lock)  
+3. Align Desire station if missing vs journey (current flow jumps About You → How You Love)  
+4. Keep Debra as **Companion Guide**, not the user; Entry = intro only (no personal data fields)  
+5. Physical journey scripts: `userjourney2.pdf` is local-only (gitignored, >100MB). Copy from the other machine or FigJam if needed.
 
 ---
 
 ## Concept
 
-Interactive solo installation about the line between human autonomy and machine representation, framed as a funhouse mirror. The visitor is reflected accurately at first, then the system gradually distorts, predicts, and misrepresents them. The question: when does reflection become substitution, and when does a machine start speaking *for* someone?
+Interactive solo installation about the line between human autonomy and machine representation, framed as a funhouse mirror. The visitor is reflected accurately at first, then the system gradually distorts, predicts, and misrepresents them.
 
-**Core principle:** Debra (AI guide) is warm and sycophantic so visitors share freely. Extraction feels safe. The “forced” quality is revealed **retroactively** when the system keeps using what was given and stops asking permission.
+**Core principle:** Debra (AI guide) is warm and sycophantic so visitors share freely. Extraction feels safe. The “forced” quality is revealed **retroactively** when the system keeps using what was given.
 
-**Current digital mock framing (Soft Future Companion):** the intake builds a **partner / companion**, not a “new self.”  
-- **Self** = who the visitor is  
+**Digital framing:** intake builds a **partner / companion**, not a “new self.”
+
+- **Self / About You** = who the visitor is  
 - **Desire** = what they want in a partner  
-- **Matches** = candidate partners ask questions  
-- **Generating / Reveal** = the **companion** is forged and shown  
+- **Matches / How You Love** = life vision, dealbreakers, intimate yes/no; personas may ask questions  
+- **Generating / Forging / Reveal** = the **companion** is forged and shown  
 
 ---
 
@@ -28,26 +52,29 @@ Interactive solo installation about the line between human autonomy and machine 
 - Corridor with **three right turns**, LED floor guides → **hexagonal final room** (mirrored walls + screen)  
 - Exit curtained near entry (“end of the loop”)  
 - Latex curtains + red/green lighting between stages  
-- Aesthetic: **factory/clinical** physical space (muted, matte, latex). Digital UI currently uses Soft Future blush/coral (*Her*-adjacent), which can diverge from physical finish.  
+- Physical aesthetic: **factory/clinical** (muted, matte, latex)  
+- Production mirrors: **24″ portrait**; digital Datebooth is portrait-first (pillarboxed on wide browsers)
 
 ---
 
-## Station journey
+## Station journey (exhibit)
 
 | Stage | Role |
 |--------|------|
-| Entry / lobby | Debra greets; orchestrator (human+AI) behind the scenes |
-| Station 1 — Self | Keyboard/tablet survey, unsettling random Q, ringlight ID photo, hesitation logging, ~1 min voice sample |
-| Station 2 — Desire | Partner preferences; questions get stranger; avatar/companion gen starts in background |
-| Station 3 — Matches | Template persona PFPs ask questions via thought bubbles; answers weight traits for the companion |
-| Final hexagon | Screen avatar (Unity stretch); voice stranger→visitor clone; confidence HUD; false memory; assertion; gentle leave pushback |
-| Exit | Photocard × dating-profile keepsake + QR data receipt (EU AI Act disclosure) |
+| Outside / Entry | Terms, queue, Debra intro (spatial + voice); on-screen Entry is short intro only |
+| Station 1 — Self | Survey + ID photo; Debra coaches |
+| Station 2 — Desire | Partner preferences; silhouette densifies |
+| Station 3 — Matches | Life vision / dealbreakers / yes-no (or persona questions in Datebooth port) |
+| Revealing chamber | Multi-screen avatar encounter (Unity); not in mock yet |
+| Exit | Photocard + QR data receipt (EU AI Act) |
 
 **Characters**
 
-- **Debra:** non-human **orb** (not a face). Pre-recorded ElevenLabs voice (v3 emotion tags). Not live TTS.  
-- **Final companion avatar:** live TTS (Flash); only live voice in the piece.  
-- **Orchestrator:** hidden human (+ AI), can be glimpsed behind a curtain.  
+- **Debra:** Companion Guide. Datebooth UI: faceless rose-rim silhouette (not glass orb). Voice: pre-recorded ElevenLabs v3.  
+- **Final companion avatar:** live TTS in chamber; only live voice in the piece.  
+- **Orchestrator:** hidden human (+ AI), can be glimpsed behind a curtain.
+
+Canonical spoken entrance monologue: `scripts/debra-intro.txt` (on-screen Entry copy is separate).
 
 ---
 
@@ -55,82 +82,79 @@ Interactive solo installation about the line between human autonomy and machine 
 
 ```
 ARS-electronica/
-├── CONTEXT.md                 ← this file
+├── CONTEXT.md              ← this file
+├── DESIGN.md               ← Datebooth design system (active)
+├── PRODUCT.md              ← Impeccable product context
 ├── README.md
-├── package.json               ← root scripts (mock, samples)
-├── .env.example               ← ELEVENLABS_API_KEY only
-├── scripts/
-│   ├── debra-intro.txt        ← canonical Debra entry monologue
-│   ├── generate-debra-samples.mjs
-│   ├── create-env.sh
-│   └── slack-debra-vote-draft.md
-├── mock-ui/                   ← Vite + React kiosk mock (Soft Future Companion)
-│   ├── src/                   ← screens + ReflectiveCard + DebraOrb
-│   ├── public/stitch/         ← orb + match assets from Stitch
-│   ├── stitch/                ← downloaded Stitch HTML + screenshots
+├── package.json            ← root scripts
+├── datebooth-ui/           ← ACTIVE Datebooth Vite + React app
+│   ├── src/screens/        ← AboutYou, HowYouLove, Matches, Forging, Reveal
+│   ├── src/components/     ← ScreenShell, NightTag, CompanionVitrine, …
+│   ├── public/assets/      ← personas + ambient / forging stills
 │   └── README.md
-└── mirror/                    ← Flutter room simulation + future Pi kiosk UI
-    ├── lib/simulation/        ← 2D digital twin (top-down room view)
-    ├── lib/mirror/            ← production mirror UI (to do)
-    ├── AGENTS.md              ← architecture notes
-    └── README.md
+├── mock-ui/                ← legacy Institutional + Soft Future gallery
+│   ├── src/data/content.ts ← Debra station scripts (word-for-word)
+│   ├── stitch/             ← Stitch HTML + screenshots
+│   └── public/stitch/
+├── mirror/                 ← Flutter room sim + future Pi kiosk
+└── scripts/                ← Debra sample generation
 ```
 
-**Not committed (and should stay out):** `.env`, `node_modules/`, `samples/*.mp3`, `mock-ui/dist/`
+**Not committed:** `.env`, `node_modules/`, `samples/*.mp3`, `*/dist/`, `userjourney.pdf` / `userjourney2.pdf` (too large for GitHub), Cursor/Claude local config, Stitch API keys.
 
 ---
 
-## Mock UI (current digital flow)
+## Datebooth UI (active)
 
-Clickable landscape kiosk prototype.
+Portrait boutique matching flow.
 
-**Flow:** Welcome → 01 Self → 02 Desire → 03 Matches → 04 Generating → 05 Reveal  
+**Flow in code today:** About You → How You Love → Matches → Forging → Reveal  
 
 **Run on a new machine:**
 
 ```bash
-git clone https://github.com/martinorav-png/house-of-negotiated-selves.git ARS-electronica
-cd ARS-electronica
-cp .env.example .env # add ElevenLabs key only if generating Debra samples
-cd mock-ui && npm install && cd ..
-npm run mock
+git clone https://github.com/martinorav-png/house-of-negotiated-selves.git
+cd house-of-negotiated-selves/datebooth-ui
+npm install
+npm run dev
 ```
 
-Open the Vite URL (usually `http://127.0.0.1:5173`).  
-For the ID ringlight camera: use **Chrome/Safari** on localhost, click **Enable camera** on Station 01 (browser needs a user gesture). Cursor’s embedded preview often cannot access the webcam.
+Open **http://localhost:5174**.
 
-**Design tokens (Soft Future):**
+**Design tokens (see `DESIGN.md`):**
 
-- Background `#fef8f4`, primary `#a43a3d`, coral containers `#ff7f7f`  
-- Type in **code:** Instrument Serif (prompts) · Bricolage Grotesque · Space Mono  
-- Type in **Figma export:** **Syne** (sans display, replaced serif) · Bricolage · Space Mono  
-- Debra: glass orb image `mock-ui/public/stitch/debra-orb.jpg`  
-- Station 01 ID panel: `ReflectiveCard` (webcam + metallic glass effect, `lucide-react`)
+- Void `#0D0D0D` · Rose `#F5B8C4` · ink on rose near-black  
+- Display: Cormorant Garamond (tracked caps) · Body: Manrope  
+- Components: NightTag (`AVAILABLE TONIGHT` / `RESERVED` / `MATCHED`), heart-key CTA, silhouette + pedestal, diamond/heart ornaments  
 
-**Partner framing copy examples:** “Forging your match…”, “Your Companion”, match PFPs asking questions.
+**Entry screen (designed, not in App yet):**
 
----
-
-## Stitch project
-
-- Title: **Soft Future Companion Intake**  
-- ID: `695494198560560923`  
-- Screens were pulled via `@google/stitch-sdk` (`getHtml` / `getImage`) into `mock-ui/stitch/`  
-- Runtime copies under `mock-ui/public/stitch/`  
-- Design-system asset stub ID did not fetch via `get_screen`; tokens taken from screen HTML  
-
-Stitch MCP (optional): Cursor `~/.cursor/mcp.json` may contain `stitch.googleapis.com/mcp` with an API key. Do not commit that key.
+- Title: `YOUR PERFECT COMPANION`  
+- Debra = Companion Guide; short intro only; CTA `BEGIN VIEWING`  
+- Tag: `AVAILABLE TONIGHT`  
 
 ---
 
-## Figma
+## Legacy mock-ui
 
-- Connected account: Martin Orav  
-- Soft Future screens pushed to:  
-  **https://www.figma.com/design/7Aas74MjjERLHKuc9blj8y**  
-  File name: Soft Future Companion Intake  
-- Screens: 00 Welcome … 05 Reveal (1440×900), Syne instead of serif  
-- Created under Martin Orav’s team drafts (also has EKA digitoode + Avail plans)  
+Still useful for:
+
+- Multi-direction design gallery  
+- Station scripts in `mock-ui/src/data/content.ts` (`DEBRA_STATION`, Self / Desire / Station3 steps)  
+- Older Soft Future / Institutional Stitch exports  
+
+```bash
+cd mock-ui && npm install && npm run dev
+```
+
+---
+
+## Stitch / Firefly / Figma
+
+- **Stitch MCP (Cursor):** `stitch` server via `npx -y stitch-mcp-stdio` and `STITCH_API_KEY` in `~/.cursor/mcp.json`. Do not commit keys. After adding MCP mid-chat, open a **new** Agent chat so tools load.  
+- **SDK:** `@google/stitch-sdk` in `mock-ui` (older Soft Future project id `695494198560560923`).  
+- **Figma (older Soft Future):** https://www.figma.com/design/7Aas74MjjERLHKuc9blj8y  
+- **Datebooth comps:** Entry approved in Stitch/Firefly exploration; keep regenerating other stations against `DESIGN.md` + Entry reference.
 
 ---
 
@@ -139,72 +163,58 @@ Stitch MCP (optional): Cursor `~/.cursor/mcp.json` may contain `stitch.googleapi
 ```bash
 cp .env.example .env
 # set ELEVENLABS_API_KEY=
-npm run env:create   # optional helper
 npm run samples:debra
 ```
 
-- Debra: **pre-recorded**, model `eleven_v3` for `[happy]`, `[chuckles]`, `[thoughtful]`  
+- Debra: **pre-recorded**, model `eleven_v3`  
 - Canonical intro: `scripts/debra-intro.txt`  
-- Voice candidate historically narrowed toward Hope / vote drafts; re-check `samples/` locally (gitignored)  
 
 ---
 
-## Intended production stack (not built in this repo yet)
+## Intended production stack (not built here yet)
 
 - Hub: Mac Mini orchestration  
 - Clients: Raspberry Pi + displays, two-way mirrors  
 - Voice nodes: ESP-VoCat  
-- Avatar pipeline: 2D A-pose prompt → Meshy/Tripo image-to-3D → Unity screen  
-- Lighting: Hue or LIFX + PIR; Node / Node-RED  
-- No live face biometrics; no live scraping of visitors  
-- EU AI Act disclosure folded into QR data receipt  
-
-**Avatar prompt constraints:** full body, A-pose, plain background, stylized/low-poly, muted clinical palette, not photoreal.
+- Avatar pipeline: 2D A-pose → Meshy/Tripo → Unity  
+- Lighting: Hue/LIFX + PIR  
+- No live face biometrics; EU AI Act disclosure on QR receipt  
 
 ---
 
 ## Locked decisions
 
 - No hologram → screen + Unity  
-- Keyboard/tablet at stations 1–2  
-- Factory/clinical **physical** aesthetic  
-- Debra = orb, not human face  
-- One live companion avatar per visitor + template matches at station 3  
-- Pre-generated fallback avatar library required  
+- Keyboard at interactive stations  
+- Factory/clinical **physical** space  
+- Digital direction currently **Datebooth** (rose boutique), not Soft Future blush  
+- Debra = Companion Guide (Datebooth silhouette; older docs may still say orb)  
+- One live companion avatar per visitor + fallback library  
+- Copy rule: **no em dashes** in UI copy  
+- Content: **SFW**, gallery-safe  
 
 ## Still open
 
-- 18+ vs SFW  
-- Exact display sizes (7″ vs 21–24″)  
+- Wire Entry into `datebooth-ui`  
+- Desire station vs How You Love naming / order vs journey PDF  
 - Hexagon exit door vs retrace  
-- Secondary senses (scent, temp, pulse)  
-- Aligning physical factory look with Soft Future digital blush UI  
+- Align physical factory finish with Datebooth digital rose  
+- Exact production display sizes  
 
 ---
 
-## Team (from planning)
+## Team
 
 Paula, Tõnis (Bender), Carina, Johannes Martin, Hendra, Sara, Anett, Martin (digital/technical), collaborator “Bob”. Weekly Mondays.
 
-External planning: EKA board PDF/PNG in Documents; Notion page may exist under “House of Negotiated Selves”.
-
 ---
 
-## Agent / tooling notes
+## Quick checklist on MacBook
 
-- Cursor skills used: Refero design skill, ui-design-brain, Figma MCP (`plugin-figma-figma`)  
-- Prompt rule used recently: **never use em dashes in UI copy** when generating designs  
-- Git: do not commit `.env` or API keys from `~/.cursor/mcp.json`  
+1. `git clone` / `git pull` **main**  
+2. `cd datebooth-ui && npm install && npm run dev`  
+3. Read `DESIGN.md` + this file  
+4. Optional: `mock-ui` for scripts/gallery; `mirror` for Flutter sim  
+5. Optional: Stitch MCP key in local Cursor config only  
 
----
-
-## Quick checklist on a new PC
-
-1. Clone repo, `cd` into it  
-2. `cd mock-ui && npm install`  
-3. `npm run mock` from repo root  
-4. Open localhost in Chrome/Safari  
-5. Optional: copy `.env.example` → `.env` for Debra sample generation  
-6. Optional: open Figma file linked above for visual source of truth  
-
-**Bottom line:** This repo is Debra voice tooling + a full Soft Future Companion **kiosk mock** of survey → partner matches → companion reveal, plus a Flutter **mirror/** subproject for room simulation and future Pi kiosk builds. Physical install + Unity + Meshy are designed but not implemented here yet.
+**Bottom line:** Continue on **`datebooth-ui`** + **`DESIGN.md`**. Legacy **`mock-ui`** keeps scripts and the old gallery. Physical install / Unity / Meshy are designed but not implemented in this repo yet.

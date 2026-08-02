@@ -6,6 +6,8 @@ samples/
 mock-ui/dist/
 mock-ui/node_modules/
 mock-ui/stitch/assets/
+datebooth-ui/dist/
+datebooth-ui/node_modules/
 
 # Flutter mirror subproject
 mirror/.dart_tool/

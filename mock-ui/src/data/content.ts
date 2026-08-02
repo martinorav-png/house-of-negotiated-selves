@@ -204,7 +204,7 @@ export const MATCH_PERSONAS: MatchPersona[] = [
     age: 27,
     hue: 145,
     accent: 'var(--phosphor)',
-    image: '/stitch/03-matches-asset-1.jpg',
+    image: '/assets/personas/persona-1.png',
   },
   {
     id: 'vale',
@@ -212,7 +212,7 @@ export const MATCH_PERSONAS: MatchPersona[] = [
     age: 31,
     hue: 35,
     accent: 'var(--amber)',
-    image: '/stitch/03-matches-asset-2.jpg',
+    image: '/assets/personas/persona-2.png',
   },
   {
     id: 'ren',
@@ -220,7 +220,7 @@ export const MATCH_PERSONAS: MatchPersona[] = [
     age: 24,
     hue: 160,
     accent: 'var(--phosphor)',
-    image: '/stitch/03-matches-asset-3.jpg',
+    image: '/assets/personas/persona-3.png',
   },
   {
     id: 'sol',
@@ -228,7 +228,7 @@ export const MATCH_PERSONAS: MatchPersona[] = [
     age: 29,
     hue: 12,
     accent: 'var(--alert)',
-    image: '/stitch/03-matches-asset-4.jpg',
+    image: '/assets/personas/persona-4.png',
   },
   {
     id: 'kai',
@@ -236,7 +236,7 @@ export const MATCH_PERSONAS: MatchPersona[] = [
     age: 33,
     hue: 200,
     accent: 'var(--amber)',
-    image: '/stitch/03-matches-asset-5.jpg',
+    image: '/assets/personas/persona-5.png',
   },
 ]
 

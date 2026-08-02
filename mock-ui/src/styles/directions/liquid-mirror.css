@@ -1,4 +1,4 @@
-/* C — Liquid Mirror: dark charcoal + iridescent material. Motion carries warmth. */
+/* C - Liquid Mirror: dark charcoal + iridescent material. Motion carries warmth. */
 @property --liquid-hue {
   syntax: '<angle>';
   inherits: true;

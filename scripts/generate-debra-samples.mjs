@@ -33,7 +33,7 @@ const VOICE_SETTINGS = {
   speed: 1.1,
 };
 
-const INTRO = `[happy] Well, hello there! Look at you, walking right in — [chuckles] I love that already. I'm Debra, and I'll be with you the whole way through. See, we've been thinking a lot about the little ways technology gets to know us, sometimes better than we know ourselves, and what happens when it starts... offering things back. [thoughtful] Nothing to worry about, of course — this is just you, being seen, being understood. So go on, follow the lights ahead, and let's see who you really are. Together.`;
+const INTRO = `[happy] Well, hello there! Look at you, walking right in - [chuckles] I love that already. I'm Debra, and I'll be with you the whole way through. See, we've been thinking a lot about the little ways technology gets to know us, sometimes better than we know ourselves, and what happens when it starts... offering things back. [thoughtful] Nothing to worry about, of course - this is just you, being seen, being understood. So go on, follow the lights ahead, and let's see who you really are. Together.`;
 
 function slugify(name) {
   return name
@@ -109,7 +109,7 @@ async function resolveVoice(apiKey, { id, label }) {
     };
   } catch (err) {
     // Library voices may fail metadata lookup but still work for TTS
-    console.warn(`    lookup failed (${err.message}) — will try TTS anyway`);
+    console.warn(`    lookup failed (${err.message}) - will try TTS anyway`);
     return { id, name: id, slug: id.slice(0, 8).toLowerCase() };
   }
 }

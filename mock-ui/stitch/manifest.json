@@ -16,6 +16,17 @@
     "imageBytes": 117063
   },
   {
+    "slug": "01-self-datebooth",
+    "id": "3eb3feb8c45c456ea873639dd89b255c",
+    "projectId": "10208178277831799467",
+    "htmlPath": "stitch/html/01-self-datebooth.html",
+    "htmlBytes": 11147,
+    "imagePath": "stitch/screenshots/01-self-datebooth.png",
+    "imageBytes": 34998,
+    "designSystem": "datebooth",
+    "station": "self"
+  },
+  {
     "slug": "02-desire",
     "id": "dda694ab894b42cdbd148decbb6f3f5c",
     "htmlPath": "stitch/html/02-desire.html",

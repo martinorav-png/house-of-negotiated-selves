@@ -1,0 +1,115 @@
+@import 'tailwindcss';
+
+@theme {
+  --color-void: #070b10;
+  --color-surface: #0f1419;
+  --color-panel: #181c21;
+  --color-panel-lowest: #0a0f14;
+  --color-border: #2a2e33;
+  --color-rose: #f5b8c4;
+  --color-rose-bright: #ffbcd0;
+  --color-rose-deep: #e69fb5;
+  --color-ink-on-rose: #0d0d0d;
+  --color-text: #dfe2ea;
+  --color-text-muted: #d5c2c6;
+  --color-outline: #9e8c90;
+  --color-outline-variant: #514347;
+
+  --font-display: 'Bodoni Moda', Georgia, serif;
+  --font-body: 'Hanken Grotesk', system-ui, sans-serif;
+  --font-label: 'Space Grotesk', monospace;
+}
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  html,
+  body,
+  #root {
+    min-height: 100%;
+  }
+
+  body {
+    margin: 0;
+    background: var(--color-void);
+    color: var(--color-text);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  ::-webkit-scrollbar {
+    width: 0;
+    background: transparent;
+  }
+
+  .material-symbols-outlined {
+    font-variation-settings:
+      'FILL' 0,
+      'wght' 300,
+      'GRAD' 0,
+      'opsz' 24;
+  }
+
+  .material-symbols-outlined.filled {
+    font-variation-settings:
+      'FILL' 1,
+      'wght' 400,
+      'GRAD' 0,
+      'opsz' 24;
+  }
+}
+
+@layer utilities {
+  .font-display {
+    font-family: var(--font-display);
+  }
+
+  .font-label {
+    font-family: var(--font-label);
+  }
+
+  .tracking-caps {
+    letter-spacing: 0.15em;
+  }
+
+  .tracking-wide-caps {
+    letter-spacing: 0.2em;
+  }
+
+  .bureau-border {
+    border: 1px solid var(--color-border);
+  }
+
+  .diamond {
+    width: 8px;
+    height: 8px;
+    transform: rotate(45deg);
+    background: var(--color-outline);
+  }
+
+  .diamond-sm {
+    width: 6px;
+    height: 6px;
+  }
+
+  .mirror-frame {
+    width: 100%;
+    max-width: 28rem;
+    min-height: 100dvh;
+    margin-inline: auto;
+    position: relative;
+    background: var(--color-surface);
+    box-shadow: 0 0 80px rgba(0, 0, 0, 0.65);
+  }
+
+  @media (min-width: 768px) {
+    .mirror-frame {
+      min-height: min(100dvh, 920px);
+      margin-block: 1.5rem;
+      border: 1px solid var(--color-border);
+    }
+  }
+}

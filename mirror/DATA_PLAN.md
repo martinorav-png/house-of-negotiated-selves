@@ -1,6 +1,6 @@
 # Data Plan: Floor Plan & Components
 
-> **Status:** Draft — pending Blender model
+> **Status:** Draft - pending Blender model
 
 ## Source of Truth
 
@@ -8,7 +8,7 @@ The **Blender model** defines all spatial data. A Python export script produces 
 `data/room.json` file committed to the repo. This JSON is the canonical layout description
 for both simulation and kiosk modes.
 
-## `data/room.json` — Schema (draft)
+## `data/room.json` - Schema (draft)
 
 ```jsonc
 {
@@ -61,20 +61,20 @@ for both simulation and kiosk modes.
 
 Coordinates are **metres**, origin at the south-west corner of the room,
 y is up, z points north (towards the north wall at z=0 in screen coords
-will need a mapping step — see Coordinate System below).
+will need a mapping step - see Coordinate System below).
 
 ## Coordinate System
 
 | Axis | Room space | Blender (default) | Screen (2D sim) |
 |------|-----------|-------------------|-----------------|
 | x    | x (east)  | x                 | x               |
-| y    | y (up)    | z                 | —               |
+| y    | y (up)    | z                 | -               |
 | z    | z (north) | y                 | inverted y      |
 
 The Blender export script will normalise everything to the room-space convention
 above. The Flutter rendering layer maps room-space to screen-space.
 
-## SQLite (drift) — Dev Mode Only
+## SQLite (drift) - Dev Mode Only
 
 During development the simulation app reads `room.json` on startup and writes a local
 `room_state.db` (drift). This lets us tweak positions live and save state without

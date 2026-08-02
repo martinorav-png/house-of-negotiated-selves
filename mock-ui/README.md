@@ -1,4 +1,4 @@
-# Soft Future Companion Intake — Mock UI
+# Soft Future Companion Intake - Mock UI
 
 Clickable kiosk mock driven by the Stitch project **Soft Future Companion Intake** (`695494198560560923`).
 
