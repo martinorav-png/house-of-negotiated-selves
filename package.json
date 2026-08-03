@@ -10,6 +10,12 @@
     "datebooth:build": "npm --prefix datebooth-ui run build",
     "install:mock": "npm --prefix mock-ui install",
     "mock": "npm --prefix mock-ui run dev",
-    "mock:build": "npm --prefix mock-ui run build"
+    "mock:build": "npm --prefix mock-ui run build",
+    "install:orb": "npm --prefix orb-ui install",
+    "orb": "npm --prefix orb-ui run dev",
+    "orb:build": "npm --prefix orb-ui run build",
+    "install:orb-platform": "npm --prefix orb-platform install",
+    "orb-platform": "npm --prefix orb-platform run dev",
+    "orb-platform:build": "npm --prefix orb-platform run build"
   }
 }

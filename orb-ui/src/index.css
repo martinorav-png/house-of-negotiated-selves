@@ -1,0 +1,143 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #000000;
+}
+
+body {
+  font-family: 'Orbitron', 'Segoe UI', sans-serif;
+  color: rgba(210, 222, 230, 0.78);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+.screen {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #000000;
+}
+
+.question-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.question {
+  --dx: 0;
+  --dy: 1;
+  --origin-start: min(4rem, 7vmin);
+  --origin: min(11rem, 18vmin);
+  --reach: min(26rem, 40vmin);
+  --reach-exit: min(32rem, 48vmin);
+
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(88vw, 36rem);
+  text-align: center;
+  font-size: clamp(44px, 7.5vw, 60px);
+  line-height: 1.4;
+  letter-spacing: 0.03em;
+  font-weight: 400;
+  opacity: 0;
+  transform: translate(-50%, -50%)
+    translate(calc(var(--dx) * var(--origin-start)), calc(var(--dy) * var(--origin-start)))
+    scale(0.74);
+  filter: blur(12px);
+  will-change: transform, opacity, filter;
+}
+
+.question--visible {
+  animation: question-emerge 2.1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.question--hidden {
+  animation: question-drift 1.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes question-emerge {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%)
+      translate(calc(var(--dx) * var(--origin-start)), calc(var(--dy) * var(--origin-start)))
+      scale(0.74);
+    filter: blur(12px);
+  }
+  40% {
+    opacity: 0.5;
+    filter: blur(5px);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -50%)
+      translate(calc(var(--dx) * var(--reach)), calc(var(--dy) * var(--reach)))
+      scale(1);
+    filter: blur(0);
+  }
+}
+
+@keyframes question-drift {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, -50%)
+      translate(calc(var(--dx) * var(--reach)), calc(var(--dy) * var(--reach)))
+      scale(1);
+    filter: blur(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%)
+      translate(calc(var(--dx) * var(--reach-exit)), calc(var(--dy) * var(--reach-exit)))
+      scale(1.04);
+    filter: blur(10px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .question {
+    transform: translate(-50%, -50%);
+    filter: none;
+  }
+
+  .question--visible {
+    animation: question-emerge-reduced 0.8s ease forwards;
+  }
+
+  .question--hidden {
+    animation: question-drift-reduced 0.6s ease forwards;
+  }
+
+  @keyframes question-emerge-reduced {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes question-drift-reduced {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
+  }
+}

@@ -8,11 +8,20 @@ mock-ui/node_modules/
 mock-ui/stitch/assets/
 datebooth-ui/dist/
 datebooth-ui/node_modules/
+orb-platform/dist/
+orb-platform/node_modules/
+orb-ui/dist/
+orb-ui/node_modules/
 
 # Flutter mirror subproject
 mirror/.dart_tool/
 mirror/build/
 mirror/.flutter-plugins-dependencies
+
+# Team monorepo (nested git clone — see work/README.md)
+work/eka-ars26-house/
+work/eka-ars26-house/.dart_tool/
+work/eka-ars26-house/**/build/
 
 
 # Local agent / temp artifacts
