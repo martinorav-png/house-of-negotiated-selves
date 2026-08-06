@@ -6,12 +6,19 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "vitest run"
   },
   "dependencies": {
+    "@mediapipe/tasks-vision": "^0.10.18",
     "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.7.0",
     "@react-three/postprocessing": "^3.0.4",
+    "animejs": "^4.5.0",
+    "face-api.js": "^0.22.2",
+    "gsap": "^3.15.0",
+    "motion": "^13.0.0",
+    "ogl": "^1.0.11",
     "postprocessing": "^6.39.4",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
@@ -24,6 +31,7 @@
     "@vitejs/plugin-react": "^6.0.3",
     "typescript": "^5.9.3",
     "vite": "^8.1.1",
-    "vite-tsconfig-paths": "^6.1.1"
+    "vite-tsconfig-paths": "^6.1.1",
+    "vitest": "^4.1.10"
   }
 }

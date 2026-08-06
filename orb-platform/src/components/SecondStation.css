@@ -1,0 +1,66 @@
+.second-station {
+  position: relative;
+  min-height: 100svh;
+  overflow: hidden;
+  background: #030406;
+  color: rgba(232, 244, 234, 0.9);
+  font-family: system-ui, sans-serif;
+}
+
+.second-station > .gridscan {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  opacity: 0.92;
+}
+
+.second-station::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(90deg, rgba(3, 4, 6, 0.28), transparent 30%, transparent 70%, rgba(3, 4, 6, 0.28));
+}
+
+.station-card-1 {
+  --card-art:
+    radial-gradient(circle at 28% 62%, rgba(232, 244, 234, 0.86) 0 10%, transparent 32%),
+    linear-gradient(110deg, #e8f4ea 0%, #d2b57f 34%, #242d28 100%);
+}
+
+.station-card-2 {
+  --card-art:
+    radial-gradient(circle at 68% 44%, rgba(200, 220, 205, 0.82) 0 8%, transparent 30%),
+    linear-gradient(115deg, #314035 0%, #a8cdb7 38%, #e8f4ea 74%, #181d19 100%);
+}
+
+.station-card-3 {
+  --card-art:
+    radial-gradient(circle at 62% 30%, rgba(232, 244, 234, 0.88) 0 8%, transparent 24%),
+    linear-gradient(120deg, #d2b57f 0%, #738078 42%, #101411 100%);
+}
+
+.station-card-4 {
+  --card-art:
+    radial-gradient(circle at 57% 24%, rgba(16, 20, 17, 0.9) 0 10%, transparent 24%),
+    linear-gradient(105deg, #c8dccd 0%, #a8cdb7 34%, #314035 68%, #101411 100%);
+}
+
+.station-card-5 {
+  --card-art:
+    radial-gradient(circle at 80% 42%, rgba(210, 181, 127, 0.74) 0 8%, transparent 24%),
+    linear-gradient(112deg, #3d4741 0%, #c8dccd 44%, #d2b57f 72%, #242d28 100%);
+}
+
+.station-card-6 {
+  --card-art:
+    radial-gradient(circle at 52% 34%, rgba(232, 244, 234, 0.86) 0 7%, transparent 21%),
+    linear-gradient(112deg, #e8f4ea 0%, #738078 38%, #242d28 100%);
+}
+
+.station-card-7 {
+  --card-art:
+    radial-gradient(circle at 72% 40%, rgba(200, 220, 205, 0.68) 0 8%, transparent 28%),
+    linear-gradient(112deg, #c8dccd 0%, #3d4741 40%, #101411 100%);
+}

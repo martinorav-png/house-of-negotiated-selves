@@ -34,29 +34,29 @@ export const ORB = {
   hoverDampOut: 2.4,
   scaleDamp: 4.5,
   /** Idle heartbeat ripple (lub–dub) */
-  heartbeatBpm: 64,
-  heartbeatScale: 0.028,
-  heartbeatLight: 0.22,
-  heartbeatRipple: 1,
+  heartbeatBpm: 54,
+  heartbeatScale: 0.016,
+  heartbeatLight: 0.1,
+  heartbeatRipple: 0.52,
 } as const
 
 /** Cool cyan–violet installation palette — restrained scan colours */
 export const PALETTE = {
-  orbCore: '#c8f0ff',
-  orbMid: '#5ec8ff',
-  orbRim: '#7b6cff',
-  orbAccent: '#a8fff0',
-  envPoint: '#6a7380',
-  envPointDim: '#3a424c',
-  wall: '#1a1c1f',
+  orbCore: '#e8f4ea',
+  orbMid: '#a8cdb7',
+  orbRim: '#d2b57f',
+  orbAccent: '#c8dccd',
+  envPoint: '#738078',
+  envPointDim: '#3d4741',
+  wall: '#181d19',
   wallRoughness: 0.82,
-  floor: '#121416',
+  floor: '#101411',
   floorRoughness: 0.55,
-  platform: '#2a2e35',
+  platform: '#242d28',
   platformMetalness: 0.55,
   platformRoughness: 0.35,
-  ambient: '#1a2030',
-  fill: '#304058',
+  ambient: '#172019',
+  fill: '#314035',
 } as const
 
 export const LIGHT = {
@@ -73,15 +73,15 @@ export const LIGHT = {
 } as const
 
 export const CAMERA = {
-  fov: 42,
+  fov: 36,
   near: 0.1,
   far: 60,
   /** Default desktop framing — looking at orb center */
-  position: [0, ORB.baseY + 0.15, 5.4] as [number, number, number],
+  position: [0, ORB.baseY + 0.15, 7.2] as [number, number, number],
   lookAt: [0, ORB.baseY - 0.05, 0] as [number, number, number],
   /** Narrow screens: pull back slightly */
-  narrowZ: 6.4,
-  narrowFov: 48,
+  narrowZ: 8.2,
+  narrowFov: 42,
   narrowBreakpoint: 720,
 } as const
 
@@ -89,44 +89,46 @@ export const PARTICLES = {
   count: 140,
   reducedCount: 48,
   lifetime: 0.95,
-  speedMin: 1.8,
-  speedMax: 4.2,
+  speedMin: 1.2,
+  speedMax: 3.1,
   size: 1.8,
 } as const
 
 /** Point-cloud densities — tune for GPU */
 export const SCAN = {
-  orbShell: 28000,
-  orbVolume: 10000,
-  orbHalo: 4000,
-  roomBack: 18000,
-  roomLeft: 10000,
-  roomRight: 10000,
-  roomFloor: 14000,
-  roomCeiling: 6000,
-  platformBox: 7000,
-  platformDisk: 5000,
-  envPointScale: 1.0,
-  orbPointScale: 0.7,
-  shockwaveMaxRadius: 8.5,
+  orbShell: 72000,
+  orbVolume: 24000,
+  orbHalo: 10000,
+  roomBack: 42000,
+  roomLeft: 24000,
+  roomRight: 24000,
+  roomFloor: 34000,
+  roomCeiling: 15000,
+  platformBox: 16000,
+  platformDisk: 12000,
+  envPointScale: 0.26,
+  orbPointScale: 0.2,
+  shockwaveMaxRadius: 6.2,
   scanSpeed: 0.28,
 } as const
 
 export const POST = {
-  /** Soft bloom — keep threshold high so points don't melt together */
-  bloomIntensity: 0.28,
-  bloomLuminanceThreshold: 0.88,
-  bloomLuminanceSmoothing: 0.4,
+  /** Tight bloom — bright points still glow without washing the room soft */
+  bloomIntensity: 0.22,
+  bloomLuminanceThreshold: 0.93,
+  bloomLuminanceSmoothing: 0.05,
   bloomMipmapBlur: true,
-  /** Global CA — keep very slight; CRT panel has its own stronger split */
-  chromaticAberration: 0.00035,
+  bloomRadius: 0.18,
+  bloomLevels: 3,
+  /** Global CA is off: keep orb/background away from VHS language */
+  chromaticAberration: 0,
   vignetteOffset: 0.32,
   vignetteDarkness: 0.78,
-  noiseOpacity: 0.018,
+  noiseOpacity: 0,
 } as const
 
 export const RENDERER = {
-  maxDpr: 1.75,
+  maxDpr: 2,
   exposure: 0.88,
 } as const
 
@@ -140,6 +142,26 @@ export const AUDIO = {
   scaleBoost: 0.12,
   displaceBoost: 1.8,
   intensityBoost: 0.15,
+} as const
+
+/** Webcam face -> camera orbit (dramatic window parallax) */
+export const PARALLAX = {
+  maxYaw: 0.55,
+  maxPitch: 0.32,
+  /** Orbit radius relative to default camera distance */
+  radiusMinFactor: 0.72,
+  radiusMaxFactor: 1.08,
+  /** Face size (normalized landmark span) -> depth; tuned in playtest */
+  faceSizeNear: 0.45,
+  faceSizeFar: 0.18,
+  damp: 3.2,
+  lostDamp: 2.0,
+  detectIntervalMs: 33,
+  reducedMotionScale: 0.3,
+  wasmBase:
+    'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.18/wasm',
+  modelUrl:
+    'https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task',
 } as const
 
 /** Back-wall faux TV / stats log display */
@@ -160,11 +182,13 @@ export const STATS_SCREEN = {
 
 /** Spatial question prompt below the orb */
 export const QUESTION = {
-  position: [0, 0.02, 1.45] as [number, number, number],
+  position: [0, 0.04, 1.45] as [number, number, number],
   /** Tilt slightly toward camera for readable foreshortening */
   rotation: [-0.18, 0, 0] as [number, number, number],
   fontSize: 0.15,
   maxWidth: 4.2,
+  answerYOffset: -0.34,
+  answerMaxWidth: 4.0,
   /** How far edge of the bent sentence sits back vs the center */
   arcRecess: 0.62,
   intervalMs: 5200,

@@ -1,23 +1,33 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import { QUESTION, PALETTE } from '../config'
-import { QUESTIONS } from '../lib/questions'
 import { useOrbContext } from '../context/OrbContext'
 import { scanUniforms } from '../lib/scanUniforms'
 import { audioLevels } from '../lib/audioLevels'
-import { drawGlitchedText, tickGlitch } from '../lib/textGlitch'
 
-/**
- * Bend a plane so the center sits closest to the camera and the edges recede.
- */
+type SpatialQuestionProps = {
+  answerText: string
+  submitSerial: number
+}
+
+type TextPlane = {
+  canvas: HTMLCanvasElement
+  ctx: CanvasRenderingContext2D
+  texture: THREE.CanvasTexture
+  geometry: THREE.PlaneGeometry
+  basePositions: Float32Array
+  material: THREE.MeshBasicMaterial
+}
+
 function bendPlane(
   geometry: THREE.PlaneGeometry,
   base: Float32Array,
   recess: number,
+  width: number = QUESTION.maxWidth,
 ) {
   const pos = geometry.attributes.position as THREE.BufferAttribute
-  const halfW = QUESTION.maxWidth * 0.5
+  const halfW = width * 0.5
   for (let i = 0; i < pos.count; i++) {
     const x = base[i * 3]
     const y = base[i * 3 + 1]
@@ -29,86 +39,63 @@ function bendPlane(
   geometry.computeVertexNormals()
 }
 
-/**
- * Spatial question as one bent plane — sentence stays a single typographic unit,
- * with intermittent glitch on the painted text.
- */
-export function SpatialQuestion() {
+function createTextPlane(width: number, height: number): TextPlane {
+  const canvas = document.createElement('canvas')
+  canvas.width = 2048
+  canvas.height = 256
+  const ctx = canvas.getContext('2d')!
+  const texture = new THREE.CanvasTexture(canvas)
+  texture.colorSpace = THREE.SRGBColorSpace
+  texture.minFilter = THREE.LinearFilter
+  texture.magFilter = THREE.LinearFilter
+  texture.premultiplyAlpha = true
+
+  const geometry = new THREE.PlaneGeometry(width, height, 64, 1)
+  const basePositions = new Float32Array(
+    (geometry.attributes.position as THREE.BufferAttribute).array as Float32Array,
+  )
+  bendPlane(geometry, basePositions, QUESTION.arcRecess, width)
+
+  const material = new THREE.MeshBasicMaterial({
+    map: texture,
+    transparent: true,
+    depthWrite: false,
+    toneMapped: false,
+    side: THREE.DoubleSide,
+    color: new THREE.Color(PALETTE.orbCore),
+  })
+
+  return { canvas, ctx, texture, geometry, basePositions, material }
+}
+
+export function SpatialQuestion({ answerText, submitSerial }: SpatialQuestionProps) {
   const { reducedMotion } = useOrbContext()
   const group = useRef<THREE.Group>(null)
-  const mesh = useRef<THREE.Mesh>(null)
-  const [index, setIndex] = useState(0)
-  const opacity = useRef(1)
-  const targetOpacity = useRef(1)
-  const nextSwap = useRef(QUESTION.intervalMs / 1000)
-  const displayOpacity = useRef(1)
-  const glitchClock = useRef({ nextAt: 2.0, holdUntil: 0, seed: 0 })
+  const answerFlash = useRef(0)
+  const lastSubmitSerial = useRef(submitSerial)
 
-  const { canvas, ctx, texture, geometry, basePositions, material } = useMemo(() => {
-    const canvas = document.createElement('canvas')
-    canvas.width = 2048
-    canvas.height = 256
-    const ctx = canvas.getContext('2d')!
-    const texture = new THREE.CanvasTexture(canvas)
-    texture.colorSpace = THREE.SRGBColorSpace
-    texture.minFilter = THREE.LinearFilter
-    texture.magFilter = THREE.LinearFilter
-    texture.premultiplyAlpha = true
-
-    const geometry = new THREE.PlaneGeometry(
-      QUESTION.maxWidth,
-      QUESTION.maxWidth * (256 / 2048) * 1.15,
-      64,
-      1,
-    )
-    const basePositions = new Float32Array(
-      (geometry.attributes.position as THREE.BufferAttribute).array as Float32Array,
-    )
-    bendPlane(geometry, basePositions, QUESTION.arcRecess)
-
-    const material = new THREE.MeshBasicMaterial({
-      map: texture,
-      transparent: true,
-      depthWrite: false,
-      toneMapped: false,
-      side: THREE.DoubleSide,
-      color: new THREE.Color(PALETTE.orbCore),
-    })
-
-    return { canvas, ctx, texture, geometry, basePositions, material }
-  }, [])
+  const answerPlane = useMemo(
+    () => createTextPlane(QUESTION.answerMaxWidth, QUESTION.answerMaxWidth * (256 / 2048) * 0.92),
+    [],
+  )
 
   useEffect(() => {
     return () => {
-      texture.dispose()
-      geometry.dispose()
-      material.dispose()
+      answerPlane.texture.dispose()
+      answerPlane.geometry.dispose()
+      answerPlane.material.dispose()
     }
-  }, [texture, geometry, material])
+  }, [answerPlane])
 
   useFrame((state, delta) => {
     const t = state.clock.elapsedTime
     const d = Math.min(delta, 0.05)
     const motion = reducedMotion ? 0.25 : 1
-
-    if (t >= nextSwap.current) {
-      targetOpacity.current = 0
-      if (opacity.current < 0.05) {
-        setIndex((i) => (i + 1) % QUESTIONS.length)
-        targetOpacity.current = 1
-        nextSwap.current = t + QUESTION.intervalMs / 1000
-        // Glitch sting on new question
-        glitchClock.current.holdUntil = t + 0.18
-        glitchClock.current.seed = Math.random()
-      }
+    if (submitSerial !== lastSubmitSerial.current) {
+      lastSubmitSerial.current = submitSerial
+      answerFlash.current = 1
     }
-
-    opacity.current = THREE.MathUtils.damp(
-      opacity.current,
-      targetOpacity.current,
-      1000 / QUESTION.fadeMs,
-      d,
-    )
+    answerFlash.current = THREE.MathUtils.damp(answerFlash.current, 0, 4.5, d)
 
     const activity = Math.min(
       1,
@@ -117,50 +104,66 @@ export function SpatialQuestion() {
         audioLevels.level * 0.4,
     )
 
-    displayOpacity.current = opacity.current * (0.75 + activity * 0.25)
-    material.opacity = 1
-
-    const g = tickGlitch(
-      glitchClock.current,
-      t,
-      reducedMotion ? 0 : audioLevels.level * 0.55,
-    )
-    // Soften glitch when reduced motion
-    if (reducedMotion) g.amount *= 0.25
-
-    const rgb = new THREE.Color(PALETTE.orbCore)
-    drawGlitchedText(ctx, canvas, QUESTIONS[index], {
-      opacity: displayOpacity.current,
-      color: `rgba(${Math.round(rgb.r * 255)}, ${Math.round(rgb.g * 255)}, ${Math.round(rgb.b * 255)}, ${displayOpacity.current})`,
-      font: '600 64px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace',
-      glitch: g,
-      clear: null,
+    const cursorOn = Math.floor(t * 2.4) % 2 === 0
+    drawAnswerText(answerPlane.ctx, answerPlane.canvas, answerText, cursorOn, {
+      opacity: Math.min(1, 0.72 + activity * 0.2 + answerFlash.current * 0.28),
+      glow: 10 + activity * 10 + answerFlash.current * 16,
+      color: PALETTE.orbCore,
     })
-    texture.needsUpdate = true
+    answerPlane.texture.needsUpdate = true
 
     const recess =
       QUESTION.arcRecess *
       (1 + audioLevels.bass * 0.12 * motion + Math.sin(t * 0.6) * 0.04 * motion)
-    bendPlane(geometry, basePositions, recess)
+    bendPlane(
+      answerPlane.geometry,
+      answerPlane.basePositions,
+      recess * 0.92,
+      QUESTION.answerMaxWidth,
+    )
 
-    const bob =
-      Math.sin(t * 0.7) * 0.01 * motion + audioLevels.bass * 0.012 * motion
+    const bob = Math.sin(t * 0.7) * 0.01 * motion + audioLevels.bass * 0.012 * motion
     if (group.current) {
-      group.current.position.y = QUESTION.position[1] + bob
-      group.current.position.x =
-        QUESTION.position[0] +
-        Math.sin(t * 0.35) * 0.008 * motion +
-        (g.amount > 0.3 ? (Math.random() - 0.5) * 0.02 * g.amount : 0)
+      group.current.position.y = QUESTION.position[1] + QUESTION.answerYOffset + bob
+      group.current.position.x = QUESTION.position[0] + Math.sin(t * 0.35) * 0.008 * motion
     }
   })
 
   return (
-    <group
-      ref={group}
-      position={QUESTION.position}
-      rotation={QUESTION.rotation}
-    >
-      <mesh ref={mesh} geometry={geometry} material={material} />
+    <group ref={group} position={QUESTION.position} rotation={QUESTION.rotation}>
+      <mesh geometry={answerPlane.geometry} material={answerPlane.material} />
     </group>
   )
+}
+
+function drawAnswerText(
+  ctx: CanvasRenderingContext2D,
+  canvas: HTMLCanvasElement,
+  text: string,
+  cursorOn: boolean,
+  opts: { opacity: number; glow: number; color: string },
+) {
+  const w = canvas.width
+  const h = canvas.height
+  ctx.clearRect(0, 0, w, h)
+
+  const display = text.length > 0 ? text : ''
+  const cursor = cursorOn ? '|' : ' '
+  const content = `${display}${cursor}`
+
+  ctx.font = '600 58px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace'
+  ctx.textAlign = 'center'
+  ctx.textBaseline = 'middle'
+  ctx.shadowColor = opts.color
+  ctx.shadowBlur = opts.glow
+  ctx.fillStyle = `rgba(160, 230, 255, ${opts.opacity})`
+  ctx.fillText(content, w / 2, h / 2)
+
+  ctx.shadowBlur = opts.glow * 0.4
+  ctx.fillStyle = `rgba(65, 145, 190, ${opts.opacity * 0.45})`
+  ctx.fillText(content, w / 2 + 2, h / 2 + 1)
+  ctx.shadowBlur = 0
+
+  ctx.fillStyle = `rgba(120, 210, 255, ${opts.opacity * 0.24})`
+  ctx.fillRect(w * 0.22, h * 0.72, w * 0.56, 2)
 }

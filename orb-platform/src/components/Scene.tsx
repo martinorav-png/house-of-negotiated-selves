@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react'
+import { useEffect } from 'react'
 import { useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 import { CAMERA, RENDERER } from '../config'
@@ -9,24 +9,30 @@ import { Orb } from './Orb'
 import { StatsLogWall } from './StatsLogWall'
 import { SpatialQuestion } from './SpatialQuestion'
 import { PostProcessing } from './PostProcessing'
+import { CameraParallax } from './CameraParallax'
 import { useOrbContext } from '../context/OrbContext'
 
 type Props = {
   postEnabled: boolean
+  parallaxEnabled: boolean
+  answerText: string
+  questionText: string
+  submitSerial: number
 }
 
 /**
  * Fixed-camera installation scene — point-cloud scan visual language.
  * Layout, framing, and interaction unchanged from the solid-material version.
  */
-export function Scene({ postEnabled }: Props) {
+export function Scene({
+  postEnabled,
+  parallaxEnabled,
+  answerText,
+  questionText,
+  submitSerial,
+}: Props) {
   const { camera, size, gl } = useThree()
   const { reducedMotion } = useOrbContext()
-
-  const lookAt = useMemo(
-    () => new THREE.Vector3(...CAMERA.lookAt),
-    [],
-  )
 
   useEffect(() => {
     gl.toneMapping = THREE.ACESFilmicToneMapping
@@ -40,11 +46,8 @@ export function Scene({ postEnabled }: Props) {
     persp.fov = narrow ? CAMERA.narrowFov : CAMERA.fov
     persp.near = CAMERA.near
     persp.far = CAMERA.far
-    const z = narrow ? CAMERA.narrowZ : CAMERA.position[2]
-    persp.position.set(CAMERA.position[0], CAMERA.position[1], z)
-    persp.lookAt(lookAt)
     persp.updateProjectionMatrix()
-  }, [camera, size.width, size.height, lookAt])
+  }, [camera, size.width, size.height])
 
   return (
     <>
@@ -53,10 +56,11 @@ export function Scene({ postEnabled }: Props) {
 
       <Lighting />
       <Room />
-      <StatsLogWall />
+      <StatsLogWall questionText={questionText} submitSerial={submitSerial} />
       <Platform />
       <Orb />
-      <SpatialQuestion />
+      <SpatialQuestion answerText={answerText} submitSerial={submitSerial} />
+      <CameraParallax enabled={parallaxEnabled} />
 
       <PostProcessing enabled={postEnabled} reducedMotion={reducedMotion} />
     </>
