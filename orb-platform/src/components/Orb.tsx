@@ -112,7 +112,7 @@ export function Orb() {
     scanUniforms.uTime.value = t
     scanUniforms.uReducedMotion.value = reducedMotion ? 1 : 0
     // Horizontal scan plane travelling floor → ceiling
-    const scanT = (Math.sin(t * SCAN.scanSpeed) * 0.5 + 0.5)
+    const scanT = (t * SCAN.scanSpeed * 0.18) % 1
     scanUniforms.uScanY.value = scanT * ROOM.height
 
     // Smooth hover — never snap the live value; only chase the boolean target
@@ -139,12 +139,12 @@ export function Orb() {
     scanUniforms.uAudioBass.value = audioLevels.bass * audioMul
     scanUniforms.uAudioMid.value = audioLevels.mid * audioMul
 
-    // Expanding shockwave during activation — travels clearly across the room
+    // Activation wave climbs from floor to ceiling.
     if (a > 0.015 || shockwave.current > 0.05) {
       if (shockwave.current > 0 && shockwave.current < SCAN.shockwaveMaxRadius) {
         shockwave.current = Math.min(
           SCAN.shockwaveMaxRadius,
-          shockwave.current + d * (5.8 + a * 7),
+          shockwave.current + d * (1.45 + a * 1.15),
         )
       }
       if (a <= 0.015 && shockwave.current >= SCAN.shockwaveMaxRadius * 0.98) {

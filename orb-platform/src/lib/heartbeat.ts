@@ -12,8 +12,8 @@ export function heartbeat(
   const p = (timeSec % cycle) / cycle
 
   // Narrow gaussian bumps — lub then softer dub, then rest
-  const lubX = (p - 0.08) / 0.038
-  const dubX = (p - 0.26) / 0.048
+  const lubX = (p - 0.08) / 0.055
+  const dubX = (p - 0.27) / 0.068
   const lub = Math.exp(-(lubX * lubX)) * lubAmp
   const dub = Math.exp(-(dubX * dubX)) * dubAmp
   return Math.min(1, lub + dub)

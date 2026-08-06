@@ -1,14 +1,22 @@
 /** Cycling questions under the orb — plain, direct, spoken aloud. */
 
 export const QUESTIONS = [
-  'What do you want someone to notice first?',
-  'When do you feel most like yourself?',
-  'What should they never do?',
-  'What kind of quiet feels safe?',
-  'What are you hoping this understands?',
-  'Who are you dressing up for tonight?',
-  'What would you rather keep to yourself?',
-  'What do you want remembered?',
-  'If it answers, will you trust it?',
-  'What would make you stay?',
+  'What is your full government name?',
+  'What is your date of birth?',
+  'What is your orientation?',
+  'What are your hobbies?',
+  'What do you fight for?',
+  'What is your religion?',
+  'What is your nationality?',
+  'Can I take your picture?',
+] as const
+
+export const CARD_QUESTIONS = [
+  'Are you introverted or extroverted, or somewhere in between?',
+  'What is your lifestyle: athletic, creative, or something else?',
+  'What kind of personality are you drawn to?',
+  'Do you prefer someone flirty, calm, or collected?',
+  'What age range are you looking for?',
+  'How tall would you like your match to be?',
+  'Which hair colour would you love to wake up next to?',
 ] as const

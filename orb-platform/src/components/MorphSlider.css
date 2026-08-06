@@ -1,0 +1,171 @@
+.morph-slider {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #0b100d;
+  user-select: none;
+  touch-action: pan-y;
+  box-shadow:
+    0 0 0 1px rgba(210, 181, 127, 0.24),
+    0 24px 90px rgba(0, 0, 0, 0.42),
+    0 0 80px rgba(107, 168, 147, 0.18);
+}
+
+.morph-slider-stage {
+  position: absolute;
+  inset: 0;
+  cursor: grab;
+  outline: none;
+}
+
+.morph-slider-stage:active {
+  cursor: grabbing;
+}
+
+.morph-slider-stage:focus-visible {
+  box-shadow: inset 0 0 0 2px rgba(210, 181, 127, 0.76);
+}
+
+.morph-slider-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.morph-slider-caption {
+  position: absolute;
+  left: 22px;
+  bottom: 22px;
+  z-index: 2;
+  display: grid;
+  max-width: calc(100% - 44px);
+  pointer-events: none;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+.morph-slider-caption-text {
+  grid-area: 1 / 1;
+  display: inline-block;
+  justify-self: start;
+  padding: 8px 12px;
+  border: 1px solid rgba(210, 181, 127, 0.26);
+  color: rgba(229, 239, 222, 0.92);
+  background: rgba(8, 12, 10, 0.52);
+  font-size: 12px;
+  line-height: 1;
+  opacity: 0;
+  filter: blur(4px);
+  transform: translateY(10px);
+  text-shadow: 0 0 12px rgba(158, 218, 187, 0.28);
+  transition:
+    opacity var(--ms-swap) cubic-bezier(0.16, 1, 0.3, 1),
+    filter var(--ms-swap) cubic-bezier(0.16, 1, 0.3, 1),
+    transform var(--ms-swap) cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.morph-slider-caption-text.is-active {
+  opacity: 1;
+  filter: blur(0);
+  transform: translateY(0);
+}
+
+.morph-slider-controls {
+  position: absolute;
+  top: 50%;
+  left: 14px;
+  right: 14px;
+  z-index: 3;
+  display: flex;
+  justify-content: space-between;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.morph-slider-btn {
+  pointer-events: auto;
+  min-width: 52px;
+  height: 32px;
+  border: 1px solid rgba(210, 181, 127, 0.34);
+  border-radius: 999px;
+  background: rgba(8, 12, 10, 0.48);
+  color: rgba(229, 239, 222, 0.82);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 10px;
+  cursor: pointer;
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    color 180ms ease,
+    background 180ms ease;
+}
+
+.morph-slider-btn:hover {
+  border-color: rgba(229, 239, 222, 0.62);
+  background: rgba(20, 30, 24, 0.62);
+  color: rgba(229, 239, 222, 0.96);
+  transform: translateY(-1px);
+}
+
+.morph-slider-btn:focus-visible {
+  outline: 2px solid rgba(210, 181, 127, 0.72);
+  outline-offset: 2px;
+}
+
+.morph-slider-indicators {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 18px;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.morph-slider-dot {
+  width: 7px;
+  height: 7px;
+  padding: 0;
+  border: 1px solid rgba(229, 239, 222, 0.34);
+  border-radius: 999px;
+  background: rgba(70, 111, 98, 0.38);
+  cursor: pointer;
+  transition:
+    width var(--ms-dot) cubic-bezier(0.16, 1, 0.3, 1),
+    background var(--ms-dot) ease,
+    border-color var(--ms-dot) ease;
+}
+
+.morph-slider-dot.is-active {
+  width: 24px;
+  background: rgba(210, 181, 127, 0.78);
+  border-color: rgba(229, 239, 222, 0.62);
+}
+
+.morph-slider-dot:focus-visible {
+  outline: 2px solid rgba(210, 181, 127, 0.72);
+  outline-offset: 2px;
+}
+
+@media (max-width: 640px) {
+  .morph-slider-controls {
+    top: auto;
+    bottom: 48px;
+    transform: none;
+  }
+
+  .morph-slider-caption {
+    left: 16px;
+    bottom: 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .morph-slider-caption-text,
+  .morph-slider-btn,
+  .morph-slider-dot {
+    transition: none;
+  }
+}

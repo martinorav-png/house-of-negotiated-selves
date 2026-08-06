@@ -4,24 +4,24 @@ import * as THREE from 'three'
 import { ROOM, STATS_SCREEN, PALETTE } from '../config'
 import { scanUniforms } from '../lib/scanUniforms'
 import { audioLevels } from '../lib/audioLevels'
-import { createBootLines, createLogLine, type LogLine } from '../lib/statsLog'
-import { drawGlitchedText, tickGlitch } from '../lib/textGlitch'
+import { getMirrorPromptText } from '../lib/mirrorPrompt'
 import {
-  crtVertexShader,
-  crtFragmentShader,
-  screenGlowVertexShader,
-  screenGlowFragmentShader,
-} from '../shaders/crtScreenShaders'
+  liquidMirrorFragmentShader,
+  liquidMirrorVertexShader,
+  mirrorGlowFragmentShader,
+  mirrorGlowVertexShader,
+} from '../shaders/liquidMirrorShaders'
 
-/**
- * Faux CRT TV / stats log on the back wall.
- * Canvas content + CRT shader (scanlines, CA, flicker) + additive glow that spills into the room.
- */
-export function StatsLogWall() {
-  const linesRef = useRef<LogLine[]>(createBootLines())
-  const lastPush = useRef(0)
-  const scanY = useRef(0)
-  const glitchClock = useRef({ nextAt: 1.2, holdUntil: 0, seed: 0 })
+export function StatsLogWall({
+  questionText,
+  submitSerial,
+}: {
+  questionText: string
+  submitSerial: number
+}) {
+  const questionStart = useRef(0)
+  const lastQuestionText = useRef(questionText)
+  const lastSubmitSerial = useRef(submitSerial)
   const lightRef = useRef<THREE.PointLight>(null)
   const spotRef = useRef<THREE.SpotLight>(null)
   const spotTarget = useMemo(() => new THREE.Object3D(), [])
@@ -35,15 +35,18 @@ export function StatsLogWall() {
     texture.colorSpace = THREE.SRGBColorSpace
     texture.minFilter = THREE.LinearFilter
     texture.magFilter = THREE.LinearFilter
+    texture.premultiplyAlpha = true
     return { canvas, ctx, texture }
   }, [])
 
-  const crtUniforms = useMemo(
+  const mirrorUniforms = useMemo(
     () => ({
       uMap: { value: texture },
       uTime: scanUniforms.uTime,
-      uGlow: { value: 0.55 },
-      uAberration: { value: 0.0011 },
+      uActivity: { value: 0.45 },
+      uDeepColor: { value: new THREE.Color('#111b18') },
+      uSheenColor: { value: new THREE.Color('#b8d6c4') },
+      uWarmColor: { value: new THREE.Color('#d0b17f') },
     }),
     [texture],
   )
@@ -51,18 +54,22 @@ export function StatsLogWall() {
   const panelMat = useMemo(
     () =>
       new THREE.ShaderMaterial({
-        vertexShader: crtVertexShader,
-        fragmentShader: crtFragmentShader,
-        uniforms: crtUniforms,
+        vertexShader: liquidMirrorVertexShader,
+        fragmentShader: liquidMirrorFragmentShader,
+        uniforms: mirrorUniforms,
+        transparent: true,
+        depthWrite: false,
         toneMapped: false,
       }),
-    [crtUniforms],
+    [mirrorUniforms],
   )
 
-  const bezelMat = useMemo(
+  const backMat = useMemo(
     () =>
       new THREE.MeshBasicMaterial({
-        color: '#07090c',
+        color: '#050806',
+        transparent: true,
+        opacity: 0.55,
         toneMapped: false,
       }),
     [],
@@ -71,11 +78,11 @@ export function StatsLogWall() {
   const glowMat = useMemo(
     () =>
       new THREE.ShaderMaterial({
-        vertexShader: screenGlowVertexShader,
-        fragmentShader: screenGlowFragmentShader,
+        vertexShader: mirrorGlowVertexShader,
+        fragmentShader: mirrorGlowFragmentShader,
         uniforms: {
-          uColor: { value: new THREE.Color(PALETTE.orbMid) },
-          uOpacity: { value: 0.22 },
+          uColor: { value: new THREE.Color('#b8d6c4') },
+          uOpacity: { value: 0.16 },
         },
         transparent: true,
         depthWrite: false,
@@ -89,11 +96,11 @@ export function StatsLogWall() {
   const glowNearMat = useMemo(
     () =>
       new THREE.ShaderMaterial({
-        vertexShader: screenGlowVertexShader,
-        fragmentShader: screenGlowFragmentShader,
+        vertexShader: mirrorGlowVertexShader,
+        fragmentShader: mirrorGlowFragmentShader,
         uniforms: {
           uColor: { value: new THREE.Color(PALETTE.orbAccent) },
-          uOpacity: { value: 0.14 },
+          uOpacity: { value: 0.08 },
         },
         transparent: true,
         depthWrite: false,
@@ -108,146 +115,122 @@ export function StatsLogWall() {
     return () => {
       texture.dispose()
       panelMat.dispose()
-      bezelMat.dispose()
+      backMat.dispose()
       glowMat.dispose()
       glowNearMat.dispose()
     }
-  }, [texture, panelMat, bezelMat, glowMat, glowNearMat])
+  }, [texture, panelMat, backMat, glowMat, glowNearMat])
 
-  const draw = (glitchAmount = 0) => {
+  const draw = (elapsedTime: number) => {
     const w = canvas.width
     const h = canvas.height
     const activity = Math.min(
       1,
-      scanUniforms.uActivation.value * 0.7 +
-        scanUniforms.uHover.value * 0.25 +
-        audioLevels.level * 0.45,
+      scanUniforms.uActivation.value * 0.55 +
+        scanUniforms.uHover.value * 0.18 +
+        audioLevels.level * 0.22,
+    )
+    const cursorVisible = Math.floor(elapsedTime * 2.2) % 2 === 0
+    const prompt = getMirrorPromptText(
+      questionText,
+      elapsedTime - questionStart.current,
+      18,
+      cursorVisible,
     )
 
-    const lines = linesRef.current
-    const line = lines[lines.length - 1]
-    if (!line) {
-      ctx.fillStyle = '#04060a'
-      ctx.fillRect(0, 0, w, h)
-      texture.needsUpdate = true
-      return
-    }
-
-    const colors = {
-      info: `rgba(150, 175, 195, ${0.9})`,
-      data: `rgba(160, 225, 255, ${0.85 + activity * 0.15})`,
-      warn: 'rgba(235, 185, 125, 0.95)',
-      ok: 'rgba(155, 230, 185, 0.95)',
-    } as const
-
-    const glitch = {
-      amount: glitchAmount,
-      tear: (Math.random() - 0.5) * 24 * glitchAmount,
-      tearY: 0.35 + Math.random() * 0.3,
-      tearH: 0.06 + Math.random() * 0.1,
-    }
-
-    drawGlitchedText(ctx, canvas, line.text, {
-      opacity: 0.95,
-      color: colors[line.kind],
-      font: '600 48px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace',
-      glitch,
-      clear: '#04060a',
-    })
-
-    // Soft travelling scan — keeps CRT feel without chrome
-    scanY.current = (scanY.current + 1.2) % h
-    ctx.fillStyle = `rgba(120, 210, 255, ${0.06 + activity * 0.08})`
-    ctx.fillRect(40, scanY.current, w - 80, 2)
+    ctx.clearRect(0, 0, w, h)
+    ctx.save()
+    ctx.textAlign = 'center'
+    ctx.textBaseline = 'middle'
+    ctx.font = '500 42px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace'
+    ctx.shadowColor = 'rgba(190, 220, 202, 0.55)'
+    ctx.shadowBlur = 18 + activity * 10
+    ctx.fillStyle = `rgba(218, 232, 220, ${0.78 + activity * 0.14})`
+    ctx.fillText(prompt, w / 2, h / 2)
+    ctx.shadowBlur = 0
+    ctx.fillStyle = `rgba(205, 178, 132, ${0.16 + activity * 0.08})`
+    ctx.fillText(prompt, w / 2 + 1.5, h / 2 + 1.5)
+    ctx.restore()
 
     texture.needsUpdate = true
   }
 
   useFrame((state) => {
     const t = state.clock.elapsedTime
-    if (t - lastPush.current > STATS_SCREEN.lineIntervalMs / 1000) {
-      lastPush.current = t
-      const next = createLogLine()
-      const lines = linesRef.current
-      lines.push(next)
-      while (lines.length > STATS_SCREEN.maxVisibleLines) {
-        lines.shift()
-      }
-      // Fresh line often arrives with a small glitch sting
-      glitchClock.current.holdUntil = t + 0.12
-      glitchClock.current.seed = Math.random()
+    if (
+      questionText !== lastQuestionText.current ||
+      submitSerial !== lastSubmitSerial.current
+    ) {
+      lastQuestionText.current = questionText
+      lastSubmitSerial.current = submitSerial
+      questionStart.current = t
     }
 
-    const g = tickGlitch(glitchClock.current, t, audioLevels.level * 0.5)
-    draw(g.amount)
+    draw(t)
 
     const activity = Math.min(
       1,
-      0.55 +
-        scanUniforms.uActivation.value * 0.35 +
-        scanUniforms.uHover.value * 0.15 +
-        audioLevels.level * 0.4,
+      0.38 +
+        scanUniforms.uActivation.value * 0.28 +
+        scanUniforms.uHover.value * 0.12 +
+        audioLevels.level * 0.2,
     )
 
-    crtUniforms.uGlow.value = 0.45 + activity * 0.55
-    crtUniforms.uAberration.value = 0.0009 + activity * 0.0005 + g.amount * 0.0025
+    mirrorUniforms.uActivity.value = activity
 
-    const spill = 0.85 + activity * 0.9
+    const spill = 0.5 + activity * 0.55
     scanUniforms.uScreenIntensity.value = spill
-    ;(glowMat.uniforms.uOpacity as { value: number }).value = 0.16 + activity * 0.14
-    ;(glowNearMat.uniforms.uOpacity as { value: number }).value = 0.1 + activity * 0.1
+    ;(glowMat.uniforms.uOpacity as { value: number }).value = 0.08 + activity * 0.12
+    ;(glowNearMat.uniforms.uOpacity as { value: number }).value = 0.04 + activity * 0.08
 
-    if (lightRef.current) lightRef.current.intensity = 4 + activity * 5
-    if (spotRef.current) spotRef.current.intensity = 10 + activity * 12
+    if (lightRef.current) lightRef.current.intensity = 2.2 + activity * 3.2
+    if (spotRef.current) spotRef.current.intensity = 5 + activity * 7
   })
 
   const halfD = ROOM.depth / 2
   const z = -halfD + STATS_SCREEN.zOffset
   const { width, height, y } = STATS_SCREEN
-  const bezel = 0.1
+  const backing = 0.12
 
   useEffect(() => {
-    spotTarget.position.set(0, y - 0.3, z + 3.5)
+    spotTarget.position.set(0, y - 0.25, z + 3.4)
     spotTarget.updateMatrixWorld()
   }, [spotTarget, y, z])
 
   return (
     <group position={[0, y, z]}>
-      <mesh material={bezelMat} position={[0, 0, -0.025]}>
-        <planeGeometry args={[width + bezel * 2, height + bezel * 2]} />
+      <mesh material={backMat} position={[0, 0, -0.035]}>
+        <planeGeometry args={[width + backing * 2, height + backing * 2]} />
       </mesh>
 
       <mesh material={panelMat} position={[0, 0, 0]}>
-        <planeGeometry args={[width, height]} />
+        <planeGeometry args={[width, height, 48, 28]} />
       </mesh>
 
-      <mesh material={glowNearMat} position={[0, 0, 0.04]} scale={[1.06, 1.08, 1]}>
+      <mesh material={glowNearMat} position={[0, 0, 0.05]} scale={[1.03, 1.05, 1]}>
         <planeGeometry args={[width, height]} />
       </mesh>
-      <mesh material={glowMat} position={[0, 0, 0.35]} scale={[1.35, 1.4, 1]}>
-        <planeGeometry args={[width, height]} />
-      </mesh>
-      <mesh material={glowMat} position={[0, 0, 1.1]} scale={[1.7, 1.75, 1]}>
+      <mesh material={glowMat} position={[0, 0, 0.55]} scale={[1.42, 1.46, 1]}>
         <planeGeometry args={[width, height]} />
       </mesh>
 
       <pointLight
         ref={lightRef}
-        color={PALETTE.orbMid}
-        intensity={5}
-        distance={10}
-        decay={1.5}
-        position={[0, 0, 0.45]}
+        color="#b8d6c4"
+        intensity={3}
+        distance={9}
+        decay={1.55}
+        position={[0, 0, 0.4]}
       />
       <primitive object={spotTarget} />
       <spotLight
         ref={spotRef}
-        color={PALETTE.orbAccent}
-        intensity={12}
-        distance={14}
-        angle={0.9}
-        penumbra={0.7}
-        decay={1.35}
+        color="#d0b17f"
+        intensity={7}
+        distance={12}
+        angle={0.85}
+        penumbra={0.8}
+        decay={1.4}
         position={[0, 0, 0.25]}
         target={spotTarget}
       />
