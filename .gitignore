@@ -29,6 +29,7 @@ work/eka-ars26-house/**/build/
 .codex/
 .cursor/
 .superpowers/
+.worktrees/
 .tmp_*
 
 # Large journey board exports (exceed GitHub 100MB limit)
