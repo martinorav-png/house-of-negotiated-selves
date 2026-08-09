@@ -35,6 +35,11 @@
   color: #f3f7f3;
 }
 
+.question-deck-viewport:not(.question-deck-static) .question-swap-card:not([data-deck-visible]) {
+  visibility: hidden;
+  pointer-events: none;
+}
+
 .question-deck-viewport .question-swap-card::after {
   content: '';
   position: absolute;

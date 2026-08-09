@@ -42,6 +42,16 @@ describe('station composition', () => {
     expect(questionCardDeckStyles).toContain('--deck-visible-slots: 3')
   })
 
+  it('hides animated cards outside the three highest live depth slots', () => {
+    expect(questionCardDeck).toContain('new MutationObserver(syncVisibleCards)')
+    expect(questionCardDeck).toContain('.slice(0, DECK_VISIBLE_SLOTS)')
+    expect(questionCardDeck).toContain("toggleAttribute('data-deck-visible'")
+    expect(questionCardDeckStyles).toContain(
+      '.question-deck-viewport:not(.question-deck-static) .question-swap-card:not([data-deck-visible])',
+    )
+    expect(questionCardDeckStyles).toContain('visibility: hidden')
+  })
+
   it('uses a stable three-card fallback for reduced motion', () => {
     expect(questionCardDeck).toContain('usePrefersReducedMotion')
     expect(questionCardDeck).toContain('stationCards.slice(0, 3)')
