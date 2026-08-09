@@ -32,7 +32,7 @@ Keep the generated `CardSwap` component source and stylesheet intact. It owns:
 
 - the physical card slots;
 - GSAP timelines for exit, promotion, and return motion;
-- automatic timing, hover/focus pausing, cleanup, and reduced-motion behavior.
+- automatic timing, pause-on-hover behavior, and cleanup.
 
 All seven current question cards are passed to the exact component so its built-in circular ordering performs the full cycle.
 
