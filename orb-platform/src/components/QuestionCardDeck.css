@@ -115,11 +115,16 @@
 
 @media (max-height: 620px) {
   .question-deck-viewport {
-    --deck-card-height: clamp(320px, 68svh, 400px);
-    top: 54%;
+    --deck-card-width: clamp(296px, 42vw, 360px);
+    --deck-card-height: clamp(192px, calc(100svh - 120px), 400px);
+    top: 50%;
+  }
+
+  .question-deck-viewport .question-swap-card {
+    padding: clamp(16px, 4vh, 24px);
   }
 
   .question-swap-title {
-    font-size: clamp(1.9rem, 8vh, 3rem);
+    font-size: clamp(1.75rem, 7vh, 2.6rem);
   }
 }

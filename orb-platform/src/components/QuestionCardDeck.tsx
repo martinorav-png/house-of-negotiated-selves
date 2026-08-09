@@ -1,17 +1,34 @@
 import type { CSSProperties } from 'react'
-import { useLayoutEffect, useRef } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import CardSwap, { Card } from './CardSwap'
 import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion'
 import { stationCards, type StationCard } from '../lib/cardStation'
 import './QuestionCardDeck.css'
 
 const DECK_VISIBLE_SLOTS = 3
+const INITIAL_HOLD_MS = 4200
 
-function useAnimatedDepthLimit(reducedMotion: boolean) {
+function useCardSwapReady(reducedMotion: boolean) {
+  const [ready, setReady] = useState(false)
+
+  useEffect(() => {
+    if (reducedMotion) {
+      setReady(false)
+      return
+    }
+
+    const holdTimer = window.setTimeout(() => setReady(true), INITIAL_HOLD_MS)
+    return () => window.clearTimeout(holdTimer)
+  }, [reducedMotion])
+
+  return ready
+}
+
+function useAnimatedDepthLimit(active: boolean) {
   const deckRef = useRef<HTMLDivElement>(null)
 
   useLayoutEffect(() => {
-    if (reducedMotion) return
+    if (!active) return
 
     const deck = deckRef.current
     if (!deck) return
@@ -46,7 +63,7 @@ function useAnimatedDepthLimit(reducedMotion: boolean) {
       observer.disconnect()
       cards.forEach((card) => card.removeAttribute('data-deck-visible'))
     }
-  }, [reducedMotion])
+  }, [active])
 
   return deckRef
 }
@@ -60,29 +77,43 @@ function QuestionCardContent({ card }: { card: StationCard }) {
   )
 }
 
+function StableQuestionDeck({ ariaLabel }: { ariaLabel: string }) {
+  return (
+    <div
+      className="question-deck-viewport question-deck-static"
+      role="group"
+      aria-label={ariaLabel}
+    >
+      {stationCards.slice(0, 3).map((card, index) => (
+        <article
+          className={`question-swap-card station-card-${index + 1}`}
+          key={card.kicker}
+          style={{ '--static-slot': index } as CSSProperties}
+        >
+          <QuestionCardContent card={card} />
+        </article>
+      ))}
+    </div>
+  )
+}
+
 export function QuestionCardDeck() {
   const reducedMotion = usePrefersReducedMotion()
-  const deckRef = useAnimatedDepthLimit(reducedMotion)
+  const cardSwapReady = useCardSwapReady(reducedMotion)
+  const deckRef = useAnimatedDepthLimit(cardSwapReady && !reducedMotion)
 
   if (reducedMotion) {
-    return (
-      <div className="question-deck-viewport question-deck-static" aria-label="Question cards">
-        {stationCards.slice(0, 3).map((card, index) => (
-          <article
-            className={`question-swap-card station-card-${index + 1}`}
-            key={card.kicker}
-            style={{ '--static-slot': index } as CSSProperties}
-          >
-            <QuestionCardContent card={card} />
-          </article>
-        ))}
-      </div>
-    )
+    return <StableQuestionDeck ariaLabel="Question cards" />
+  }
+
+  if (!cardSwapReady) {
+    return <StableQuestionDeck ariaLabel="Opening question cards" />
   }
 
   return (
     <div
       className="question-deck-viewport"
+      role="group"
       aria-label="Cycling question cards"
       ref={deckRef}
     >
