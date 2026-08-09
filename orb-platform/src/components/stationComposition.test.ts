@@ -5,8 +5,19 @@ import autoCardStack from './AutoCardStack.tsx?raw'
 import cardStyles from './AutoCardStack.css?raw'
 import postProcessing from './PostProcessing.tsx?raw'
 import pointCloudShaders from '../shaders/pointCloudShaders.ts?raw'
+import cardSwapSource from './CardSwap.jsx?raw'
+import cardSwapStyles from './CardSwap.css?raw'
 
 describe('station composition', () => {
+  it('uses the registry CardSwap implementation and stylesheet', () => {
+    expect(cardSwapSource).toContain("import gsap from 'gsap'")
+    expect(cardSwapSource).toContain('const makeSlot =')
+    expect(cardSwapSource).toContain("ease: 'elastic.out(0.6,0.9)'")
+    expect(cardSwapSource).toContain('export default CardSwap')
+    expect(cardSwapStyles).toContain('.card-swap-container')
+    expect(cardSwapStyles).toContain('perspective: 900px')
+  })
+
   it('keeps question cards out of the orb scene', () => {
     expect(scene).not.toContain('RoomQuestionCards')
   })

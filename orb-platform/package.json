@@ -3,6 +3,10 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
+  "imports": {
+    "#components": "./src/components",
+    "#utils": "./src/components"
+  },
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
