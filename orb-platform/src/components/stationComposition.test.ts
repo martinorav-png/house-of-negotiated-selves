@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import scene from './Scene.tsx?raw'
 import secondStation from './SecondStation.tsx?raw'
-import autoCardStack from './AutoCardStack.tsx?raw'
-import cardStyles from './AutoCardStack.css?raw'
+import questionCardDeck from './QuestionCardDeck.tsx?raw'
+import questionCardDeckStyles from './QuestionCardDeck.css?raw'
 import postProcessing from './PostProcessing.tsx?raw'
 import pointCloudShaders from '../shaders/pointCloudShaders.ts?raw'
 import cardSwapSource from './CardSwap.jsx?raw'
@@ -22,27 +22,30 @@ describe('station composition', () => {
     expect(scene).not.toContain('RoomQuestionCards')
   })
 
-  it('puts the scan field behind a static card row', () => {
+  it('keeps GridScan and mounts the React Bits question deck', () => {
     expect(secondStation).toContain('GridScan')
-    expect(secondStation).toContain('AutoCardStack')
+    expect(secondStation).toContain('QuestionCardDeck')
+    expect(secondStation).not.toContain('AutoCardStack')
   })
 
-  it('uses the supplied TiltedCard component for the station cards', () => {
-    expect(autoCardStack).toContain("import TiltedCard from './TiltedCard'")
-    expect(autoCardStack).toContain('rotateAmplitude={0}')
-    expect(autoCardStack).toContain('scaleOnHover={1}')
-    expect(autoCardStack).not.toContain('HOUSE OF NEGOTIATED SELVES')
-    expect(autoCardStack).not.toContain('card.kicker.toUpperCase()')
-    expect(autoCardStack).toContain('captionText={card.title}')
+  it('passes every existing question to the exact CardSwap component', () => {
+    expect(questionCardDeck).toContain("import CardSwap, { Card } from './CardSwap'")
+    expect(questionCardDeck).toContain('stationCards.map')
+    expect(questionCardDeck).toContain('<CardSwap')
+    expect(questionCardDeck).toContain('pauseOnHover={true}')
+    expect(questionCardDeck).toContain('easing="linear"')
   })
 
-  it('does not keep automatic card cycling on the second station', () => {
-    expect(secondStation).not.toContain('setInterval')
+  it('limits the presentation to three visible depth slots', () => {
+    expect(questionCardDeck).toContain('question-deck-viewport')
+    expect(questionCardDeckStyles).toContain('overflow: hidden')
+    expect(questionCardDeckStyles).toContain('--deck-visible-slots: 3')
   })
 
-  it('keeps the card row visually static without hover motion', () => {
-    expect(cardStyles).not.toContain('.auto-stack-card:hover')
-    expect(cardStyles).not.toContain('transition:')
+  it('uses a stable three-card fallback for reduced motion', () => {
+    expect(questionCardDeck).toContain('usePrefersReducedMotion')
+    expect(questionCardDeck).toContain('stationCards.slice(0, 3)')
+    expect(questionCardDeck).toContain('question-deck-static')
   })
 
   it('keeps VHS-style post effects out of the orb', () => {

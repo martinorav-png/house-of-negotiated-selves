@@ -1,4 +1,4 @@
-import { AutoCardStack } from './AutoCardStack'
+import { QuestionCardDeck } from './QuestionCardDeck'
 import { GridScan } from './GridScan'
 import { CARD_PALETTE } from '../lib/cardPalette'
 import './SecondStation.css'
@@ -25,7 +25,7 @@ export function SecondStation() {
         lineJitter={1}
         scanSoftness={1.5}
       />
-      <AutoCardStack />
+      <QuestionCardDeck />
     </section>
   )
 }
