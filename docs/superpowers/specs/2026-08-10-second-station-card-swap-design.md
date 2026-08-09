@@ -20,17 +20,27 @@ Depth comes from the three physical stack positions, perspective, subtle surface
 
 ## Architecture
 
-### `CardSwap`
+### Exact React Bits `CardSwap`
 
-Add a local TypeScript React component adapted from the supplied React Bits JavaScript and CSS source. It owns:
+Install the official JavaScript + CSS React Bits component with:
 
-- the three physical card slots;
+```bash
+npx shadcn@latest add @react-bits/CardSwap-JS-CSS
+```
+
+Keep the generated `CardSwap` component source and stylesheet intact. It owns:
+
+- the physical card slots;
 - GSAP timelines for exit, promotion, and return motion;
-- the index of the front question;
-- the mapping from the seven-card data set into three rendered cards;
 - automatic timing, hover/focus pausing, cleanup, and reduced-motion behavior.
 
-Unlike the stock React Bits implementation, it will not render every child as a visible stack layer. It will maintain a circular queue over the full data set and render only the front, middle, and back entries.
+All seven current question cards are passed to the exact component so its built-in circular ordering performs the full cycle.
+
+### Three-slot station viewport
+
+Add a station-owned wrapper around `CardSwap` that visually reveals only the front, middle, and back depth slots. Deeper cards remain outside the clipped presentation window. When the front card departs and the built-in React Bits timeline promotes the remaining cards, the fourth card crosses into the visible rear slot naturally.
+
+This wrapper may position, size, and clip the generated component, but it must not modify the generated component source or stylesheet.
 
 ### `SecondStation`
 
@@ -42,23 +52,23 @@ Unlike the stock React Bits implementation, it will not render every child as a 
 
 ## Data and Motion Flow
 
-1. Initialize visible indices as `[0, 1, 2]` and keep the next queued index at `3`.
+1. Pass all seven `stationCards` to the exact React Bits component in their current order.
 2. Hold the front card long enough for the question to be read.
 3. Animate the front card out of the deck.
 4. Promote the middle card to front and the back card to middle.
-5. Replace the departed card's content with the next queued question while it is outside the visible stack.
-6. Position that recycled card in the rear slot and animate it into view.
-7. Advance the queue index modulo seven and repeat.
+5. Promote the next queued card from the clipped depth area into the visible rear slot.
+6. Return the departed card to the deepest slot using the component's built-in circular order.
+7. Repeat until all seven questions have led the deck, then continue from question one.
 
-Only three card elements exist in the visual deck throughout the cycle. Content replacement happens while the recycled element is out of view, preventing flashes or duplicate visible questions.
+Only three cards are visible in the station viewport throughout the cycle, even though all seven remain mounted so the exact component can animate its own order.
 
 ## Interaction and Accessibility
 
 - The deck advances automatically.
-- Hovering or keyboard-focusing the deck pauses both the active timeline and the next automatic advance. Leaving or blurring resumes it without creating duplicate timers.
+- The exact component receives `pauseOnHover={true}`, using its built-in pause and resume behavior without station-level timer logic.
 - The deck exposes an accessible label, and each rendered card retains its full question text.
-- With reduced motion enabled, questions still cycle but use an immediate or short cross-state transition instead of the full 3D travel animation.
-- Animation setup and timers are fully cleaned up on unmount and React development-mode effect re-runs.
+- With reduced motion enabled, the station renders a stable three-card composition instead of mounting the animated component.
+- Animation setup and timer cleanup remain owned by the exact generated component.
 
 ## Responsive Behavior
 
@@ -68,24 +78,21 @@ On narrower screens, the stack remains centered and continues to show three card
 
 ## Failure Handling
 
-- With zero cards, the deck renders nothing.
-- With one card, it renders a single stable card and does not start a swap timer.
-- With two cards, it renders two slots and cycles safely.
-- GSAP timelines and timers are killed before being recreated.
-- Card sizing and slot calculations avoid depending on browser-only measurements during render.
+- The station always supplies the seven validated `stationCards` entries.
+- The generated component retains its built-in behavior for small child counts and timeline cleanup.
+- The station wrapper uses fixed responsive bounds rather than browser measurements during render.
+- If the registry command fails, implementation stops and reports the installation error instead of substituting a hand-written approximation.
 
-The production station is expected to receive all seven `stationCards`, but these cases keep the component reusable and prevent interval errors.
+The station does not fork or patch registry-owned logic to add behavior.
 
 ## Verification
 
 Automated checks will cover:
 
-- initial visible indices;
-- advancing a three-slot window through a larger circular data set;
-- wraparound from the final question to the first;
-- no more than three visible entries;
-- one- and two-card behavior;
-- reduced-motion state selection where practical.
+- the exact registry component and CSS are installed and imported;
+- all seven current `stationCards` are rendered as `Card` children;
+- the station presentation applies the three-slot clipping wrapper;
+- the old `AutoCardStack` is no longer rendered by `SecondStation`.
 
 Project verification will run the existing test suite and production build. Browser verification at the card-station route will confirm:
 
