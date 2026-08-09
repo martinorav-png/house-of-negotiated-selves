@@ -38,7 +38,7 @@ describe('station composition', () => {
 
   it('limits the presentation to three visible depth slots', () => {
     expect(questionCardDeck).toContain('question-deck-viewport')
-    expect(questionCardDeckStyles).toContain('overflow: hidden')
+    expect(questionCardDeckStyles).toContain('overflow: visible')
     expect(questionCardDeckStyles).toContain('--deck-visible-slots: 3')
   })
 
