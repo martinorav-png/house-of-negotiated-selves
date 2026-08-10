@@ -47,7 +47,7 @@ void main() {
   vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
   float cameraDistance = max(0.1, -mvPosition.z);
   float perspectiveSize = 10.0 / cameraDistance;
-  gl_PointSize = clamp(aSize * uPointScale * uPixelRatio * perspectiveSize, 0.7, 3.2);
+  gl_PointSize = clamp(aSize * uPointScale * uPixelRatio * perspectiveSize, 0.95, 4.2);
 
   float depthAttenuation = mix(1.0, smoothstep(20.0, 3.0, cameraDistance), uDepthFade);
   float flickerPhase = hash11(floor(uTime * uFlickerSpeed * 7.0) + aSeed * 211.0);

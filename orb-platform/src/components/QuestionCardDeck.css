@@ -1,10 +1,10 @@
 .question-deck-viewport {
   --deck-visible-slots: 3;
-  --deck-card-width: clamp(260px, 34vw, 430px);
-  --deck-card-height: clamp(360px, 52vw, 610px);
+  --deck-card-width: clamp(232px, 29vw, 370px);
+  --deck-card-height: clamp(320px, 44vw, 525px);
   position: absolute;
   left: 50%;
-  top: 52%;
+  top: 55%;
   z-index: 3;
   width: calc(var(--deck-card-width) + 56px);
   height: calc(var(--deck-card-height) + 88px);
@@ -111,9 +111,9 @@
 
 @media (max-width: 700px) {
   .question-deck-viewport {
-    --deck-card-width: clamp(232px, 76vw, 320px);
-    --deck-card-height: clamp(336px, 112vw, 468px);
-    top: 53%;
+    --deck-card-width: clamp(210px, 68vw, 288px);
+    --deck-card-height: clamp(304px, 98vw, 410px);
+    top: 55.5%;
   }
 
   .question-deck-viewport .question-swap-card {
@@ -127,9 +127,9 @@
 
 @media (max-height: 620px) {
   .question-deck-viewport {
-    --deck-card-width: clamp(296px, 42vw, 360px);
-    --deck-card-height: clamp(192px, calc(100svh - 120px), 400px);
-    top: 50%;
+    --deck-card-width: clamp(260px, 36vw, 310px);
+    --deck-card-height: clamp(192px, calc(100svh - 130px), 340px);
+    top: 54%;
   }
 
   .question-deck-viewport .question-swap-card {
