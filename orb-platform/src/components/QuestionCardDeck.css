@@ -1,10 +1,10 @@
 .question-deck-viewport {
   --deck-visible-slots: 3;
-  --deck-card-width: clamp(232px, 29vw, 370px);
-  --deck-card-height: clamp(320px, 44vw, 525px);
+  --deck-card-width: clamp(180px, 16vw, 230px);
+  --deck-card-height: clamp(250px, 22vw, 320px);
   position: absolute;
   left: 50%;
-  top: 55%;
+  top: 72%;
   z-index: 3;
   width: calc(var(--deck-card-width) + 56px);
   height: calc(var(--deck-card-height) + 88px);
@@ -86,7 +86,7 @@
   max-width: 12ch;
   color: #f3f7f3;
   font-family: Georgia, 'Times New Roman', serif;
-  font-size: clamp(2rem, 4.1vw, 3.9rem);
+  font-size: clamp(1.4rem, 2.4vw, 2.35rem);
   font-weight: 400;
   letter-spacing: -0.035em;
   line-height: 0.98;
@@ -111,9 +111,9 @@
 
 @media (max-width: 700px) {
   .question-deck-viewport {
-    --deck-card-width: clamp(210px, 68vw, 288px);
-    --deck-card-height: clamp(304px, 98vw, 410px);
-    top: 55.5%;
+    --deck-card-width: clamp(170px, 54vw, 220px);
+    --deck-card-height: clamp(240px, 76vw, 310px);
+    top: 70%;
   }
 
   .question-deck-viewport .question-swap-card {
@@ -121,15 +121,15 @@
   }
 
   .question-swap-title {
-    font-size: clamp(2rem, 10.5vw, 3rem);
+    font-size: clamp(1.35rem, 7vw, 2rem);
   }
 }
 
 @media (max-height: 620px) {
   .question-deck-viewport {
-    --deck-card-width: clamp(260px, 36vw, 310px);
-    --deck-card-height: clamp(192px, calc(100svh - 130px), 340px);
-    top: 54%;
+    --deck-card-width: clamp(168px, 24vw, 210px);
+    --deck-card-height: clamp(190px, calc(100svh - 150px), 250px);
+    top: 64%;
   }
 
   .question-deck-viewport .question-swap-card {

@@ -1,18 +1,14 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
-import { CAMERA, ORB, RENDERER, ROOM } from '../config'
+import { CAMERA, RENDERER, ROOM } from '../config'
 import {
   SECOND_STATION_POINT_CLOUD_CONFIG,
   buildSecondStationPlatformCloud,
   buildSecondStationRoomCloud,
   type PointCloudQuality,
 } from '../lib/secondStationPointCloud'
-import {
-  buildPointGeometry,
-  mergePointClouds,
-  sampleSphere,
-} from '../lib/samplePoints'
+import { buildPointGeometry, mergePointClouds } from '../lib/samplePoints'
 import {
   cardPointCloudFragmentShader,
   cardPointCloudVertexShader,
@@ -40,25 +36,24 @@ function CardRoomCamera() {
   return null
 }
 
-function makeUniforms(isOrb: boolean, pixelRatio: number) {
+function makeUniforms(pixelRatio: number) {
   const config = SECOND_STATION_POINT_CLOUD_CONFIG
   return {
     uTime: { value: 0 },
     uPointScale: { value: config.pointSize.scale },
     uPixelRatio: { value: pixelRatio },
-    uOrbPosition: { value: new THREE.Vector3(0, ORB.baseY, 0) },
+    uOrbPosition: { value: new THREE.Vector3(0, -100, 0) },
     uOrbInfluenceRadius: { value: config.orbInfluenceRadius },
-    uOrbInfluenceStrength: { value: config.orbInfluenceStrength },
+    uOrbInfluenceStrength: { value: 0 },
     uFlickerAmount: { value: config.flickerAmount },
     uFlickerSpeed: { value: config.flickerSpeed },
     uDepthFade: { value: config.depthFade },
-    uIsOrb: { value: isOrb ? 1 : 0 },
+    uIsOrb: { value: 0 },
   }
 }
 
 function ScannedInstallation({ quality }: { quality: PointCloudQuality }) {
   const { gl } = useThree()
-  const orb = useRef<THREE.Points>(null)
   const roomGeometry = useMemo(
     () =>
       buildPointGeometry(
@@ -69,18 +64,7 @@ function ScannedInstallation({ quality }: { quality: PointCloudQuality }) {
       ),
     [quality],
   )
-  const orbGeometry = useMemo(() => {
-    const count = SECOND_STATION_POINT_CLOUD_CONFIG[quality].orbCount
-    return buildPointGeometry(
-      sampleSphere(ORB.radius, {
-        shellCount: Math.round(count * 0.72),
-        volumeCount: Math.round(count * 0.22),
-        haloCount: count - Math.round(count * 0.72) - Math.round(count * 0.22),
-      }),
-    )
-  }, [quality])
-  const roomUniforms = useMemo(() => makeUniforms(false, gl.getPixelRatio()), [gl])
-  const orbUniforms = useMemo(() => makeUniforms(true, gl.getPixelRatio()), [gl])
+  const roomUniforms = useMemo(() => makeUniforms(gl.getPixelRatio()), [gl])
   const roomMaterial = useMemo(
     () =>
       new THREE.ShaderMaterial({
@@ -93,51 +77,19 @@ function ScannedInstallation({ quality }: { quality: PointCloudQuality }) {
       }),
     [roomUniforms],
   )
-  const orbMaterial = useMemo(
-    () =>
-      new THREE.ShaderMaterial({
-        vertexShader: cardPointCloudVertexShader,
-        fragmentShader: cardPointCloudFragmentShader,
-        uniforms: orbUniforms,
-        transparent: true,
-        depthWrite: false,
-        blending: THREE.AdditiveBlending,
-      }),
-    [orbUniforms],
-  )
-
   useFrame((state) => {
-    const time = state.clock.elapsedTime
-    const orbY = ORB.baseY + Math.sin(time * 0.7) * 0.018
-    if (orb.current) orb.current.position.y = orbY
-    roomUniforms.uTime.value = time
-    orbUniforms.uTime.value = time
-    roomUniforms.uOrbPosition.value.set(0, orbY, 0)
-    orbUniforms.uOrbPosition.value.set(0, 0, 0)
+    roomUniforms.uTime.value = state.clock.elapsedTime
   })
 
   useEffect(
     () => () => {
       roomGeometry.dispose()
-      orbGeometry.dispose()
       roomMaterial.dispose()
-      orbMaterial.dispose()
     },
-    [orbGeometry, orbMaterial, roomGeometry, roomMaterial],
+    [roomGeometry, roomMaterial],
   )
 
-  return (
-    <>
-      <points geometry={roomGeometry} material={roomMaterial} frustumCulled={false} />
-      <points
-        ref={orb}
-        geometry={orbGeometry}
-        material={orbMaterial}
-        position={[0, ORB.baseY, 0]}
-        frustumCulled={false}
-      />
-    </>
-  )
+  return <points geometry={roomGeometry} material={roomMaterial} frustumCulled={false} />
 }
 
 export function CardPointCloudRoom() {

@@ -5,7 +5,7 @@ export const SECOND_STATION_POINT_CLOUD_CONFIG = {
   seed: 260810,
   desktop: { pointCount: 150000, orbCount: 26000 },
   mobile: { pointCount: 60000, orbCount: 12000 },
-  pointSize: { min: 1.35, max: 3.6, scale: 0.48 },
+  pointSize: { min: 1.55, max: 4, scale: 0.58 },
   baseDensity: 0.75,
   densityNoiseScale: 0.35,
   densityNoiseStrength: 0.7,
