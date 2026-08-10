@@ -180,12 +180,6 @@ export default function App() {
   }, [])
 
   useEffect(() => {
-    if (!window.location.hash) {
-      window.history.replaceState(null, '', getStationHref('orb'))
-    }
-  }, [])
-
-  useEffect(() => {
     const onError = (event: ErrorEvent) => {
       if (
         typeof event.message === 'string' &&

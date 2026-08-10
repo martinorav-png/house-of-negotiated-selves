@@ -7,5 +7,6 @@ export function getStationFromHash(hash: string): StationRoute {
 }
 
 export function getStationHref(station: StationRoute) {
+  if (station === 'orb') return '/'
   return `#/${station}`
 }

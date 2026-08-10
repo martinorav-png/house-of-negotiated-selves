@@ -21,7 +21,7 @@ describe('getStationFromHash', () => {
 
 describe('getStationHref', () => {
   it('builds hash links for stations', () => {
-    expect(getStationHref('orb')).toBe('#/orb')
+    expect(getStationHref('orb')).toBe('/')
     expect(getStationHref('cards')).toBe('#/cards')
     expect(getStationHref('avatars')).toBe('#/avatars')
   })
