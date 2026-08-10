@@ -1,6 +1,7 @@
 import { QuestionCardDeck } from './QuestionCardDeck'
 import { CardPointCloudRoom } from './CardPointCloudRoom'
 import { GridScan } from './GridScan'
+import { SECOND_STATION_POINT_CLOUD_CONFIG } from '../lib/secondStationPointCloud'
 import './SecondStation.css'
 
 export function SecondStation() {
@@ -26,6 +27,8 @@ export function SecondStation() {
         noiseIntensity={0.1}
         lineJitter={1}
         scanSoftness={1.5}
+        scanDuration={SECOND_STATION_POINT_CLOUD_CONFIG.ripple.duration}
+        scanDelay={0}
       />
       <QuestionCardDeck />
     </section>

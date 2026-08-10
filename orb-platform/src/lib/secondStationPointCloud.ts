@@ -21,7 +21,7 @@ export const SECOND_STATION_POINT_CLOUD_CONFIG = {
   depthFade: 0.15,
   ripple: {
     center: [0, 1, 0] as [number, number, number],
-    speed: 0.62,
+    duration: 3.4,
     radius: 7,
     width: 0.42,
     displacement: 0.055,

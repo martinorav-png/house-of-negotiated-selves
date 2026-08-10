@@ -49,7 +49,7 @@ function makeUniforms(pixelRatio: number) {
     uFlickerSpeed: { value: config.flickerSpeed },
     uDepthFade: { value: config.depthFade },
     uRippleCenter: { value: new THREE.Vector3(...config.ripple.center) },
-    uRippleSpeed: { value: config.ripple.speed },
+    uRippleDuration: { value: config.ripple.duration },
     uRippleRadius: { value: config.ripple.radius },
     uRippleWidth: { value: config.ripple.width },
     uRippleDisplacement: { value: config.ripple.displacement },

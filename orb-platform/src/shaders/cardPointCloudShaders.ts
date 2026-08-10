@@ -10,7 +10,7 @@ uniform float uFlickerSpeed;
 uniform float uDepthFade;
 uniform float uIsOrb;
 uniform vec3 uRippleCenter;
-uniform float uRippleSpeed;
+uniform float uRippleDuration;
 uniform float uRippleRadius;
 uniform float uRippleWidth;
 uniform float uRippleDisplacement;
@@ -47,13 +47,21 @@ void main() {
   pos += aNormal * orbInfluence * uOrbInfluenceStrength * (0.006 + temporalNoise * 0.004);
 
   float rippleDistance = distance(pos, uRippleCenter);
-  float rippleTravel = mod(uTime * uRippleSpeed, uRippleRadius);
+  float rippleCycle = mod(uTime, uRippleDuration * 2.0);
+  float rippleDirection = rippleCycle < uRippleDuration ? 1.0 : -1.0;
+  float ripplePhase = rippleCycle < uRippleDuration
+    ? rippleCycle / uRippleDuration
+    : 1.0 - ((rippleCycle - uRippleDuration) / uRippleDuration);
+  float rippleTravel = ripplePhase * uRippleRadius;
   float rippleEnvelope = smoothstep(0.0, 0.5, rippleTravel)
     * (1.0 - smoothstep(uRippleRadius - 1.0, uRippleRadius, rippleTravel));
   float primaryRipple = 1.0 - smoothstep(0.0, uRippleWidth, abs(rippleDistance - rippleTravel));
-  float echoTravel = max(0.0, rippleTravel - 0.58);
+  float echoTravel = clamp(rippleTravel - rippleDirection * 0.58, 0.0, uRippleRadius);
+  float echoGate = rippleDirection > 0.0
+    ? step(0.58, rippleTravel)
+    : step(rippleTravel, uRippleRadius - 0.58);
   float echoRipple = (1.0 - smoothstep(0.0, uRippleWidth * 1.18, abs(rippleDistance - echoTravel)))
-    * step(0.58, rippleTravel) * 0.42;
+    * echoGate * 0.42;
   vRipple = max(primaryRipple, echoRipple) * rippleEnvelope;
   pos += aNormal * vRipple * uRippleDisplacement;
 
