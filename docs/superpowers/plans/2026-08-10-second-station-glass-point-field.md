@@ -1,5 +1,7 @@
 # Second Station Glass Cards and Point Field Implementation Plan
 
+> Superseded by `2026-08-10-second-station-lidar-background.md`. Do not execute this procedural full-screen point-mask plan.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Give the second station sharp smoked-glass question cards and replace its continuous grid lines with an isolated circular point field while preserving every existing scan and card interaction.

@@ -1,5 +1,7 @@
 # Second Station Glass Cards and Point Field Design
 
+> Superseded by `2026-08-10-second-station-lidar-background-design.md` after the user supplied a complete stochastic 3D point-cloud brief. The glass-card direction remains valid; the procedural fragment-shader point mask does not.
+
 ## Goal
 
 Refine the second station's visual material without changing its interaction model. Question cards become sharp-edged smoked glass, and the `GridScan` background replaces continuous grid lines with a true field of circular points.
