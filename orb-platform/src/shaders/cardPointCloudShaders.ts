@@ -9,6 +9,12 @@ uniform float uFlickerAmount;
 uniform float uFlickerSpeed;
 uniform float uDepthFade;
 uniform float uIsOrb;
+uniform vec3 uRippleCenter;
+uniform float uRippleSpeed;
+uniform float uRippleRadius;
+uniform float uRippleWidth;
+uniform float uRippleDisplacement;
+uniform float uRippleBrightness;
 
 attribute float aSeed;
 attribute float aSize;
@@ -22,6 +28,7 @@ varying float vBrightness;
 varying float vSeed;
 varying float vOrbInfluence;
 varying float vDepth;
+varying float vRipple;
 
 float hash11(float value) {
   return fract(sin(value * 127.1) * 43758.5453123);
@@ -39,6 +46,17 @@ void main() {
   pos += aNormal * temporalNoise * aDisplace * unstablePoint * 0.28;
   pos += aNormal * orbInfluence * uOrbInfluenceStrength * (0.006 + temporalNoise * 0.004);
 
+  float rippleDistance = distance(pos, uRippleCenter);
+  float rippleTravel = mod(uTime * uRippleSpeed, uRippleRadius);
+  float rippleEnvelope = smoothstep(0.0, 0.5, rippleTravel)
+    * (1.0 - smoothstep(uRippleRadius - 1.0, uRippleRadius, rippleTravel));
+  float primaryRipple = 1.0 - smoothstep(0.0, uRippleWidth, abs(rippleDistance - rippleTravel));
+  float echoTravel = max(0.0, rippleTravel - 0.58);
+  float echoRipple = (1.0 - smoothstep(0.0, uRippleWidth * 1.18, abs(rippleDistance - echoTravel)))
+    * step(0.58, rippleTravel) * 0.42;
+  vRipple = max(primaryRipple, echoRipple) * rippleEnvelope;
+  pos += aNormal * vRipple * uRippleDisplacement;
+
   if (uIsOrb > 0.5) {
     float breath = sin(uTime * 0.72 + aSeed * 8.0) * 0.006;
     pos += normalize(pos + vec3(0.0001)) * breath;
@@ -47,13 +65,14 @@ void main() {
   vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
   float cameraDistance = max(0.1, -mvPosition.z);
   float perspectiveSize = 10.0 / cameraDistance;
-  gl_PointSize = clamp(aSize * uPointScale * uPixelRatio * perspectiveSize, 1.15, 5.0);
+  float rippleSize = 1.0 + vRipple * 0.34;
+  gl_PointSize = clamp(aSize * uPointScale * uPixelRatio * perspectiveSize * rippleSize, 1.15, 5.6);
 
   float depthAttenuation = mix(1.0, smoothstep(20.0, 3.0, cameraDistance), uDepthFade);
   float flickerPhase = hash11(floor(uTime * uFlickerSpeed * 7.0) + aSeed * 211.0);
   float flicker = mix(1.0, step(0.22, flickerPhase), unstablePoint);
-  vBrightness = aBrightness * (0.72 + orbInfluence * 0.38 + uIsOrb * 0.32);
-  vAlpha = aVisibility * depthAttenuation * flicker;
+  vBrightness = aBrightness * (1.02 + orbInfluence * 0.38 + uIsOrb * 0.32 + vRipple * uRippleBrightness);
+  vAlpha = aVisibility * depthAttenuation * flicker * (1.08 + vRipple * 0.24);
   vDepth = clamp(cameraDistance / 20.0, 0.0, 1.0);
 
   gl_Position = projectionMatrix * mvPosition;
@@ -66,6 +85,7 @@ varying float vBrightness;
 varying float vSeed;
 varying float vOrbInfluence;
 varying float vDepth;
+varying float vRipple;
 
 void main() {
   vec2 point = gl_PointCoord - vec2(0.5);
@@ -73,11 +93,11 @@ void main() {
   if (radius > 0.5) discard;
   float edge = smoothstep(0.5, 0.39, radius);
 
-  vec3 nearBlack = vec3(0.018, 0.026, 0.024);
-  vec3 mutedCyan = vec3(0.18, 0.33, 0.36);
-  vec3 mutedViolet = vec3(0.24, 0.19, 0.32);
-  vec3 dimGreen = vec3(0.23, 0.34, 0.27);
-  vec3 rareMagenta = vec3(0.38, 0.13, 0.29);
+  vec3 nearBlack = vec3(0.035, 0.052, 0.047);
+  vec3 mutedCyan = vec3(0.27, 0.54, 0.58);
+  vec3 mutedViolet = vec3(0.38, 0.3, 0.52);
+  vec3 dimGreen = vec3(0.34, 0.55, 0.39);
+  vec3 rareMagenta = vec3(0.56, 0.22, 0.43);
 
   float tone = fract(vSeed * 17.31);
   vec3 color = mix(nearBlack, mutedCyan, smoothstep(0.08, 0.72, tone) * 0.72);
@@ -85,9 +105,10 @@ void main() {
   color = mix(color, dimGreen, smoothstep(0.32, 0.5, fract(vSeed * 8.7)) * 0.22);
   color = mix(color, rareMagenta, step(0.982, fract(vSeed * 41.9)) * 0.22);
   color = mix(color, vec3(0.78, 0.9, 0.88), vOrbInfluence * 0.28);
-  color *= vBrightness * mix(1.0, 0.68, vDepth);
+  color = mix(color, vec3(0.72, 0.93, 0.9), vRipple * 0.34);
+  color *= vBrightness * mix(1.12, 0.82, vDepth);
 
-  float alpha = edge * vAlpha;
+  float alpha = edge * min(vAlpha, 1.0);
   if (alpha < 0.018) discard;
   gl_FragColor = vec4(color, alpha);
 }
