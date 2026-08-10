@@ -21,6 +21,8 @@ export const scanUniforms = {
   uReducedMotion: { value: 0 },
   /** Horizontal room scan plane Y */
   uScanY: { value: 0 },
+  /** 0–1 — scan band only shows once the visitor starts typing an answer. */
+  uScanActive: { value: 0 },
   /** Mic amplitude 0–1 */
   uAudio: { value: 0 },
   uAudioBass: { value: 0 },
@@ -30,7 +32,8 @@ export const scanUniforms = {
     value: new THREE.Vector3(0, STATS_SCREEN.y, screenZ),
   },
   uScreenColor: { value: new THREE.Color(PALETTE.orbMid) },
-  uScreenIntensity: { value: 1.15 },
+  // No CRT/text panel in the scene right now — keep the spill term inert.
+  uScreenIntensity: { value: 0 },
   uScreenHalfSize: {
     value: new THREE.Vector2(STATS_SCREEN.width * 0.5, STATS_SCREEN.height * 0.5),
   },

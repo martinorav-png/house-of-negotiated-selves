@@ -10,6 +10,7 @@ import { useMediaSensors } from './hooks/useMediaSensors'
 import { usePrefersReducedMotion } from './hooks/usePrefersReducedMotion'
 import { QUESTIONS } from './lib/questions'
 import { applySpatialInput } from './lib/spatialInput'
+import { typingState } from './lib/typingState'
 import { getStationFromHash, getStationHref, type StationRoute } from './lib/stationRoute'
 import './index.css'
 
@@ -167,6 +168,9 @@ export default function App() {
       if (next.submitted) {
         setSubmitSerial((serial) => serial + 1)
         setQuestionIndex((index) => (index + 1) % QUESTIONS.length)
+        typingState.active = false
+      } else {
+        typingState.active = next.value.trim().length > 0
       }
       return next.value
     })

@@ -21,7 +21,7 @@ export const ORB = {
   radius: 0.55,
   segments: 96,
   /** World Y of orb center (platform top + float gap) */
-  baseY: PLATFORM.y + PLATFORM.height / 2 + 0.72,
+  baseY: PLATFORM.y + PLATFORM.height / 2 + 1.2,
   floatAmplitude: 0.06,
   floatSpeed: 0.7,
   breathAmplitude: 0.018,
@@ -32,31 +32,33 @@ export const ORB = {
   /** Lower = smoother hover ease (damp lambda) */
   hoverDampIn: 3.2,
   hoverDampOut: 2.4,
-  scaleDamp: 4.5,
-  /** Idle heartbeat ripple (lub–dub) */
-  heartbeatBpm: 54,
-  heartbeatScale: 0.016,
-  heartbeatLight: 0.1,
-  heartbeatRipple: 0.52,
+  /** Lower = slower, softer catch-up to target scale — avoids a snappy feel. */
+  scaleDamp: 2.2,
+  /** Idle heartbeat — slow, deep, almost geological. Single smooth pulse,
+   * not a springy double-tap. */
+  heartbeatBpm: 15,
+  heartbeatScale: 0.007,
+  heartbeatLight: 0,
+  heartbeatRipple: 0.18,
 } as const
 
-/** Cool cyan–violet installation palette — restrained scan colours */
+/** Warm, sun-bleached Dune palette — sand/rust/bone against near-black */
 export const PALETTE = {
-  orbCore: '#e8f4ea',
+  orbCore: '#f9fdf8',
   orbMid: '#a8cdb7',
   orbRim: '#d2b57f',
   orbAccent: '#c8dccd',
-  envPoint: '#738078',
-  envPointDim: '#3d4741',
-  wall: '#181d19',
+  envPoint: '#8c7b63',
+  envPointDim: '#453a2e',
+  wall: '#1a140f',
   wallRoughness: 0.82,
-  floor: '#101411',
+  floor: '#100c08',
   floorRoughness: 0.55,
-  platform: '#242d28',
+  platform: '#2c2118',
   platformMetalness: 0.55,
   platformRoughness: 0.35,
-  ambient: '#172019',
-  fill: '#314035',
+  ambient: '#180f0a',
+  fill: '#3d2f22',
 } as const
 
 export const LIGHT = {
@@ -96,9 +98,9 @@ export const PARTICLES = {
 
 /** Point-cloud densities — tune for GPU */
 export const SCAN = {
-  orbShell: 72000,
-  orbVolume: 24000,
-  orbHalo: 10000,
+  orbShell: 46000,
+  orbVolume: 15000,
+  orbHalo: 6500,
   roomBack: 42000,
   roomLeft: 24000,
   roomRight: 24000,
@@ -182,12 +184,12 @@ export const STATS_SCREEN = {
 
 /** Spatial question prompt below the orb */
 export const QUESTION = {
-  position: [0, 0.04, 1.45] as [number, number, number],
+  position: [0, 0.5, 1.45] as [number, number, number],
   /** Tilt slightly toward camera for readable foreshortening */
   rotation: [-0.18, 0, 0] as [number, number, number],
   fontSize: 0.15,
   maxWidth: 4.2,
-  answerYOffset: -0.34,
+  answerYOffset: -0.1,
   answerMaxWidth: 4.0,
   /** How far edge of the bent sentence sits back vs the center */
   arcRecess: 0.62,

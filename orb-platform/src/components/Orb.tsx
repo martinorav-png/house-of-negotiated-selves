@@ -6,6 +6,7 @@ import { useOrbContext } from '../context/OrbContext'
 import { scanUniforms } from '../lib/scanUniforms'
 import { audioLevels } from '../lib/audioLevels'
 import { heartbeat } from '../lib/heartbeat'
+import { typingState } from '../lib/typingState'
 import { sampleSphere, buildPointGeometry } from '../lib/samplePoints'
 import {
   orbPointVertexShader,
@@ -66,7 +67,7 @@ export function Orb() {
         uniforms,
         transparent: true,
         depthWrite: false,
-        blending: THREE.AdditiveBlending,
+        blending: THREE.NormalBlending,
       }),
     [uniforms],
   )
@@ -83,6 +84,9 @@ export function Orb() {
 
   const hoverAmt = useRef(0)
   const actAmt = useRef(0)
+  const scanActiveAmt = useRef(0)
+  const scanCycleStart = useRef(0)
+  const wasTyping = useRef(false)
   const prevActivation = useRef(0)
   const lightIntensity = useRef<number>(LIGHT.orbIdle)
   const scaleRef = useRef(1)
@@ -111,9 +115,24 @@ export function Orb() {
 
     scanUniforms.uTime.value = t
     scanUniforms.uReducedMotion.value = reducedMotion ? 1 : 0
-    // Horizontal scan plane travelling floor → ceiling
-    const scanT = (t * SCAN.scanSpeed * 0.18) % 1
+    // Horizontal scan band climbing floor → ceiling — only while typing.
+    // Restarts from the floor each time typing begins (not wherever a
+    // background cycle happened to be), so it always reads as climbing up
+    // from the bottom rather than resuming mid-air.
+    if (typingState.active && !wasTyping.current) {
+      scanCycleStart.current = t
+    }
+    wasTyping.current = typingState.active
+    const cyclePos = (t - scanCycleStart.current) * SCAN.scanSpeed * 0.09
+    const scanT = cyclePos % 1
     scanUniforms.uScanY.value = scanT * ROOM.height
+    scanActiveAmt.current = THREE.MathUtils.damp(
+      scanActiveAmt.current,
+      typingState.active ? 1 : 0,
+      2.5,
+      d,
+    )
+    scanUniforms.uScanActive.value = scanActiveAmt.current
 
     // Smooth hover — never snap the live value; only chase the boolean target
     const hoverTarget = hover

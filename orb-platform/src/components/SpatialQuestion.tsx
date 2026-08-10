@@ -1,10 +1,13 @@
 import { useEffect, useMemo, useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
-import { QUESTION, PALETTE } from '../config'
+import { QUESTION } from '../config'
 import { useOrbContext } from '../context/OrbContext'
 import { scanUniforms } from '../lib/scanUniforms'
 import { audioLevels } from '../lib/audioLevels'
+import { drawGrainyText } from '../lib/grainyText'
+
+const REDRAW_INTERVAL = 1 / 18
 
 type SpatialQuestionProps = {
   answerText: string
@@ -62,7 +65,6 @@ function createTextPlane(width: number, height: number): TextPlane {
     depthWrite: false,
     toneMapped: false,
     side: THREE.DoubleSide,
-    color: new THREE.Color(PALETTE.orbCore),
   })
 
   return { canvas, ctx, texture, geometry, basePositions, material }
@@ -73,6 +75,7 @@ export function SpatialQuestion({ answerText, submitSerial }: SpatialQuestionPro
   const group = useRef<THREE.Group>(null)
   const answerFlash = useRef(0)
   const lastSubmitSerial = useRef(submitSerial)
+  const lastDraw = useRef(-1)
 
   const answerPlane = useMemo(
     () => createTextPlane(QUESTION.answerMaxWidth, QUESTION.answerMaxWidth * (256 / 2048) * 0.92),
@@ -104,13 +107,23 @@ export function SpatialQuestion({ answerText, submitSerial }: SpatialQuestionPro
         audioLevels.level * 0.4,
     )
 
-    const cursorOn = Math.floor(t * 2.4) % 2 === 0
-    drawAnswerText(answerPlane.ctx, answerPlane.canvas, answerText, cursorOn, {
-      opacity: Math.min(1, 0.72 + activity * 0.2 + answerFlash.current * 0.28),
-      glow: 10 + activity * 10 + answerFlash.current * 16,
-      color: PALETTE.orbCore,
-    })
-    answerPlane.texture.needsUpdate = true
+    if (t - lastDraw.current >= REDRAW_INTERVAL) {
+      lastDraw.current = t
+      const cursorOn = Math.floor(t * 2.4) % 2 === 0
+      const display = answerText.length > 0 ? answerText : ''
+      const content = `${display}${cursorOn ? '|' : ''}`
+      const crispAlpha = Math.min(1, 0.75 + activity * 0.15 + answerFlash.current * 0.2)
+      drawGrainyText(answerPlane.ctx, answerPlane.canvas, content, {
+        fontPx: 74,
+        weight: 400,
+        maxWidthPx: answerPlane.canvas.width * 0.9,
+        crispAlpha,
+        smudgeAlpha: 0.3,
+        smudgeBlurPx: 3,
+        grain: 20,
+      })
+      answerPlane.texture.needsUpdate = true
+    }
 
     const recess =
       QUESTION.arcRecess *
@@ -134,36 +147,4 @@ export function SpatialQuestion({ answerText, submitSerial }: SpatialQuestionPro
       <mesh geometry={answerPlane.geometry} material={answerPlane.material} />
     </group>
   )
-}
-
-function drawAnswerText(
-  ctx: CanvasRenderingContext2D,
-  canvas: HTMLCanvasElement,
-  text: string,
-  cursorOn: boolean,
-  opts: { opacity: number; glow: number; color: string },
-) {
-  const w = canvas.width
-  const h = canvas.height
-  ctx.clearRect(0, 0, w, h)
-
-  const display = text.length > 0 ? text : ''
-  const cursor = cursorOn ? '|' : ' '
-  const content = `${display}${cursor}`
-
-  ctx.font = '600 58px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace'
-  ctx.textAlign = 'center'
-  ctx.textBaseline = 'middle'
-  ctx.shadowColor = opts.color
-  ctx.shadowBlur = opts.glow
-  ctx.fillStyle = `rgba(160, 230, 255, ${opts.opacity})`
-  ctx.fillText(content, w / 2, h / 2)
-
-  ctx.shadowBlur = opts.glow * 0.4
-  ctx.fillStyle = `rgba(65, 145, 190, ${opts.opacity * 0.45})`
-  ctx.fillText(content, w / 2 + 2, h / 2 + 1)
-  ctx.shadowBlur = 0
-
-  ctx.fillStyle = `rgba(120, 210, 255, ${opts.opacity * 0.24})`
-  ctx.fillRect(w * 0.22, h * 0.72, w * 0.56, 2)
 }
