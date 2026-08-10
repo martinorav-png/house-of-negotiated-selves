@@ -1,6 +1,6 @@
 import { QuestionCardDeck } from './QuestionCardDeck'
+import { CardPointCloudRoom } from './CardPointCloudRoom'
 import { GridScan } from './GridScan'
-import { CARD_PALETTE } from '../lib/cardPalette'
 import './SecondStation.css'
 
 export function SecondStation() {
@@ -9,6 +9,7 @@ export function SecondStation() {
       className="second-station"
       aria-label="Second station question cards"
     >
+      <CardPointCloudRoom />
       <GridScan
         sensitivity={0}
         lineThickness={4}
@@ -16,8 +17,9 @@ export function SecondStation() {
         gridScale={0.02}
         scanColor="#ffffff"
         scanColorAlt="#ffffff"
-        scanColors={[...CARD_PALETTE]}
+        scanColors={['#ffffff']}
         scanOpacity={0.4}
+        showBasePattern={false}
         enablePost
         bloomIntensity={0.6}
         chromaticAberration={0.003}

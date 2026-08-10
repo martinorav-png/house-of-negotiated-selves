@@ -26,6 +26,7 @@ uniform vec3 uScanColor;
 uniform vec3 uScanColorAlt;
 uniform float uGridScale;
 uniform float uLineStyle;
+uniform float uShowBasePattern;
 uniform float uLineJitter;
 uniform float uScanOpacity;
 uniform float uScanDirection;
@@ -188,7 +189,7 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord)
     float edgeGate = 1.0 - smoothstep(gridScale * 0.5, gridScale * 2.0, edgeDist);
     altMask *= edgeGate;
 
-  float lineMask = max(primaryMask, altMask);
+  float lineMask = max(primaryMask, altMask) * uShowBasePattern;
 
     float fade = exp(-dist * fadeStrength);
 
@@ -261,7 +262,7 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord)
   float alpha = clamp(max(lineVis, combinedPulse), 0.0, 1.0);
   float gx = 1.0 - smoothstep(tx * 2.0, tx * 2.0 + aax * 2.0, ax);
   float gy = 1.0 - smoothstep(ty * 2.0, ty * 2.0 + aay * 2.0, ay);
-  float halo = max(gx, gy) * fade;
+  float halo = max(gx, gy) * fade * uShowBasePattern;
   alpha = max(alpha, halo * clamp(uBloomOpacity, 0.0, 1.0));
   fragColor = vec4(color, alpha);
 }
@@ -286,6 +287,7 @@ export const GridScan = ({
   scanOpacity = 0.4,
   gridScale = 0.1,
   lineStyle = 'solid',
+  showBasePattern = true,
   lineJitter = 0.1,
   scanDirection = 'pingpong',
   enablePost = true,
@@ -451,6 +453,7 @@ export const GridScan = ({
       uScanColorAlt: { value: srgbColor(scanColorAlt) },
       uGridScale: { value: gridScale },
       uLineStyle: { value: lineStyle === 'dashed' ? 1 : lineStyle === 'dotted' ? 2 : 0 },
+      uShowBasePattern: { value: showBasePattern ? 1 : 0 },
       uLineJitter: { value: Math.max(0, Math.min(1, lineJitter || 0)) },
       uScanOpacity: { value: scanOpacity },
       uNoise: { value: noiseIntensity },
@@ -593,6 +596,7 @@ export const GridScan = ({
     scanOpacity,
     gridScale,
     lineStyle,
+    showBasePattern,
     lineJitter,
     scanDirection,
     enablePost,
@@ -624,6 +628,7 @@ export const GridScan = ({
       u.uScanColorAlt.value.copy(srgbColor(scanColorAlt));
       u.uGridScale.value = gridScale;
       u.uLineStyle.value = lineStyle === 'dashed' ? 1 : lineStyle === 'dotted' ? 2 : 0;
+      u.uShowBasePattern.value = showBasePattern ? 1 : 0;
       u.uLineJitter.value = Math.max(0, Math.min(1, lineJitter || 0));
       u.uBloomOpacity.value = Math.max(0, bloomIntensity);
       u.uNoise.value = Math.max(0, noiseIntensity);
@@ -650,6 +655,7 @@ export const GridScan = ({
     scanColorAlt,
     gridScale,
     lineStyle,
+    showBasePattern,
     lineJitter,
     bloomIntensity,
     bloomThreshold,
