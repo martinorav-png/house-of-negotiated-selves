@@ -10,7 +10,20 @@
   height: calc(var(--deck-card-height) + 88px);
   overflow: visible;
   transform: translate(-50%, -50%);
+  animation: question-deck-hover 5.4s ease-in-out infinite;
+  will-change: transform;
   isolation: isolate;
+}
+
+@keyframes question-deck-hover {
+  0%,
+  100% {
+    transform: translate(-50%, calc(-50% + 5px));
+  }
+
+  50% {
+    transform: translate(-50%, calc(-50% - 7px));
+  }
 }
 
 .question-deck-viewport .card-swap-container {
@@ -27,19 +40,19 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: clamp(24px, 3vw, 42px);
+  padding: clamp(18px, 2vw, 26px);
   overflow: hidden;
-  border: 1px solid rgba(232, 244, 234, 0.38);
+  border: 1px solid rgba(232, 244, 234, 0.28);
   border-radius: 0;
-  background-color: rgba(7, 12, 10, 0.42);
+  background-color: rgba(7, 12, 10, 0.24);
   background-image: var(--card-art);
   background-blend-mode: soft-light;
-  -webkit-backdrop-filter: blur(14px) saturate(125%);
-  backdrop-filter: blur(14px) saturate(125%);
+  -webkit-backdrop-filter: blur(11px) saturate(118%);
+  backdrop-filter: blur(11px) saturate(118%);
   box-shadow:
-    inset 1px 1px 0 rgba(255, 255, 255, 0.22),
-    inset -1px -1px 0 rgba(3, 7, 5, 0.48),
-    0 24px 54px rgba(0, 0, 0, 0.24);
+    inset 1px 1px 0 rgba(255, 255, 255, 0.16),
+    inset -1px -1px 0 rgba(3, 7, 5, 0.32),
+    0 22px 48px rgba(0, 0, 0, 0.18);
   color: #f3f7f3;
 }
 
@@ -55,8 +68,8 @@
   z-index: 0;
   pointer-events: none;
   background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.16) 0%, transparent 14%),
-    linear-gradient(180deg, transparent 34%, rgba(3, 4, 6, 0.72) 100%);
+    linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, transparent 14%),
+    linear-gradient(180deg, transparent 34%, rgba(3, 4, 6, 0.5) 100%);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.18),
     inset 1px 0 0 rgba(255, 255, 255, 0.08);
@@ -75,7 +88,7 @@
   border-bottom: 1px solid rgba(232, 244, 234, 0.42);
   color: rgba(232, 244, 234, 0.88);
   font-family: system-ui, sans-serif;
-  font-size: clamp(0.68rem, 0.8vw, 0.8rem);
+  font-size: clamp(0.56rem, 0.62vw, 0.68rem);
   font-weight: 650;
   letter-spacing: 0.18em;
   line-height: 1.25;
@@ -83,10 +96,10 @@
 }
 
 .question-swap-title {
-  max-width: 12ch;
+  max-width: 100%;
   color: #f3f7f3;
   font-family: Georgia, 'Times New Roman', serif;
-  font-size: clamp(1.4rem, 2.4vw, 2.35rem);
+  font-size: clamp(1.12rem, 1.7vw, 1.65rem);
   font-weight: 400;
   letter-spacing: -0.035em;
   line-height: 0.98;
@@ -117,11 +130,11 @@
   }
 
   .question-deck-viewport .question-swap-card {
-    padding: 24px;
+    padding: 18px;
   }
 
   .question-swap-title {
-    font-size: clamp(1.35rem, 7vw, 2rem);
+    font-size: clamp(1.08rem, 5.2vw, 1.5rem);
   }
 }
 
@@ -137,6 +150,12 @@
   }
 
   .question-swap-title {
-    font-size: clamp(1.75rem, 7vh, 2.6rem);
+    font-size: clamp(1rem, 4.5vh, 1.35rem);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .question-deck-viewport {
+    animation: none;
   }
 }
