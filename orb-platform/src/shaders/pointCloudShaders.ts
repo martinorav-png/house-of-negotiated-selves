@@ -157,6 +157,8 @@ uniform float uRadius;
 uniform float uAudio;
 uniform float uAudioBass;
 uniform float uAudioMid;
+uniform float uBrightness;
+uniform float uAlphaFloor;
 
 attribute float aSeed;
 attribute float aSize;
@@ -210,9 +212,9 @@ void main() {
   gl_PointSize = aSize * uPointScale * distScale * sizeBoost;
   gl_PointSize = clamp(gl_PointSize, 0.55, 7.5);
 
-  vBright = aBrightness * uIntensity * 1.65;
+  vBright = aBrightness * uIntensity * uBrightness;
   vBright += uAudio * 0.35 + uPulse * 0.5;
-  vAlpha = aVisibility * clamp(0.95 + uIntensity * 0.15 + uPulse * 0.08, 0.0, 1.0);
+  vAlpha = aVisibility * clamp(uAlphaFloor + uIntensity * 0.15 + uPulse * 0.08, 0.0, 1.0);
 
   gl_Position = projectionMatrix * mvPosition;
 }

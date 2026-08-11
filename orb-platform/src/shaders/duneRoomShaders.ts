@@ -20,6 +20,10 @@ uniform vec3 uHotPointA;
 uniform vec3 uHotPointB;
 uniform float uHotRadius;
 uniform float uGlowStrength;
+uniform vec3 uBaseColor;
+uniform vec3 uLiftColor;
+uniform float uSaturation;
+uniform float uGrainAmount;
 varying vec3 vWorldPosition;
 
 float hash(vec2 p) {
@@ -52,9 +56,8 @@ void main() {
 
   // Values below are in "intended on-screen" terms; converted to linear
   // at the end so the renderer's sRGB output pass lands on these tones.
-  // Desaturated toward neutral grey — a hint of warmth, not an orange wash.
-  vec3 base = vec3(0.042, 0.038, 0.034);
-  vec3 lift = vec3(0.171, 0.1385, 0.109);
+  vec3 base = uBaseColor;
+  vec3 lift = uLiftColor;
 
   float glowA = smoothstep(1.0, 0.0, dA);
   float glowB = smoothstep(1.0, 0.0, dB) * 0.55;
@@ -72,7 +75,12 @@ void main() {
   col += vec3(0.045, 0.036, 0.028) * band * 0.55 * uGlowStrength;
 
   float grain = hash(gl_FragCoord.xy + fract(uTime) * 131.0) - 0.5;
-  col += grain * 0.028;
+  col += grain * uGrainAmount;
+  col = max(col, 0.0);
+
+  // Saturation — 1 = unchanged, 0 = fully desaturated (grey), >1 = punchier.
+  float luma = dot(col, vec3(0.299, 0.587, 0.114));
+  col = mix(vec3(luma), col, uSaturation);
   col = max(col, 0.0);
 
   col = pow(col, vec3(2.2));

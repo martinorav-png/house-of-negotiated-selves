@@ -1,6 +1,6 @@
 import { useFrame } from '@react-three/fiber'
 import { PLATFORM } from '../config'
-import { useDuneRoomMaterial } from './SpaceRoom'
+import { useDuneRoomMaterial, useSyncDuneRoomMaterial } from './SpaceRoom'
 
 /**
  * Pedestal — a solid mesh sharing the room's own unlit dune shader (same
@@ -11,7 +11,7 @@ export function Platform() {
   const material = useDuneRoomMaterial(0.85)
 
   useFrame((state) => {
-    material.uniforms.uTime.value = state.clock.elapsedTime
+    useSyncDuneRoomMaterial(material, state.clock.elapsedTime)
   })
 
   return (

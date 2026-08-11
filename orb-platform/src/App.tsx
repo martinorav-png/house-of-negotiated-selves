@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, type KeyboardEvent } from 'react'
+import { lazy, Suspense, useCallback, useEffect, useState, type KeyboardEvent } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { CAMERA, RENDERER } from './config'
 import { OrbProvider } from './context/OrbProvider'
@@ -13,6 +13,11 @@ import { applySpatialInput } from './lib/spatialInput'
 import { typingState } from './lib/typingState'
 import { getStationFromHash, getStationHref, type StationRoute } from './lib/stationRoute'
 import './index.css'
+
+// Dynamically imported so `leva` (and the panel) is excluded from the
+// production bundle entirely — only fetched when import.meta.env.DEV
+// actually renders it, never requested otherwise.
+const DevPanel = lazy(() => import('./dev/DevPanel').then((m) => ({ default: m.DevPanel })))
 
 function ExperienceShell({
   focused,
@@ -204,6 +209,11 @@ export default function App() {
 
   return (
     <main className="experience">
+      {import.meta.env.DEV ? (
+        <Suspense fallback={null}>
+          <DevPanel />
+        </Suspense>
+      ) : null}
       <nav className={`station-switcher station-switcher-${station}`} aria-label="Station switcher">
         <a aria-current={station === 'orb' ? 'page' : undefined} href={getStationHref('orb')}>
           Orb

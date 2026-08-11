@@ -1,8 +1,9 @@
 import { useMemo, useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
-import { ROOM, PALETTE } from '../config'
+import { ROOM } from '../config'
 import { scanUniforms } from '../lib/scanUniforms'
+import { settings } from '../dev/settingsStore'
 import { samplePlane, mergePointClouds, buildPointGeometry } from '../lib/samplePoints'
 
 const STRIP_HEIGHT = 0.55
@@ -65,8 +66,8 @@ export function ScanSweep() {
   const material = useMemo(
     () =>
       new THREE.PointsMaterial({
-        color: new THREE.Color(PALETTE.envPoint).offsetHSL(0, 0, 0.3),
-        size: 0.03,
+        color: new THREE.Color(settings.scan.color),
+        size: settings.scan.pointSize,
         transparent: true,
         opacity: 0,
         depthWrite: false,
@@ -79,12 +80,14 @@ export function ScanSweep() {
     if (points.current) {
       points.current.position.y = scanUniforms.uScanY.value
     }
+    material.size = settings.scan.pointSize
+    material.color.set(settings.scan.color)
     // Fade near the very top/bottom of each climb so the sawtooth's reset
     // back to the floor happens while invisible, not as a visible jump.
     const cycleFrac = THREE.MathUtils.clamp(scanUniforms.uScanY.value / ROOM.height, 0, 1)
     const fadeIn = THREE.MathUtils.smoothstep(cycleFrac, 0, 0.12)
     const fadeOut = 1 - THREE.MathUtils.smoothstep(cycleFrac, 0.82, 1)
-    material.opacity = scanUniforms.uScanActive.value * fadeIn * fadeOut * 0.05
+    material.opacity = scanUniforms.uScanActive.value * fadeIn * fadeOut * settings.scan.opacity
   })
 
   return <points ref={points} geometry={geometry} material={material} frustumCulled={false} />

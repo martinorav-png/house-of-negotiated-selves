@@ -5,8 +5,8 @@
  *     masked by soft organic blobs so it covers some parts of the letters
  *     more than others (like a webbed/wet film), rather than an even haze
  *     over the whole thing.
- * Fine per-pixel grain sits on top of both. Monochrome — `shade`/`tint`
- * control how bright/warm the grey reads.
+ * Each layer gets its own grain + color pass before compositing, so the
+ * crisp text and its smudge can be tinted independently.
  */
 export type GrainyTextOptions = {
   fontPx: number
@@ -45,15 +45,26 @@ export type GrainyTextOptions = {
    * adding extra intensity on top, rather than being the sole on/off gate.
    */
   smudgeFloor?: number
+  /**
+   * Elapsed seconds — when given (with smudgeDriftPeriod), the blob mask
+   * drifts smoothly over time (each cell continuously interpolates toward
+   * its next random value) instead of being fixed or jumping between fully
+   * unrelated random states on redraw.
+   */
+  smudgeDriftTime?: number
+  /** Seconds per drift step — larger = slower, calmer drift. */
+  smudgeDriftPeriod?: number
 
-  /** Fine per-pixel speckle over the combined result. */
+  /** Per-pixel speckle amplitude, applied to each layer before compositing. */
   grain?: number
 
-  /** Base grey level 0–255 before per-pixel jitter. */
+  /** Base grey level 0–255 before per-pixel jitter, before tinting. */
   shade?: number
   shadeVariance?: number
-  /** Per-channel multiplier on the shade — dial toward warm/cool or dimmer. */
-  tint?: [number, number, number]
+  /** Crisp layer color — 0–1 RGB, multiplied onto the shade value. */
+  color?: [number, number, number]
+  /** Smudge layer color — independent of the crisp layer's `color`. */
+  smudgeColor?: [number, number, number]
 
   /**
    * Gradient overlay that fades the text's own edges toward transparent —
@@ -117,11 +128,25 @@ function blurTo(source: HTMLCanvasElement, w: number, h: number, radius: number)
   return scratchBlurB
 }
 
+function hash2(x: number, y: number): number {
+  const s = Math.sin(x * 12.9898 + y * 78.233) * 43758.5453
+  return s - Math.floor(s)
+}
+
+function smootherstep(t: number): number {
+  return t * t * t * (t * (t * 6 - 15) + 10)
+}
+
 /**
- * Cheap organic blob mask — random low-res noise, smoothed by GPU upscale.
+ * Cheap organic blob mask — low-res noise, smoothed by GPU upscale.
  * `destination-in` (used to apply this mask) only reads the ALPHA channel,
  * so the noise is written into alpha, not RGB — an earlier version wrote it
  * into RGB with alpha pinned at 255, which made the mask a total no-op.
+ *
+ * When driftTime/driftPeriod are given, each cell continuously interpolates
+ * toward its next random value over time rather than being static or
+ * jumping between unrelated random states — a slow, smooth "boil" instead
+ * of a jarring reshuffle.
  */
 function buildSmudgeMask(
   w: number,
@@ -130,12 +155,22 @@ function buildSmudgeMask(
   cellsY: number,
   contrast: number,
   floor: number,
+  driftTime: number,
+  driftPeriod: number,
 ) {
   scratchMaskSmall = sized(scratchMaskSmall, cellsX, cellsY)
   const sctx = scratchMaskSmall.getContext('2d')!
   const img = sctx.createImageData(cellsX, cellsY)
-  for (let i = 0; i < img.data.length; i += 4) {
-    let v = floor + (1 - floor) * Math.random()
+
+  const step = driftPeriod > 0 ? driftTime / driftPeriod : 0
+  const stepFloor = Math.floor(step)
+  const frac = smootherstep(step - stepFloor)
+
+  let cell = 0
+  for (let i = 0; i < img.data.length; i += 4, cell++) {
+    const a = hash2(cell * 1.7 + 11.1, stepFloor)
+    const b = hash2(cell * 1.7 + 11.1, stepFloor + 1)
+    let v = floor + (1 - floor) * (a + (b - a) * frac)
     // Push the 0..1 noise through a contrast curve around its midpoint so
     // blobs read as more clearly on/off rather than a smooth grey wash.
     v = Math.min(1, Math.max(0, (v - 0.5) * (contrast / 100) + 0.5))
@@ -152,6 +187,32 @@ function buildSmudgeMask(
   mctx.imageSmoothingEnabled = true
   mctx.drawImage(scratchMaskSmall, 0, 0, w, h)
   return scratchMask
+}
+
+/** Grain + color pass, in place — only touches pixels the glyph covers. */
+function applyGrainAndColor(
+  layerCtx: CanvasRenderingContext2D,
+  w: number,
+  h: number,
+  shade: number,
+  shadeVariance: number,
+  grain: number,
+  color: [number, number, number],
+) {
+  const img = layerCtx.getImageData(0, 0, w, h)
+  const data = img.data
+  for (let i = 0; i < data.length; i += 4) {
+    const a = data[i + 3]
+    if (a < 3) continue
+    const g = Math.min(255, Math.max(0, shade + (Math.random() - 0.5) * shadeVariance))
+    data[i] = g * color[0]
+    data[i + 1] = g * color[1]
+    data[i + 2] = g * color[2]
+    if (grain > 0) {
+      data[i + 3] = Math.min(255, Math.max(0, a + (Math.random() - 0.5) * grain))
+    }
+  }
+  layerCtx.putImageData(img, 0, 0)
 }
 
 export function drawGrainyText(
@@ -173,10 +234,13 @@ export function drawGrainyText(
     smudgeCellsY = 5,
     smudgeContrast = 220,
     smudgeFloor = 0.5,
+    smudgeDriftTime = 0,
+    smudgeDriftPeriod = 0,
     grain = 30,
     shade = 232,
     shadeVariance = 40,
-    tint = [1, 1, 1],
+    color = [1, 1, 1],
+    smudgeColor = color,
     edgeFade = 0,
     verticalFade = 0,
   } = opts
@@ -184,7 +248,7 @@ export function drawGrainyText(
   const w = canvas.width
   const h = canvas.height
 
-  // 1. Crisp base glyph pass.
+  // 1. Crisp base glyph pass, then its own grain + color.
   const base = sized(scratchBase, w, h)
   scratchBase = base
   const bctx = base.getContext('2d')!
@@ -203,11 +267,12 @@ export function drawGrainyText(
   bctx.font = `${weight} ${fontPx}px ${fontFamily}`
   bctx.fillStyle = '#ffffff'
   bctx.fillText(text, w / 2, h / 2)
+  applyGrainAndColor(bctx, w, h, shade, shadeVariance, grain * 0.6, color)
 
   // 2. Smudge layer — a heavy/bold copy of the same glyphs (blur dilutes
   // ink; a thin source over-blurs into near-nothing), blurred, boosted back
   // up with additive passes, then masked by soft organic blobs so it only
-  // reads strongly over part of the letters.
+  // reads strongly over part of the letters. Its own grain + color.
   const smudgeSource = sized(scratchSmudgeSource, w, h)
   scratchSmudgeSource = smudgeSource
   const ssctx = smudgeSource.getContext('2d')!
@@ -230,10 +295,20 @@ export function drawGrainyText(
   }
   smctx.globalCompositeOperation = 'source-over'
 
-  const mask = buildSmudgeMask(w, h, smudgeCellsX, smudgeCellsY, smudgeContrast, smudgeFloor)
+  const mask = buildSmudgeMask(
+    w,
+    h,
+    smudgeCellsX,
+    smudgeCellsY,
+    smudgeContrast,
+    smudgeFloor,
+    smudgeDriftTime,
+    smudgeDriftPeriod,
+  )
   smctx.globalCompositeOperation = 'destination-in'
   smctx.drawImage(mask, 0, 0)
   smctx.globalCompositeOperation = 'source-over'
+  applyGrainAndColor(smctx, w, h, shade, shadeVariance, grain, smudgeColor)
 
   // 3. Composite: crisp layer first (legible), smudge layer on top (uneven,
   // translucent — clear in some places, webbed/wet in others).
@@ -244,35 +319,7 @@ export function drawGrainyText(
   ctx.drawImage(smudge, 0, 0)
   ctx.globalAlpha = 1
 
-  // 4. Fine grain — jitter per-pixel alpha/value so the combined result
-  // reads as a dusty texture rather than a flat fill.
-  if (grain > 0) {
-    const img = ctx.getImageData(0, 0, w, h)
-    const data = img.data
-    for (let i = 0; i < data.length; i += 4) {
-      const a = data[i + 3]
-      if (a < 3) continue
-      const g = Math.min(255, Math.max(0, shade + (Math.random() - 0.5) * shadeVariance))
-      data[i] = g * tint[0]
-      data[i + 1] = g * tint[1]
-      data[i + 2] = g * tint[2]
-      data[i + 3] = Math.min(255, Math.max(0, a + (Math.random() - 0.5) * grain))
-    }
-    ctx.putImageData(img, 0, 0)
-  } else {
-    // Still need the shade/tint applied even with grain off.
-    const img = ctx.getImageData(0, 0, w, h)
-    const data = img.data
-    for (let i = 0; i < data.length; i += 4) {
-      if (data[i + 3] < 3) continue
-      data[i] = shade * tint[0]
-      data[i + 1] = shade * tint[1]
-      data[i + 2] = shade * tint[2]
-    }
-    ctx.putImageData(img, 0, 0)
-  }
-
-  // 5. Gradient overlay — dissolves the text's own edges into transparency
+  // 4. Gradient overlay — dissolves the text's own edges into transparency
   // so it reads as blending into the wall rather than sitting flat on top.
   if (edgeFade > 0) {
     const grad = ctx.createLinearGradient(0, 0, w, 0)

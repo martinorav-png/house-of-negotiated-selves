@@ -7,6 +7,7 @@ import { scanUniforms } from '../lib/scanUniforms'
 import { audioLevels } from '../lib/audioLevels'
 import { heartbeat } from '../lib/heartbeat'
 import { typingState } from '../lib/typingState'
+import { settings } from '../dev/settingsStore'
 import { sampleSphere, buildPointGeometry } from '../lib/samplePoints'
 import {
   orbPointVertexShader,
@@ -55,6 +56,8 @@ export function Orb() {
       uAudio: scanUniforms.uAudio,
       uAudioBass: scanUniforms.uAudioBass,
       uAudioMid: scanUniforms.uAudioMid,
+      uBrightness: { value: settings.orb.brightness },
+      uAlphaFloor: { value: settings.orb.alphaFloor },
     }),
     [],
   )
@@ -115,6 +118,8 @@ export function Orb() {
 
     scanUniforms.uTime.value = t
     scanUniforms.uReducedMotion.value = reducedMotion ? 1 : 0
+    uniforms.uBrightness.value = settings.orb.brightness
+    uniforms.uAlphaFloor.value = settings.orb.alphaFloor
     // Horizontal scan band climbing floor → ceiling — only while typing.
     // Restarts from the floor each time typing begins (not wherever a
     // background cycle happened to be), so it always reads as climbing up
@@ -123,7 +128,7 @@ export function Orb() {
       scanCycleStart.current = t
     }
     wasTyping.current = typingState.active
-    const cyclePos = (t - scanCycleStart.current) * SCAN.scanSpeed * 0.09
+    const cyclePos = (t - scanCycleStart.current) * settings.scan.speed * 0.09
     const scanT = cyclePos % 1
     scanUniforms.uScanY.value = scanT * ROOM.height
     scanActiveAmt.current = THREE.MathUtils.damp(
@@ -147,9 +152,9 @@ export function Orb() {
     scanUniforms.uHover.value = h
     scanUniforms.uActivation.value = a
 
-    // Autonomous lub–dub heartbeat (quieter under reduced motion)
-    const pulseRaw = heartbeat(t, ORB.heartbeatBpm)
-    const pulse = pulseRaw * ORB.heartbeatRipple * (reducedMotion ? 0.35 : 1)
+    // Autonomous heartbeat (quieter under reduced motion)
+    const pulseRaw = heartbeat(t, settings.orb.heartbeatBpm)
+    const pulse = pulseRaw * settings.orb.heartbeatRipple * (reducedMotion ? 0.35 : 1)
     scanUniforms.uPulse.value = pulse
 
     // Mic levels → shaders + motion
@@ -180,23 +185,23 @@ export function Orb() {
 
     const floatY =
       ORB.baseY +
-      Math.sin(t * ORB.floatSpeed) * ORB.floatAmplitude * motionScale +
+      Math.sin(t * settings.orb.floatSpeed) * settings.orb.floatAmplitude * motionScale +
       bass * AUDIO.floatBoost * motionScale +
       Math.sin(t * (2.4 + level * 6)) * level * 0.04 * motionScale
 
     const breath =
       1 +
-      Math.sin(t * ORB.breathSpeed) * ORB.breathAmplitude * motionScale +
+      Math.sin(t * settings.orb.breathSpeed) * settings.orb.breathAmplitude * motionScale +
       level * AUDIO.scaleBoost
 
-    const hoverScale = THREE.MathUtils.lerp(1, ORB.hoverScale, h)
+    const hoverScale = THREE.MathUtils.lerp(1, settings.orb.hoverScale, h)
     const clickScale = THREE.MathUtils.lerp(1, ORB.clickPulseScale, a)
-    const heartScale = 1 + pulse * ORB.heartbeatScale
+    const heartScale = 1 + pulse * settings.orb.heartbeatScale
     const targetScale = breath * hoverScale * clickScale * heartScale
     scaleRef.current = THREE.MathUtils.damp(
       scaleRef.current,
       targetScale,
-      ORB.scaleDamp,
+      settings.orb.scaleDamp,
       d,
     )
     if (group.current) {
