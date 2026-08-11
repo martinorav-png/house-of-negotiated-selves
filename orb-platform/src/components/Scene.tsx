@@ -7,8 +7,6 @@ import { Lighting } from './Lighting'
 import { Orb } from './Orb'
 import { DarkSpace } from './DarkSpace'
 import { SpaceRoom } from './SpaceRoom'
-import { Room } from './Room'
-import { DissolvingRoomDust, RoomDissolveController } from './RoomDissolve'
 import { SpatialQuestion } from './SpatialQuestion'
 import { QuestionPrompt } from './QuestionPrompt'
 import { PostProcessing } from './PostProcessing'
@@ -20,20 +18,17 @@ type Props = {
   parallaxEnabled: boolean
   answerText: string
   questionText: string
-  questionIndex: number
   submitSerial: number
 }
 
 /**
- * Fixed-camera installation scene — point-cloud scan visual language.
- * Layout, framing, and interaction unchanged from the solid-material version.
+ * Fixed-camera installation scene — solid dune room with the interactive orb.
  */
 export function Scene({
   postEnabled,
   parallaxEnabled,
   answerText,
   questionText,
-  questionIndex,
   submitSerial,
 }: Props) {
   const { camera, size, gl } = useThree()
@@ -62,13 +57,10 @@ export function Scene({
       <Lighting />
       <DarkSpace />
       <SpaceRoom />
-      <Room />
-      <DissolvingRoomDust />
       <Platform />
       <Orb />
       <QuestionPrompt questionText={questionText} submitSerial={submitSerial} />
       <SpatialQuestion answerText={answerText} submitSerial={submitSerial} />
-      <RoomDissolveController questionIndex={questionIndex} />
       <CameraParallax enabled={parallaxEnabled} />
 
       <PostProcessing enabled={postEnabled} reducedMotion={reducedMotion} />

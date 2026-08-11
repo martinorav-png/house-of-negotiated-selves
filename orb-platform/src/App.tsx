@@ -18,7 +18,6 @@ function ExperienceShell({
   parallaxEnabled,
   answerText,
   questionText,
-  questionIndex,
   submitSerial,
   onToggleParallax,
   onInputKey,
@@ -27,7 +26,6 @@ function ExperienceShell({
   parallaxEnabled: boolean
   answerText: string
   questionText: string
-  questionIndex: number
   submitSerial: number
   onToggleParallax: () => void
   onInputKey: (event: KeyboardEvent) => boolean
@@ -107,7 +105,6 @@ function ExperienceShell({
           parallaxEnabled={parallaxEnabled}
           answerText={answerText}
           questionText={questionText}
-          questionIndex={questionIndex}
           submitSerial={submitSerial}
         />
       </Canvas>
@@ -217,7 +214,6 @@ export default function App() {
                 parallaxEnabled={parallaxEnabled}
                 answerText={answerText}
                 questionText={questionText}
-                questionIndex={questionIndex}
                 submitSerial={submitSerial}
                 onToggleParallax={toggleParallax}
                 onInputKey={onInputKey}

@@ -24,11 +24,11 @@ describe('station composition', () => {
     expect(scene).not.toContain('RoomQuestionCards')
   })
 
-  it('dissolves the solid dune room into a point cloud on the orb station', () => {
+  it('keeps the orb station on the solid dune room without answer dissolve', () => {
     expect(scene).toContain('SpaceRoom')
-    expect(scene).toContain('RoomDissolveController')
-    expect(scene).toContain('DissolvingRoomDust')
-    expect(scene).toContain('<Room')
+    expect(scene).not.toContain('RoomDissolveController')
+    expect(scene).not.toContain('DissolvingRoomDust')
+    expect(scene).not.toContain('<Room')
   })
 
   it('uses a point-cloud depth scan behind the React Bits question deck', () => {
