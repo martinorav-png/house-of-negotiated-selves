@@ -2,6 +2,11 @@
   --deck-visible-slots: 3;
   --deck-card-width: clamp(180px, 16vw, 230px);
   --deck-card-height: clamp(250px, 22vw, 320px);
+  /* Match cardPointCloudShaders: mutedCyan / mutedViolet / mint ripple */
+  --holo-teal: rgba(69, 138, 148, 0.72);
+  --holo-violet: rgba(97, 77, 133, 0.55);
+  --holo-mint: rgba(199, 230, 224, 0.9);
+  --holo-green: rgba(87, 140, 99, 0.35);
   position: absolute;
   left: 50%;
   top: 72%;
@@ -13,6 +18,8 @@
   animation: question-deck-hover 5.4s ease-in-out infinite;
   will-change: transform;
   isolation: isolate;
+  filter: drop-shadow(-1px 0 0 rgba(97, 77, 133, 0.32))
+    drop-shadow(1px 0 0 rgba(69, 138, 148, 0.36));
 }
 
 @keyframes question-deck-hover {
@@ -23,6 +30,44 @@
 
   50% {
     transform: translate(-50%, calc(-50% - 7px));
+  }
+}
+
+@keyframes holo-flicker {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+
+  40% {
+    opacity: 0.82;
+  }
+
+  62% {
+    opacity: 0.48;
+  }
+
+  78% {
+    opacity: 0.9;
+  }
+}
+
+@keyframes holo-grain {
+  0%,
+  100% {
+    background-position:
+      0 0,
+      12px -8px,
+      -6px 14px,
+      0 0;
+  }
+
+  50% {
+    background-position:
+      3px -4px,
+      8px 6px,
+      -2px 10px,
+      0 0;
   }
 }
 
@@ -42,18 +87,31 @@
   justify-content: space-between;
   padding: clamp(18px, 2vw, 26px);
   overflow: hidden;
-  border: 1px solid rgba(232, 244, 234, 0.28);
+  border: 1px solid rgba(184, 214, 208, 0.3);
   border-radius: 0;
-  background-color: rgba(7, 12, 10, 0.24);
-  background-image: var(--card-art);
-  background-blend-mode: soft-light;
-  -webkit-backdrop-filter: blur(11px) saturate(118%);
-  backdrop-filter: blur(11px) saturate(118%);
+  background-color: rgba(9, 13, 12, 0.22);
+  background-image:
+    radial-gradient(circle at 1px 1px, rgba(184, 214, 208, 0.38) 0.55px, transparent 0.75px),
+    radial-gradient(circle at 2px 2px, rgba(97, 77, 133, 0.16) 0.4px, transparent 0.7px),
+    radial-gradient(circle at 50% 120%, rgba(69, 138, 148, 0.14), transparent 55%),
+    var(--card-art);
+  background-size:
+    5px 5px,
+    7px 7px,
+    100% 100%,
+    auto;
+  background-blend-mode: screen, soft-light, soft-light, soft-light;
+  -webkit-backdrop-filter: blur(7px) saturate(118%);
+  backdrop-filter: blur(7px) saturate(118%);
   box-shadow:
-    inset 1px 1px 0 rgba(255, 255, 255, 0.16),
-    inset -1px -1px 0 rgba(3, 7, 5, 0.32),
-    0 22px 48px rgba(0, 0, 0, 0.18);
-  color: #f3f7f3;
+    -2px 0 0 rgba(97, 77, 133, 0.28),
+    2px 0 0 rgba(69, 138, 148, 0.3),
+    inset 0 0 0 1px rgba(184, 214, 208, 0.1),
+    inset 0 0 28px rgba(69, 138, 148, 0.07),
+    0 0 26px rgba(69, 138, 148, 0.14),
+    0 22px 48px rgba(0, 0, 0, 0.24);
+  color: var(--holo-mint);
+  animation: holo-grain 4.8s steps(3) infinite;
 }
 
 .question-deck-viewport:not(.question-deck-static) .question-swap-card:not([data-deck-visible]) {
@@ -61,6 +119,29 @@
   pointer-events: none;
 }
 
+/* Chromatic fringe + particle veil — room teal / violet */
+.question-deck-viewport .question-swap-card::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, rgba(97, 77, 133, 0.2), transparent 18%, transparent 82%, rgba(69, 138, 148, 0.22)),
+    radial-gradient(circle at 18% 24%, rgba(209, 230, 224, 0.22) 0 1px, transparent 1.6px),
+    radial-gradient(circle at 72% 58%, rgba(69, 138, 148, 0.34) 0 1px, transparent 1.8px),
+    radial-gradient(circle at 44% 78%, rgba(87, 140, 99, 0.2) 0 1px, transparent 1.7px);
+  background-size:
+    100% 100%,
+    18px 18px,
+    22px 22px,
+    16px 16px;
+  mix-blend-mode: screen;
+  opacity: 0.75;
+  animation: holo-flicker 3.6s ease-in-out infinite;
+}
+
+/* Soft vignette + edge light — no moving scan band */
 .question-deck-viewport .question-swap-card::after {
   content: '';
   position: absolute;
@@ -68,11 +149,11 @@
   z-index: 0;
   pointer-events: none;
   background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, transparent 14%),
-    linear-gradient(180deg, transparent 34%, rgba(3, 4, 6, 0.5) 100%);
+    linear-gradient(135deg, rgba(232, 244, 234, 0.1) 0%, transparent 16%),
+    linear-gradient(180deg, transparent 42%, rgba(3, 4, 6, 0.42) 100%);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.18),
-    inset 1px 0 0 rgba(255, 255, 255, 0.08);
+    inset 0 1px 0 rgba(232, 244, 234, 0.12),
+    inset 1px 0 0 rgba(184, 214, 208, 0.06);
 }
 
 .question-swap-kicker,
@@ -85,25 +166,33 @@
 .question-swap-kicker {
   align-self: flex-start;
   padding-bottom: 8px;
-  border-bottom: 1px solid rgba(232, 244, 234, 0.42);
-  color: rgba(232, 244, 234, 0.88);
-  font-family: system-ui, sans-serif;
+  border-bottom: 1px solid rgba(184, 214, 208, 0.4);
+  color: rgba(209, 230, 224, 0.9);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   font-size: clamp(0.56rem, 0.62vw, 0.68rem);
   font-weight: 650;
   letter-spacing: 0.18em;
   line-height: 1.25;
   text-transform: uppercase;
+  text-shadow:
+    -1px 0 0 rgba(97, 77, 133, 0.55),
+    1px 0 0 rgba(69, 138, 148, 0.6),
+    0 0 12px rgba(184, 214, 208, 0.28);
 }
 
 .question-swap-title {
   max-width: 100%;
-  color: #f3f7f3;
+  color: rgba(232, 244, 234, 0.94);
   font-family: Georgia, 'Times New Roman', serif;
   font-size: clamp(1.12rem, 1.7vw, 1.65rem);
   font-weight: 400;
   letter-spacing: -0.035em;
   line-height: 0.98;
   text-wrap: balance;
+  text-shadow:
+    -1.5px 0 0 rgba(97, 77, 133, 0.4),
+    1.5px 0 0 rgba(69, 138, 148, 0.45),
+    0 0 18px rgba(184, 214, 208, 0.22);
 }
 
 .question-deck-static .question-swap-card {
@@ -155,7 +244,9 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .question-deck-viewport {
+  .question-deck-viewport,
+  .question-deck-viewport .question-swap-card,
+  .question-deck-viewport .question-swap-card::before {
     animation: none;
   }
 }
