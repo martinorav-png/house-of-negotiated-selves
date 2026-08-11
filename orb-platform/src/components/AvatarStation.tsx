@@ -9,14 +9,13 @@ export function AvatarStation() {
         <MorphSlider
           items={avatarPortraits}
           transition="melt"
-          duration={1.18}
-          intensity={0.42}
-          scale={2.1}
-          drift={0.18}
+          duration={1.05}
+          intensity={0.28}
+          scale={1.8}
+          drift={0.08}
           aberration={0}
           overlayColor="#0b100d"
-          autoplay
-          autoplayDelay={5}
+          autoplay={false}
           radius={18}
         />
       </div>

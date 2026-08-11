@@ -2,12 +2,15 @@ import { useEffect } from 'react'
 import { useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 import { CAMERA, RENDERER } from '../config'
-import { Room } from './Room'
 import { Platform } from './Platform'
 import { Lighting } from './Lighting'
 import { Orb } from './Orb'
-import { StatsLogWall } from './StatsLogWall'
+import { DarkSpace } from './DarkSpace'
+import { SpaceRoom } from './SpaceRoom'
+import { Room } from './Room'
+import { DissolvingRoomDust, RoomDissolveController } from './RoomDissolve'
 import { SpatialQuestion } from './SpatialQuestion'
+import { QuestionPrompt } from './QuestionPrompt'
 import { PostProcessing } from './PostProcessing'
 import { CameraParallax } from './CameraParallax'
 import { useOrbContext } from '../context/OrbContext'
@@ -17,6 +20,7 @@ type Props = {
   parallaxEnabled: boolean
   answerText: string
   questionText: string
+  questionIndex: number
   submitSerial: number
 }
 
@@ -29,6 +33,7 @@ export function Scene({
   parallaxEnabled,
   answerText,
   questionText,
+  questionIndex,
   submitSerial,
 }: Props) {
   const { camera, size, gl } = useThree()
@@ -51,15 +56,19 @@ export function Scene({
 
   return (
     <>
-      <color attach="background" args={['#030406']} />
-      <fog attach="fog" args={['#030406', 9, 20]} />
+      <color attach="background" args={['#0b0704']} />
+      <fog attach="fog" args={['#0b0704', 14, 26]} />
 
       <Lighting />
+      <DarkSpace />
+      <SpaceRoom />
       <Room />
-      <StatsLogWall questionText={questionText} submitSerial={submitSerial} />
+      <DissolvingRoomDust />
       <Platform />
       <Orb />
+      <QuestionPrompt questionText={questionText} submitSerial={submitSerial} />
       <SpatialQuestion answerText={answerText} submitSerial={submitSerial} />
+      <RoomDissolveController questionIndex={questionIndex} />
       <CameraParallax enabled={parallaxEnabled} />
 
       <PostProcessing enabled={postEnabled} reducedMotion={reducedMotion} />

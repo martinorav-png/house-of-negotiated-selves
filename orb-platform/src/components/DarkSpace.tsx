@@ -1,0 +1,83 @@
+import { useMemo, useRef } from 'react'
+import { useFrame, useThree } from '@react-three/fiber'
+import * as THREE from 'three'
+
+/**
+ * Distant fallback void — sand/rust glow low-center, near-black otherwise.
+ * Always faces the camera at a fixed distance, behind the real room geometry
+ * (SpaceRoom), so wide parallax swings never reveal an edge.
+ */
+const vertexShader = /* glsl */ `
+varying vec2 vUv;
+void main() {
+  vUv = uv;
+  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+}
+`
+
+const fragmentShader = /* glsl */ `
+uniform float uTime;
+varying vec2 vUv;
+
+float hash(vec2 p) {
+  return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453);
+}
+
+void main() {
+  vec2 uv = vUv;
+  vec2 c = uv - vec2(0.5, 0.32);
+  float d = length(c * vec2(1.0, 1.15));
+
+  // Values below are in "intended on-screen" terms; converted to linear
+  // at the end so the renderer's sRGB output pass lands on these tones.
+  vec3 base = vec3(0.046, 0.037, 0.03);
+  vec3 lift = vec3(0.2, 0.145, 0.098);
+
+  float glow = smoothstep(0.82, 0.0, d);
+  vec3 col = mix(base, lift, glow * 0.7);
+
+  float vignette = smoothstep(1.0, 0.2, length(uv - 0.5));
+  col *= mix(0.45, 1.0, vignette);
+
+  float grain = hash(gl_FragCoord.xy + fract(uTime) * 131.0) - 0.5;
+  col += grain * 0.03;
+  col = max(col, 0.0);
+
+  col = pow(col, vec3(2.2));
+
+  gl_FragColor = vec4(col, 1.0);
+}
+`
+
+export function DarkSpace() {
+  const mesh = useRef<THREE.Mesh>(null)
+  const { camera } = useThree()
+
+  const material = useMemo(
+    () =>
+      new THREE.ShaderMaterial({
+        vertexShader,
+        fragmentShader,
+        uniforms: { uTime: { value: 0 } },
+        depthWrite: false,
+        depthTest: false,
+        toneMapped: false,
+      }),
+    [],
+  )
+
+  useFrame((state) => {
+    material.uniforms.uTime.value = state.clock.elapsedTime
+    if (mesh.current) {
+      mesh.current.position.copy(camera.position)
+      mesh.current.quaternion.copy(camera.quaternion)
+      mesh.current.translateZ(-22)
+    }
+  })
+
+  return (
+    <mesh ref={mesh} renderOrder={-10} material={material} frustumCulled={false}>
+      <planeGeometry args={[100, 70]} />
+    </mesh>
+  )
+}

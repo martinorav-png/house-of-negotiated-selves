@@ -107,50 +107,71 @@ vec2 coverUV(vec2 uv, vec2 resolution, vec2 imageSize) {
 void main() {
   vec2 uv = vUv;
   vec2 center = uPointer;
-  float p = smoothstep(0.0, 1.0, uProgress);
+  float p = clamp(uProgress, 0.0, 1.0);
+
+  // Settled states render a single clean persona so the end of a morph
+  // never "snaps" when progress resets 1 → 0.
+  if (p < 0.001) {
+    vec2 sIdle = coverUV(uv, uResolution, uCurrentSize);
+    vec3 idle = texture2D(tCurrent, sIdle).rgb;
+    float vigIdle = smoothstep(1.22, 0.2, length(uv - 0.5));
+    idle = mix(idle, uOverlay, (1.0 - vigIdle) * 0.24);
+    gl_FragColor = vec4(idle, 1.0);
+    return;
+  }
+  if (p > 0.999) {
+    vec2 sDone = coverUV(uv, uResolution, uNextSize);
+    vec3 done = texture2D(tNext, sDone).rgb;
+    float vigDone = smoothstep(1.22, 0.2, length(uv - 0.5));
+    done = mix(done, uOverlay, (1.0 - vigDone) * 0.24);
+    gl_FragColor = vec4(done, 1.0);
+    return;
+  }
+
   float env = sin(p * 3.14159265);
   float reduce = step(0.5, uReduce);
 
   vec2 uvC = uv;
   vec2 uvN = uv;
-  float m = p;
+  // Crossfade by progress — keep both faces readable instead of a hard
+  // spatial wipe that stacks two heads mid-transition.
+  float m = smoothstep(0.08, 0.92, p);
 
   if (reduce < 0.5) {
     float n = noise(uv * uScale + uTime * uDrift);
     vec2 dir = normalize(uv - center + 0.0001);
+    // Distortion only in the middle of the morph; zero at both ends.
+    float warp = env * uIntensity;
 
     if (uMode < 0.5) {
-      float melt = (n - 0.5) * uIntensity * 0.18 * env;
-      uvC.y += melt - p * 0.04 * uDir;
-      uvN.y -= melt + (1.0 - p) * 0.04 * uDir;
-      m = smoothstep(p - 0.18, p + 0.18, uv.y + n * 0.12);
+      float melt = (n - 0.5) * warp * 0.1;
+      uvC.y += melt - (p - 0.5) * 0.02 * uDir * env;
+      uvN.y -= melt + (0.5 - p) * 0.02 * uDir * env;
     } else if (uMode < 1.5) {
       float d = distance(uv, center);
-      float wave = smoothstep(p - 0.18, p, d) - smoothstep(p, p + 0.18, d);
-      uvC -= dir * wave * uIntensity * 0.08;
-      uvN += dir * wave * uIntensity * 0.08;
-      m = smoothstep(p - 0.14, p + 0.14, d);
+      float wave = smoothstep(p - 0.2, p, d) - smoothstep(p, p + 0.2, d);
+      uvC -= dir * wave * warp * 0.05;
+      uvN += dir * wave * warp * 0.05;
     } else if (uMode < 2.5) {
-      float shear = (uv.y - 0.5) * uIntensity * 0.18 * env;
-      uvC.x += shear * uDir;
-      uvN.x -= shear * uDir;
-      m = smoothstep(p - 0.12, p + 0.12, uv.x + shear);
+      float shear = (uv.y - 0.5) * warp * 0.1 * uDir;
+      uvC.x += shear;
+      uvN.x -= shear;
     } else {
       vec2 d = uv - center;
-      float a = env * uIntensity * 0.9;
+      float a = warp * 0.55;
       float c = cos(a);
       float s = sin(a);
       mat2 r = mat2(c, -s, s, c);
+      mat2 rt = mat2(c, s, -s, c);
       uvC = center + r * d;
-      uvN = center + transpose(r) * d;
-      m = p;
+      uvN = center + rt * d;
     }
   }
 
   vec2 sC = coverUV(uvC, uResolution, uCurrentSize);
   vec2 sN = coverUV(uvN, uResolution, uNextSize);
 
-  float ca = uReduce < 0.5 ? uAberration * env * 0.02 : 0.0;
+  float ca = uReduce < 0.5 ? uAberration * env * 0.015 : 0.0;
   vec3 colC = vec3(
     texture2D(tCurrent, sC + vec2(ca, 0.0)).r,
     texture2D(tCurrent, sC).g,
@@ -162,7 +183,7 @@ void main() {
     texture2D(tNext, sN - vec2(ca, 0.0)).b
   );
 
-  vec3 col = mix(colC, colN, m);
+  vec3 col = mix(colC, colN, clamp(m, 0.0, 1.0));
   float vig = smoothstep(1.22, 0.2, length(uv - 0.5));
   col = mix(col, uOverlay, (1.0 - vig) * 0.24);
 
@@ -213,7 +234,6 @@ class MorphEngine {
   private shownIndex: number
   private animating = false
   private dragging = false
-  private dragDir = 0
   private renderer: Renderer
   private gl: OGLRenderingContext
   private canvas: HTMLCanvasElement
@@ -255,6 +275,8 @@ class MorphEngine {
       alpha: false,
       antialias: true,
       dpr: Math.min(window.devicePixelRatio || 1, 2),
+      // Keep GLSL ES 1.00 shaders (texture2D / gl_FragColor) on a WebGL1 context.
+      webgl: 1,
     })
     this.gl = this.renderer.gl
     this.gl.clearColor(0.04, 0.055, 0.05, 1)
@@ -307,18 +329,53 @@ class MorphEngine {
   private loadTextures() {
     this.items.forEach((item, index) => {
       const image = new Image()
-      image.src = item.image
+      image.decoding = 'async'
       image.onload = () => {
-        const texture = new Texture(this.gl, { generateMipmaps: false })
-        texture.image = image
+        const texture = new Texture(this.gl, {
+          image,
+          generateMipmaps: false,
+          minFilter: this.gl.LINEAR,
+          magFilter: this.gl.LINEAR,
+          flipY: true,
+        })
+        texture.needsUpdate = true
+        const previous = this.textures[index]
         this.textures[index] = texture
         this.sizes[index] = [image.naturalWidth || 1, image.naturalHeight || 1]
-        if (index === this.current) {
+
+        // Keep live sampler uniforms pointing at the latest GPU texture for
+        // this slot — otherwise idle/cancelled morphs can keep a deleted
+        // fallback bound as tNext and flash between images.
+        if (this.program.uniforms.tCurrent.value === previous) {
           this.program.uniforms.tCurrent.value = texture
           this.program.uniforms.uCurrentSize.value = this.sizes[index]
         }
+        if (this.program.uniforms.tNext.value === previous) {
+          this.program.uniforms.tNext.value = texture
+          this.program.uniforms.uNextSize.value = this.sizes[index]
+        }
+        if (index === this.current && !this.animating && !this.dragging) {
+          this.bindIdleTextures()
+        }
+        if (previous?.texture && previous !== texture) {
+          this.gl.deleteTexture(previous.texture)
+        }
       }
+      image.onerror = () => {
+        console.warn(`[MorphSlider] failed to load persona image: ${item.image}`)
+      }
+      image.src = item.image
     })
+  }
+
+  private bindIdleTextures() {
+    const texture = this.textures[this.current]
+    const size = this.sizes[this.current]
+    this.program.uniforms.tCurrent.value = texture
+    this.program.uniforms.uCurrentSize.value = size
+    this.program.uniforms.tNext.value = texture
+    this.program.uniforms.uNextSize.value = size
+    this.program.uniforms.uProgress.value = 0
   }
 
   private resize() {
@@ -340,8 +397,15 @@ class MorphEngine {
   }
 
   private loop(time: number) {
+    if (!this.program.uniformLocations) return
     this.program.uniforms.uTime.value = time * 0.001
-    if (!this.dragging && !this.animating) this.syncOptions()
+    if (!this.dragging && !this.animating) {
+      this.syncOptions()
+      // Belt-and-suspenders: never leave a half-finished mix on screen.
+      if ((this.program.uniforms.uProgress.value as number) !== 0) {
+        this.bindIdleTextures()
+      }
+    }
     this.renderer.render({ scene: this.mesh })
     this.raf = requestAnimationFrame(this.boundLoop)
   }
@@ -371,8 +435,36 @@ class MorphEngine {
     this.syncOptions()
     const target = this.prepareNext(direction)
     this.animating = true
-    this.announce(target)
     const duration = this.reducedMotion ? Math.min(options.duration, 0.35) : options.duration
+    this.tween?.kill()
+    this.tween = gsap.fromTo(
+      this.program.uniforms.uProgress,
+      { value: 0 },
+      {
+        value: 1,
+        duration,
+        ease: options.ease,
+        onComplete: () => this.commit(target),
+      },
+    )
+  }
+
+  goToIndex(index: number) {
+    if (this.animating || this.dragging || this.items.length < 2) return
+    const target = this.wrap(index)
+    if (target === this.current) return
+    const options = this.getOptions()
+    this.syncOptions()
+    this.program.uniforms.tCurrent.value = this.textures[this.current]
+    this.program.uniforms.uCurrentSize.value = this.sizes[this.current]
+    this.program.uniforms.tNext.value = this.textures[target]
+    this.program.uniforms.uNextSize.value = this.sizes[target]
+    const forwardSteps = this.wrap(target - this.current)
+    const backwardSteps = this.wrap(this.current - target)
+    this.program.uniforms.uDir.value = forwardSteps <= backwardSteps ? 1 : -1
+    this.animating = true
+    const duration = this.reducedMotion ? Math.min(options.duration, 0.35) : options.duration
+    this.tween?.kill()
     this.tween = gsap.fromTo(
       this.program.uniforms.uProgress,
       { value: 0 },
@@ -398,61 +490,14 @@ class MorphEngine {
   }
 
   beginDrag() {
-    if (this.animating || this.items.length < 2) return false
-    this.dragging = true
-    this.dragDir = 0
-    this.syncOptions()
-    return true
+    // Drag-scrub morphs made the portraits ghost/snap; keep morphs on
+    // explicit Prev/Next/dot toggles only.
+    return false
   }
 
-  drag(normalizedDeltaX: number) {
-    if (!this.dragging) return
-    const options = this.getOptions()
-    const direction = normalizedDeltaX < 0 ? 1 : -1
-    if (!options.loop) {
-      const rawTarget = this.current + direction
-      if (rawTarget < 0 || rawTarget > this.items.length - 1) {
-        this.program.uniforms.uProgress.value = 0
-        return
-      }
-    }
-    if (direction !== this.dragDir) {
-      this.dragDir = direction
-      this.prepareNext(direction)
-    }
-    const progress = Math.min(Math.abs(normalizedDeltaX), 1)
-    this.program.uniforms.uProgress.value = progress
-    this.announce(progress > 0.5 ? this.wrap(this.current + direction) : this.current)
-  }
+  drag(_normalizedDeltaX: number) {}
 
-  endDrag() {
-    if (!this.dragging) return
-    this.dragging = false
-    const progress = this.program.uniforms.uProgress.value as number
-    if (this.dragDir === 0) return
-    const target = this.wrap(this.current + this.dragDir)
-    this.animating = true
-    if (progress > 0.4) {
-      this.announce(target)
-      this.tween = gsap.to(this.program.uniforms.uProgress, {
-        value: 1,
-        duration: this.reducedMotion ? 0.25 : 0.5,
-        ease: 'power2.out',
-        onComplete: () => this.commit(target),
-      })
-    } else {
-      this.announce(this.current)
-      this.tween = gsap.to(this.program.uniforms.uProgress, {
-        value: 0,
-        duration: this.reducedMotion ? 0.2 : 0.45,
-        ease: 'power2.out',
-        onComplete: () => {
-          this.animating = false
-          this.tween = null
-        },
-      })
-    }
-  }
+  endDrag() {}
 
   private announce(index: number) {
     if (index === this.shownIndex) return
@@ -461,12 +506,20 @@ class MorphEngine {
   }
 
   private commit(target: number) {
+    // Kill the tween first so GSAP cannot write progress=1 after we settle.
+    this.tween?.kill()
+    this.tween = null
+    // Bind the destination as both samplers while progress is still ~1
+    // (clean tNext view), then drop to 0 — identical pixels, no snap.
     this.current = target
-    this.program.uniforms.tCurrent.value = this.textures[target]
-    this.program.uniforms.uCurrentSize.value = this.sizes[target]
+    const texture = this.textures[target]
+    const size = this.sizes[target]
+    this.program.uniforms.tCurrent.value = texture
+    this.program.uniforms.uCurrentSize.value = size
+    this.program.uniforms.tNext.value = texture
+    this.program.uniforms.uNextSize.value = size
     this.program.uniforms.uProgress.value = 0
     this.animating = false
-    this.tween = null
     this.announce(target)
   }
 
@@ -692,7 +745,7 @@ export function MorphSlider({
               className={`morph-slider-dot ${itemIndex === index ? 'is-active' : ''}`}
               onClick={() => {
                 if (itemIndex === index) return
-                engineRef.current?.goTo(itemIndex > index ? 1 : -1)
+                engineRef.current?.goToIndex(itemIndex)
               }}
             />
           ))}

@@ -7,60 +7,66 @@
   font-family: system-ui, sans-serif;
 }
 
-.second-station > .gridscan {
+.second-station > .card-point-room {
   position: absolute;
   inset: 0;
+  pointer-events: none;
   z-index: 0;
-  opacity: 0.92;
+}
+
+.second-station > .card-point-room canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 
 .second-station::after {
   content: '';
   position: absolute;
   inset: 0;
-  z-index: 1;
+  z-index: 2;
   pointer-events: none;
   background: linear-gradient(90deg, rgba(3, 4, 6, 0.28), transparent 30%, transparent 70%, rgba(3, 4, 6, 0.28));
 }
 
 .station-card-1 {
   --card-art:
-    radial-gradient(circle at 28% 62%, rgba(232, 244, 234, 0.86) 0 10%, transparent 32%),
-    linear-gradient(110deg, #e8f4ea 0%, #d2b57f 34%, #242d28 100%);
+    radial-gradient(circle at 28% 62%, rgba(232, 244, 234, 0.2) 0 10%, transparent 32%),
+    linear-gradient(110deg, rgba(232, 244, 234, 0.18) 0%, rgba(210, 181, 127, 0.14) 34%, rgba(36, 45, 40, 0.28) 100%);
 }
 
 .station-card-2 {
   --card-art:
-    radial-gradient(circle at 68% 44%, rgba(200, 220, 205, 0.82) 0 8%, transparent 30%),
-    linear-gradient(115deg, #314035 0%, #a8cdb7 38%, #e8f4ea 74%, #181d19 100%);
+    radial-gradient(circle at 68% 44%, rgba(200, 220, 205, 0.2) 0 8%, transparent 30%),
+    linear-gradient(115deg, rgba(49, 64, 53, 0.3) 0%, rgba(168, 205, 183, 0.16) 38%, rgba(232, 244, 234, 0.18) 74%, rgba(24, 29, 25, 0.3) 100%);
 }
 
 .station-card-3 {
   --card-art:
-    radial-gradient(circle at 62% 30%, rgba(232, 244, 234, 0.88) 0 8%, transparent 24%),
-    linear-gradient(120deg, #d2b57f 0%, #738078 42%, #101411 100%);
+    radial-gradient(circle at 62% 30%, rgba(232, 244, 234, 0.22) 0 8%, transparent 24%),
+    linear-gradient(120deg, rgba(210, 181, 127, 0.18) 0%, rgba(115, 128, 120, 0.2) 42%, rgba(16, 20, 17, 0.32) 100%);
 }
 
 .station-card-4 {
   --card-art:
-    radial-gradient(circle at 57% 24%, rgba(16, 20, 17, 0.9) 0 10%, transparent 24%),
-    linear-gradient(105deg, #c8dccd 0%, #a8cdb7 34%, #314035 68%, #101411 100%);
+    radial-gradient(circle at 57% 24%, rgba(16, 20, 17, 0.36) 0 10%, transparent 24%),
+    linear-gradient(105deg, rgba(200, 220, 205, 0.2) 0%, rgba(168, 205, 183, 0.16) 34%, rgba(49, 64, 53, 0.26) 68%, rgba(16, 20, 17, 0.34) 100%);
 }
 
 .station-card-5 {
   --card-art:
-    radial-gradient(circle at 80% 42%, rgba(210, 181, 127, 0.74) 0 8%, transparent 24%),
-    linear-gradient(112deg, #3d4741 0%, #c8dccd 44%, #d2b57f 72%, #242d28 100%);
+    radial-gradient(circle at 80% 42%, rgba(210, 181, 127, 0.2) 0 8%, transparent 24%),
+    linear-gradient(112deg, rgba(61, 71, 65, 0.28) 0%, rgba(200, 220, 205, 0.18) 44%, rgba(210, 181, 127, 0.16) 72%, rgba(36, 45, 40, 0.3) 100%);
 }
 
 .station-card-6 {
   --card-art:
-    radial-gradient(circle at 52% 34%, rgba(232, 244, 234, 0.86) 0 7%, transparent 21%),
-    linear-gradient(112deg, #e8f4ea 0%, #738078 38%, #242d28 100%);
+    radial-gradient(circle at 52% 34%, rgba(232, 244, 234, 0.22) 0 7%, transparent 21%),
+    linear-gradient(112deg, rgba(232, 244, 234, 0.2) 0%, rgba(115, 128, 120, 0.2) 38%, rgba(36, 45, 40, 0.3) 100%);
 }
 
 .station-card-7 {
   --card-art:
-    radial-gradient(circle at 72% 40%, rgba(200, 220, 205, 0.68) 0 8%, transparent 28%),
-    linear-gradient(112deg, #c8dccd 0%, #3d4741 40%, #101411 100%);
+    radial-gradient(circle at 72% 40%, rgba(200, 220, 205, 0.2) 0 8%, transparent 28%),
+    linear-gradient(112deg, rgba(200, 220, 205, 0.2) 0%, rgba(61, 71, 65, 0.28) 40%, rgba(16, 20, 17, 0.34) 100%);
 }

@@ -13,7 +13,7 @@ export function Lighting() {
     <>
       <ambientLight intensity={LIGHT.ambientIntensity} color={ambientColor} />
       <hemisphereLight
-        args={[PALETTE.fill, '#030406', LIGHT.hemiIntensity]}
+        args={[PALETTE.fill, '#0a0603', LIGHT.hemiIntensity]}
         position={[0, ORB.baseY + 2, 0]}
       />
       <directionalLight

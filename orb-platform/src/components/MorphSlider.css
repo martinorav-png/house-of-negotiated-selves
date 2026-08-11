@@ -15,12 +15,8 @@
 .morph-slider-stage {
   position: absolute;
   inset: 0;
-  cursor: grab;
+  cursor: default;
   outline: none;
-}
-
-.morph-slider-stage:active {
-  cursor: grabbing;
 }
 
 .morph-slider-stage:focus-visible {

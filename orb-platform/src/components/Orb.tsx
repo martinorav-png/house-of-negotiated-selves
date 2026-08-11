@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
-import { ORB, LIGHT, PALETTE, PARTICLES, SCAN, ROOM, AUDIO } from '../config'
+import { ORB, LIGHT, PALETTE, PARTICLES, SCAN, AUDIO } from '../config'
 import { useOrbContext } from '../context/OrbContext'
 import { scanUniforms } from '../lib/scanUniforms'
 import { audioLevels } from '../lib/audioLevels'
@@ -66,7 +66,7 @@ export function Orb() {
         uniforms,
         transparent: true,
         depthWrite: false,
-        blending: THREE.AdditiveBlending,
+        blending: THREE.NormalBlending,
       }),
     [uniforms],
   )
@@ -111,9 +111,6 @@ export function Orb() {
 
     scanUniforms.uTime.value = t
     scanUniforms.uReducedMotion.value = reducedMotion ? 1 : 0
-    // Horizontal scan plane travelling floor → ceiling
-    const scanT = (t * SCAN.scanSpeed * 0.18) % 1
-    scanUniforms.uScanY.value = scanT * ROOM.height
 
     // Smooth hover — never snap the live value; only chase the boolean target
     const hoverTarget = hover

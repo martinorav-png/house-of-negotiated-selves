@@ -1,5 +1,5 @@
 import * as THREE from 'three'
-import { ORB, PALETTE, ROOM, STATS_SCREEN } from '../config'
+import { ORB, PALETTE, ROOM, ROOM_DISSOLVE, STATS_SCREEN } from '../config'
 
 const screenZ = -ROOM.depth / 2 + STATS_SCREEN.zOffset
 
@@ -19,8 +19,14 @@ export const scanUniforms = {
   /** Expanding shockwave distance from orb (world units) */
   uShockwave: { value: 0 },
   uReducedMotion: { value: 0 },
-  /** Horizontal room scan plane Y */
-  uScanY: { value: 0 },
+  /**
+   * Top-to-bottom dissolve front (world Y). Surfaces above this read as
+   * particles; solid dune walls remain below it.
+   */
+  uDissolveY: { value: ROOM.height as number },
+  uDissolveSoft: { value: ROOM_DISSOLVE.soft as number },
+  /** 0–1 — how far through the full question dissolve cycle we are. */
+  uDissolveFill: { value: 0 as number },
   /** Mic amplitude 0–1 */
   uAudio: { value: 0 },
   uAudioBass: { value: 0 },
@@ -30,7 +36,8 @@ export const scanUniforms = {
     value: new THREE.Vector3(0, STATS_SCREEN.y, screenZ),
   },
   uScreenColor: { value: new THREE.Color(PALETTE.orbMid) },
-  uScreenIntensity: { value: 1.15 },
+  // No CRT/text panel in the scene right now — keep the spill term inert.
+  uScreenIntensity: { value: 0 },
   uScreenHalfSize: {
     value: new THREE.Vector2(STATS_SCREEN.width * 0.5, STATS_SCREEN.height * 0.5),
   },

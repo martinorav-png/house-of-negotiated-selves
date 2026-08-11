@@ -1,16 +1,28 @@
-import { useEffect } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
-import { CAMERA, RENDERER, ROOM, SCAN } from '../config'
-import { scanUniforms } from '../lib/scanUniforms'
-import { Room } from './Room'
+import { CAMERA, RENDERER, ROOM } from '../config'
+import {
+  SECOND_STATION_POINT_CLOUD_CONFIG,
+  buildSecondStationPlatformCloud,
+  buildSecondStationRoomCloud,
+  type PointCloudQuality,
+} from '../lib/secondStationPointCloud'
+import { buildPointGeometry, mergePointClouds } from '../lib/samplePoints'
+import {
+  cardPointCloudFragmentShader,
+  cardPointCloudVertexShader,
+} from '../shaders/cardPointCloudShaders'
+import { CardScanSweep } from './CardScanSweep'
+import { CardStationPostProcessing } from './CardStationPostProcessing'
 
 function CardRoomCamera() {
   const { camera, gl, size } = useThree()
 
   useEffect(() => {
-    gl.toneMapping = THREE.ACESFilmicToneMapping
-    gl.toneMappingExposure = RENDERER.exposure
+    // Match the previous GridScan canvas — no filmic tone map so bloom/CA stay punchy.
+    gl.toneMapping = THREE.NoToneMapping
+    gl.toneMappingExposure = 1
   }, [gl])
 
   useEffect(() => {
@@ -24,26 +36,78 @@ function CardRoomCamera() {
     persp.updateProjectionMatrix()
   }, [camera, size.width, size.height])
 
-  useFrame((state) => {
-    const time = state.clock.elapsedTime
-    scanUniforms.uTime.value = time
-    scanUniforms.uReducedMotion.value = 0
-    scanUniforms.uHover.value = 0
-    scanUniforms.uPulse.value = 0
-    scanUniforms.uActivation.value = 0
-    scanUniforms.uShockwave.value = 0
-    scanUniforms.uAudio.value = 0
-    scanUniforms.uAudioBass.value = 0
-    scanUniforms.uAudioMid.value = 0
-    scanUniforms.uOrbIntensity.value = 0.18
-    scanUniforms.uScreenIntensity.value = 0
-    scanUniforms.uScanY.value = ((time * SCAN.scanSpeed * 0.12) % 1) * ROOM.height
-  })
-
   return null
 }
 
+function makeUniforms(pixelRatio: number) {
+  const config = SECOND_STATION_POINT_CLOUD_CONFIG
+  return {
+    uTime: { value: 0 },
+    uPointScale: { value: config.pointSize.scale },
+    uPixelRatio: { value: pixelRatio },
+    uOrbPosition: { value: new THREE.Vector3(0, -100, 0) },
+    uOrbInfluenceRadius: { value: config.orbInfluenceRadius },
+    uOrbInfluenceStrength: { value: 0 },
+    uFlickerAmount: { value: config.flickerAmount },
+    uFlickerSpeed: { value: config.flickerSpeed },
+    uDepthFade: { value: config.depthFade },
+    uRippleCenter: { value: new THREE.Vector3(...config.ripple.center) },
+    uRippleDuration: { value: config.ripple.duration },
+    uRippleRadius: { value: config.ripple.radius },
+    uRippleWidth: { value: config.ripple.width },
+    uRippleDisplacement: { value: config.ripple.displacement },
+    uRippleBrightness: { value: config.ripple.brightness },
+    uIsOrb: { value: 0 },
+  }
+}
+
+function ScannedInstallation({ quality }: { quality: PointCloudQuality }) {
+  const { gl } = useThree()
+  const roomGeometry = useMemo(
+    () =>
+      buildPointGeometry(
+        mergePointClouds([
+          buildSecondStationRoomCloud(quality),
+          buildSecondStationPlatformCloud(quality),
+        ]),
+      ),
+    [quality],
+  )
+  const roomUniforms = useMemo(() => makeUniforms(gl.getPixelRatio()), [gl])
+  const roomMaterial = useMemo(
+    () =>
+      new THREE.ShaderMaterial({
+        vertexShader: cardPointCloudVertexShader,
+        fragmentShader: cardPointCloudFragmentShader,
+        uniforms: roomUniforms,
+        transparent: true,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending,
+      }),
+    [roomUniforms],
+  )
+  useFrame((state) => {
+    roomUniforms.uTime.value = state.clock.elapsedTime
+  })
+
+  useEffect(
+    () => () => {
+      roomGeometry.dispose()
+      roomMaterial.dispose()
+    },
+    [roomGeometry, roomMaterial],
+  )
+
+  return <points geometry={roomGeometry} material={roomMaterial} frustumCulled={false} />
+}
+
 export function CardPointCloudRoom() {
+  const [quality] = useState<PointCloudQuality>(() =>
+    typeof window !== 'undefined' && window.innerWidth < CAMERA.narrowBreakpoint
+      ? 'mobile'
+      : 'desktop',
+  )
+
   return (
     <div className="card-point-room" aria-hidden="true">
       <Canvas
@@ -57,13 +121,16 @@ export function CardPointCloudRoom() {
         gl={{
           antialias: true,
           powerPreference: 'high-performance',
-          toneMappingExposure: RENDERER.exposure,
+          toneMapping: THREE.NoToneMapping,
+          toneMappingExposure: 1,
         }}
       >
         <color attach="background" args={['#030406']} />
         <fog attach="fog" args={['#030406', 7.5, 18]} />
         <CardRoomCamera />
-        <Room />
+        <ScannedInstallation quality={quality} />
+        <CardScanSweep />
+        <CardStationPostProcessing />
       </Canvas>
     </div>
   )

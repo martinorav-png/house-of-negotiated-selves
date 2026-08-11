@@ -3,6 +3,10 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
+  "imports": {
+    "#components": "./src/components",
+    "#utils": "./src/components"
+  },
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
@@ -29,6 +33,7 @@
     "@types/react-dom": "^19.2.4",
     "@types/three": "^0.185.3",
     "@vitejs/plugin-react": "^6.0.3",
+    "jsdom": "^27.4.0",
     "typescript": "^5.9.3",
     "vite": "^8.1.1",
     "vite-tsconfig-paths": "^6.1.1",

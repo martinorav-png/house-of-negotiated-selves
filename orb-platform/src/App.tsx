@@ -14,20 +14,20 @@ import { getStationFromHash, getStationHref, type StationRoute } from './lib/sta
 import './index.css'
 
 function ExperienceShell({
-  focused,
   postEnabled,
   parallaxEnabled,
   answerText,
   questionText,
+  questionIndex,
   submitSerial,
   onToggleParallax,
   onInputKey,
 }: {
-  focused: boolean
   postEnabled: boolean
   parallaxEnabled: boolean
   answerText: string
   questionText: string
+  questionIndex: number
   submitSerial: number
   onToggleParallax: () => void
   onInputKey: (event: KeyboardEvent) => boolean
@@ -39,7 +39,6 @@ function ExperienceShell({
     void sensors.start()
   }, [sensors])
 
-  const sensorsActive = sensors.audioActive || sensors.videoActive
   const sensorStatus = sensors.error
     ? sensors.error
     : sensors.starting
@@ -62,11 +61,6 @@ function ExperienceShell({
         ensureSensors()
         if (!locked) triggerActivation()
       }
-      if (e.key === 'm' || e.key === 'M') {
-        e.preventDefault()
-        if (sensorsActive) sensors.stop()
-        else void sensors.start()
-      }
       if (e.key === 'v' || e.key === 'V') {
         e.preventDefault()
         onToggleParallax()
@@ -76,8 +70,6 @@ function ExperienceShell({
       locked,
       triggerActivation,
       ensureSensors,
-      sensors,
-      sensorsActive,
       onToggleParallax,
       onInputKey,
     ],
@@ -85,10 +77,10 @@ function ExperienceShell({
 
   return (
     <div
-      className={`viewport${focused ? ' is-focused' : ''}`}
+      className="viewport"
       tabIndex={0}
       role="application"
-      aria-label="Interactive scan orb. Type to answer the spatial question. Press Enter to submit an answer. Press M to toggle sensors. Press V to toggle camera parallax."
+      aria-label="Interactive scan orb. Type to answer the spatial question. Press Enter to submit an answer. Press V to toggle camera parallax."
       onKeyDown={onKeyDown}
       onPointerDown={ensureSensors}
     >
@@ -115,6 +107,7 @@ function ExperienceShell({
           parallaxEnabled={parallaxEnabled}
           answerText={answerText}
           questionText={questionText}
+          questionIndex={questionIndex}
           submitSerial={submitSerial}
         />
       </Canvas>
@@ -130,7 +123,6 @@ export default function App() {
   const [station, setStation] = useState<StationRoute>(() =>
     getStationFromHash(window.location.hash),
   )
-  const [focused, setFocused] = useState(false)
   const [postEnabled, setPostEnabled] = useState(true)
   const [parallaxEnabled, setParallaxEnabled] = useState(true)
   const [answerText, setAnswerText] = useState('')
@@ -145,8 +137,6 @@ export default function App() {
       event.ctrlKey ||
       event.metaKey ||
       event.altKey ||
-      event.key === 'm' ||
-      event.key === 'M' ||
       event.key === 'v' ||
       event.key === 'V'
     ) {
@@ -221,17 +211,13 @@ export default function App() {
       {station === 'orb' ? (
         <section className="orb-station" aria-label="Orb station">
           <OrbProvider reducedMotion={reducedMotion}>
-            <div
-              className="experience-inner"
-              onFocus={() => setFocused(true)}
-              onBlur={() => setFocused(false)}
-            >
+            <div className="experience-inner">
               <ExperienceShell
-                focused={focused}
                 postEnabled={postEnabled}
                 parallaxEnabled={parallaxEnabled}
                 answerText={answerText}
                 questionText={questionText}
+                questionIndex={questionIndex}
                 submitSerial={submitSerial}
                 onToggleParallax={toggleParallax}
                 onInputKey={onInputKey}

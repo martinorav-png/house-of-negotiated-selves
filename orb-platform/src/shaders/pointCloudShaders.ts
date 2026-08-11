@@ -11,8 +11,12 @@ uniform float uShockwave;
 uniform vec3 uOrbPosition;
 uniform float uOrbIntensity;
 uniform float uReducedMotion;
-uniform float uScanY;
+uniform float uDissolveY;
+uniform float uDissolveSoft;
+uniform float uDissolveFill;
 uniform float uPointScale;
+uniform float uPeelStrength;
+uniform float uPointScaleBoost;
 uniform vec3 uScreenPosition;
 uniform vec3 uScreenColor;
 uniform float uScreenIntensity;
@@ -36,10 +40,27 @@ void main() {
   vScreenMix = 0.0;
   vec3 pos = position;
 
+  float soft = max(uDissolveSoft, 0.05);
+  float dissolved = smoothstep(uDissolveY - soft, uDissolveY + soft, pos.y);
+  if (dissolved < 0.01) {
+    gl_PointSize = 0.0;
+    gl_Position = vec4(2.0, 2.0, 2.0, 1.0);
+    vAlpha = 0.0;
+    vBright = 0.0;
+    vWave = 0.0;
+    return;
+  }
+
   // Low-frequency organic displacement
   float motion = mix(1.0, 0.2, uReducedMotion);
   float n = sin(uTime * (0.7 + aSeed) + aSeed * 40.0) * cos(uTime * 0.35 + pos.y * 1.5);
   pos += aNormal * aDisplace * n * 0.55 * motion;
+
+  // Peel dissolved wall points off the surface into free particles.
+  float peel = dissolved * uDissolveFill * uPeelStrength;
+  float drift = sin(uTime * (0.45 + aSeed * 0.7) + aSeed * 28.0);
+  pos += aNormal * peel * (0.55 + aDisplace * 18.0) * (0.65 + drift * 0.35) * motion;
+  pos.y += dissolved * uDissolveFill * aDisplace * 4.0 * drift * motion;
 
   // Activation wave — a horizontal sheet rising from floor into ceiling.
   float dist = distance(pos, uOrbPosition);
@@ -51,22 +72,21 @@ void main() {
   vWave = wave;
   pos += aNormal * wave * max(uActivation, 0.35) * 0.1 * motion;
 
-  // Heartbeat + hover: ripple lift nearby points
+  // Hover: ripple lift nearby points. Heartbeat pulse intentionally does NOT
+  // drive this — the orb pulses on its own; the room around it stays still.
   float near = 1.0 - smoothstep(0.5, 5.5, dist);
-  float rippleAmt = max(uHover, uPulse * 0.85);
+  float rippleAmt = uHover;
   float hoverRipple = sin(dist * 3.2 - uTime * 3.1) * 0.5 + 0.5;
-  // Expanding ring timed to the pulse peak
-  float pulseRing = 1.0 - smoothstep(0.0, 1.4, abs(dist - uPulse * 3.2));
   pos += aNormal * near * rippleAmt * (0.035 + hoverRipple * 0.045) * motion;
-  pos += aNormal * pulseRing * uPulse * 0.06 * motion;
 
   vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
 
   // Distance-based point size
   float distScale = 120.0 / max(0.1, -mvPosition.z);
-  float sizeBoost = 1.0 + rippleAmt * 0.18 * near + wave * 0.36 + uPulse * pulseRing * 0.16;
+  float sizeBoost = 1.0 + rippleAmt * 0.18 * near + wave * 0.36;
+  sizeBoost *= 1.0 + dissolved * uDissolveFill * uPointScaleBoost;
   gl_PointSize = aSize * uPointScale * distScale * sizeBoost;
-  gl_PointSize = clamp(gl_PointSize, 0.55, 7.0);
+  gl_PointSize = clamp(gl_PointSize, 0.55, 8.5);
 
   // Depth fade toward camera / open front (positive Z in room)
   float depthFade = smoothstep(5.2, 1.2, pos.z);
@@ -76,7 +96,7 @@ void main() {
   vec3 toOrb = normalize(uOrbPosition - pos);
   float ndotl = max(dot(normalize(aNormal), toOrb), 0.0);
   float atten = 1.0 / (1.0 + dist * dist * 0.045);
-  float light = (0.12 + ndotl * 0.9 * atten * uOrbIntensity) ;
+  float light = (0.18 + ndotl * 0.9 * atten * uOrbIntensity) ;
 
   // CRT screen rect light — spills cyan glow into nearby room points
   vec3 toScreen = uScreenPosition - pos;
@@ -96,21 +116,15 @@ void main() {
   light += screenLight * 1.65;
   vScreenMix = clamp(screenLight * 0.85, 0.0, 1.0);
 
-  // Scan band across room height — thicker travelling sheet
-  float scan = 1.0 - smoothstep(0.0, 0.42, abs(pos.y - uScanY));
-  scan = pow(scan, 0.7);
-  light += scan * 1.15;
-
-  // Rising wave brightness — visible even late in the pulse
+  // Rising wave brightness — visible even late in the activation pulse
   float waveAmp = max(uActivation, 0.55);
   light += wave * waveAmp * 1.75;
   light += near * rippleAmt * (0.3 + hoverRipple * 0.4);
-  light += pulseRing * uPulse * 0.18;
-
-  // Flicker
+  light += dissolved * uDissolveFill * 0.35;
 
   vBright = aBrightness * light;
-  vAlpha = edgeFade * depthFade * clamp(0.25 + light * 0.55, 0.0, 1.0);
+  vAlpha = edgeFade * mix(0.6, 1.0, depthFade) * clamp(0.78 + light * 0.32, 0.0, 1.0);
+  vAlpha *= dissolved * mix(0.55, 1.0, uDissolveFill);
 
   gl_Position = projectionMatrix * mvPosition;
 }
@@ -213,10 +227,9 @@ void main() {
   gl_PointSize = aSize * uPointScale * distScale * sizeBoost;
   gl_PointSize = clamp(gl_PointSize, 0.55, 7.5);
 
-  // Dimmer orb — additive points stack fast; keep readable without flare
-  vBright = aBrightness * uIntensity * 0.2;
-  vBright += uAudio * 0.08 + uPulse * 0.1;
-  vAlpha = aVisibility * (0.32 + uIntensity * 0.1 + uPulse * 0.06);
+  vBright = aBrightness * uIntensity * 1.65;
+  vBright += uAudio * 0.35 + uPulse * 0.5;
+  vAlpha = aVisibility * clamp(0.95 + uIntensity * 0.15 + uPulse * 0.08, 0.0, 1.0);
 
   gl_Position = projectionMatrix * mvPosition;
 }
@@ -240,9 +253,10 @@ void main() {
   if (r > 0.5) discard;
   float soft = smoothstep(0.5, 0.4, r);
 
+  // Biased toward the white core — sage/rim only show at the shell's edges.
   float tone = fract(vSeed * 7.13);
-  vec3 col = mix(uColorCore, uColorMid, tone);
-  col = mix(col, uColorRim, tone * 0.35);
+  vec3 col = mix(uColorCore, uColorMid, pow(tone, 1.8));
+  col = mix(col, uColorRim, pow(tone, 2.4) * 0.3);
   col *= vBright * (1.0 + uHover * 0.06 + uPulse * 0.08 + uActivation * 0.1);
 
   float alpha = soft * vAlpha;

@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
-import { ROOM, PALETTE, SCAN, ORB } from '../config'
+import { ROOM, PALETTE, SCAN, ORB, ROOM_DISSOLVE } from '../config'
 import { scanUniforms } from '../lib/scanUniforms'
 import {
   samplePlane,
@@ -15,7 +15,7 @@ import {
 
 /**
  * Room as LiDAR-style point cloud — same dimensions / positions as the solid room.
- * Density: back wall densest; floor & sides thin toward the open front (camera).
+ * Revealed top→bottom by the shared dissolve front as each question is entered.
  */
 export function Room() {
   const geometry = useMemo(() => {
@@ -149,10 +149,12 @@ export function Room() {
           ...scanUniforms,
           uEnvColor: { value: new THREE.Color(PALETTE.envPoint) },
           uPointScale: { value: SCAN.envPointScale },
+          uPeelStrength: { value: ROOM_DISSOLVE.peelStrength },
+          uPointScaleBoost: { value: ROOM_DISSOLVE.pointScaleBoost },
         },
         transparent: true,
         depthWrite: false,
-        blending: THREE.AdditiveBlending,
+        blending: THREE.NormalBlending,
       }),
     [],
   )
@@ -165,9 +167,9 @@ export function Room() {
   }, [geometry, material])
 
   useFrame(() => {
-    // Uniforms are shared objects; Orb drives most of them.
-    // Keep material linked (noop read prevents tree-shaking confusion).
     material.uniforms.uPointScale.value = SCAN.envPointScale
+    material.uniforms.uPeelStrength.value = ROOM_DISSOLVE.peelStrength
+    material.uniforms.uPointScaleBoost.value = ROOM_DISSOLVE.pointScaleBoost
   })
 
   return <points geometry={geometry} material={material} frustumCulled={false} />
