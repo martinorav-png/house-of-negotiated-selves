@@ -47,7 +47,7 @@ export const cardSettings = {
     holoTealAlpha: 0.72,
     holoViolet: '#000000',
     holoVioletAlpha: 0.55,
-    holoMint: '#060606',
+    holoMint: '#b1b1b1',
     holoMintAlpha: 0.9,
     holoGreen: '#ffffff',
     holoGreenAlpha: 0.35,
