@@ -6,6 +6,9 @@ const screenZ = -ROOM.depth / 2 + STATS_SCREEN.zOffset
 /**
  * Shared GPU uniforms — Orb writes each frame; environment shaders read the same objects.
  * Avoids React state for per-frame lighting / shockwave.
+ *
+ * Includes Paula scan-band uniforms plus leftover dissolve uniforms so unused
+ * Room/RoomDissolve modules still typecheck until fully removed.
  */
 export const scanUniforms = {
   uTime: { value: 0 },
@@ -19,9 +22,13 @@ export const scanUniforms = {
   /** Expanding shockwave distance from orb (world units) */
   uShockwave: { value: 0 },
   uReducedMotion: { value: 0 },
+  /** Horizontal room scan plane Y (typing scan band) */
+  uScanY: { value: 0 },
+  /** 0–1 — scan band only shows once the visitor starts typing an answer. */
+  uScanActive: { value: 0 },
   /**
-   * Top-to-bottom dissolve front (world Y). Surfaces above this read as
-   * particles; solid dune walls remain below it.
+   * Top-to-bottom dissolve front (world Y). Kept for legacy Room dissolve
+   * modules that are no longer mounted in Scene.
    */
   uDissolveY: { value: ROOM.height as number },
   uDissolveSoft: { value: ROOM_DISSOLVE.soft as number },

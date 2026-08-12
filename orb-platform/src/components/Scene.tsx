@@ -7,6 +7,7 @@ import { Lighting } from './Lighting'
 import { Orb } from './Orb'
 import { DarkSpace } from './DarkSpace'
 import { SpaceRoom } from './SpaceRoom'
+import { ScanSweep } from './ScanSweep'
 import { SpatialQuestion } from './SpatialQuestion'
 import { QuestionPrompt } from './QuestionPrompt'
 import { PostProcessing } from './PostProcessing'
@@ -22,7 +23,8 @@ type Props = {
 }
 
 /**
- * Fixed-camera installation scene — solid dune room with the interactive orb.
+ * Fixed-camera installation scene — point-cloud scan visual language.
+ * Layout, framing, and interaction unchanged from the solid-material version.
  */
 export function Scene({
   postEnabled,
@@ -59,6 +61,7 @@ export function Scene({
       <SpaceRoom />
       <Platform />
       <Orb />
+      <ScanSweep />
       <QuestionPrompt questionText={questionText} submitSerial={submitSerial} />
       <SpatialQuestion answerText={answerText} submitSerial={submitSerial} />
       <CameraParallax enabled={parallaxEnabled} />

@@ -7,7 +7,7 @@ import { scanUniforms } from '../lib/scanUniforms'
 import { audioLevels } from '../lib/audioLevels'
 import { drawGrainyText } from '../lib/grainyText'
 
-const REDRAW_INTERVAL = 1 / 18
+const REDRAW_INTERVAL = 1 / 10
 
 type SpatialQuestionProps = {
   answerText: string
@@ -44,8 +44,8 @@ function bendPlane(
 
 function createTextPlane(width: number, height: number): TextPlane {
   const canvas = document.createElement('canvas')
-  canvas.width = 2048
-  canvas.height = 256
+  canvas.width = 1280
+  canvas.height = 160
   const ctx = canvas.getContext('2d')!
   const texture = new THREE.CanvasTexture(canvas)
   texture.colorSpace = THREE.SRGBColorSpace
@@ -53,7 +53,7 @@ function createTextPlane(width: number, height: number): TextPlane {
   texture.magFilter = THREE.LinearFilter
   texture.premultiplyAlpha = true
 
-  const geometry = new THREE.PlaneGeometry(width, height, 64, 1)
+  const geometry = new THREE.PlaneGeometry(width, height, 32, 1)
   const basePositions = new Float32Array(
     (geometry.attributes.position as THREE.BufferAttribute).array as Float32Array,
   )
@@ -76,9 +76,10 @@ export function SpatialQuestion({ answerText, submitSerial }: SpatialQuestionPro
   const answerFlash = useRef(0)
   const lastSubmitSerial = useRef(submitSerial)
   const lastDraw = useRef(-1)
+  const lastRecess = useRef(Number.NaN)
 
   const answerPlane = useMemo(
-    () => createTextPlane(QUESTION.answerMaxWidth, QUESTION.answerMaxWidth * (256 / 2048) * 0.92),
+    () => createTextPlane(QUESTION.answerMaxWidth, QUESTION.answerMaxWidth * (160 / 1280) * 0.92),
     [],
   )
 
@@ -111,10 +112,11 @@ export function SpatialQuestion({ answerText, submitSerial }: SpatialQuestionPro
       lastDraw.current = t
       const cursorOn = Math.floor(t * 2.4) % 2 === 0
       const display = answerText.length > 0 ? answerText : ''
-      const content = `${display}${cursorOn ? '|' : ''}`
       const crispAlpha = Math.min(1, 0.75 + activity * 0.15 + answerFlash.current * 0.2)
-      drawGrainyText(answerPlane.ctx, answerPlane.canvas, content, {
-        fontPx: 74,
+      // Keep the cursor out of drawGrainyText so glyph-layer cache stays warm
+      // across blinks (rebuilding blur+grain every blink is the expensive path).
+      drawGrainyText(answerPlane.ctx, answerPlane.canvas, display, {
+        fontPx: 56,
         weight: 400,
         maxWidthPx: answerPlane.canvas.width * 0.9,
         crispAlpha,
@@ -122,18 +124,37 @@ export function SpatialQuestion({ answerText, submitSerial }: SpatialQuestionPro
         smudgeBlurPx: 3,
         grain: 20,
       })
+      if (cursorOn) {
+        const { ctx, canvas } = answerPlane
+        ctx.save()
+        ctx.globalAlpha = crispAlpha
+        ctx.fillStyle = '#ffffff'
+        ctx.font = '400 56px "Helvetica Neue", Arial, sans-serif'
+        const textW = display ? ctx.measureText(display).width : 0
+        const maxW = canvas.width * 0.9
+        const scale = textW > maxW && textW > 0 ? maxW / textW : 1
+        ctx.font = `400 ${56 * scale}px "Helvetica Neue", Arial, sans-serif`
+        const drawnW = display ? ctx.measureText(display).width : 0
+        ctx.fillText('|', canvas.width / 2 + drawnW * 0.5 + 6 * scale, canvas.height / 2)
+        ctx.restore()
+      }
       answerPlane.texture.needsUpdate = true
     }
 
     const recess =
       QUESTION.arcRecess *
-      (1 + audioLevels.bass * 0.12 * motion + Math.sin(t * 0.6) * 0.04 * motion)
-    bendPlane(
-      answerPlane.geometry,
-      answerPlane.basePositions,
-      recess * 0.92,
-      QUESTION.answerMaxWidth,
-    )
+      (1 + audioLevels.bass * 0.12 * motion + Math.sin(t * 0.6) * 0.04 * motion) *
+      0.92
+    // Skip tiny recess deltas — computeVertexNormals is the costly part.
+    if (!(Math.abs(recess - lastRecess.current) < 0.0008)) {
+      lastRecess.current = recess
+      bendPlane(
+        answerPlane.geometry,
+        answerPlane.basePositions,
+        recess,
+        QUESTION.answerMaxWidth,
+      )
+    }
 
     const bob = Math.sin(t * 0.7) * 0.01 * motion + audioLevels.bass * 0.012 * motion
     if (group.current) {

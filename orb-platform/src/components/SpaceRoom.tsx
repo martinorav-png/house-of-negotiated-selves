@@ -2,8 +2,9 @@ import { useMemo } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import { ROOM } from '../config'
-import { scanUniforms } from '../lib/scanUniforms'
 import { duneRoomVertexShader, duneRoomFragmentShader } from '../shaders/duneRoomShaders'
+import { settings } from '../dev/settingsStore'
+import { syncColor } from '../lib/colorSync'
 
 /**
  * Real room geometry — five solid planes (open front, matching the camera's
@@ -11,9 +12,6 @@ import { duneRoomVertexShader, duneRoomFragmentShader } from '../shaders/duneRoo
  * genuine depth. Sand/rust Dune palette: warm, alien-organic glow (two
  * offset soft blobs rather than a single perfect radial) plus a slow,
  * grain-broken sweep of light rather than a crisp scan line.
- *
- * Shares dissolve uniforms with the room point cloud so walls peel into
- * particles from the ceiling downward as questions are entered.
  */
 export function useDuneRoomMaterial(glowStrength = 1) {
   return useMemo(
@@ -25,17 +23,27 @@ export function useDuneRoomMaterial(glowStrength = 1) {
           uTime: { value: 0 },
           uHotPointA: { value: new THREE.Vector3(0, 1.1, -ROOM.depth / 2 + 1.5) },
           uHotPointB: { value: new THREE.Vector3(-1.6, 2.4, -ROOM.depth / 2 + 0.4) },
-          uHotRadius: { value: 9.5 },
+          uHotRadius: { value: settings.room.glowRadius },
           uGlowStrength: { value: glowStrength },
-          uDissolveY: scanUniforms.uDissolveY,
-          uDissolveSoft: scanUniforms.uDissolveSoft,
+          uBaseColor: { value: new THREE.Color(settings.room.baseColor) },
+          uLiftColor: { value: new THREE.Color(settings.room.liftColor) },
+          uSaturation: { value: settings.room.saturation },
+          uGrainAmount: { value: settings.room.grain },
         },
-        transparent: true,
-        depthWrite: true,
         toneMapped: false,
       }),
     [glowStrength],
   )
+}
+
+/** Syncs a dune-room material's live-tunable uniforms from the settings store. */
+export function useSyncDuneRoomMaterial(material: THREE.ShaderMaterial, elapsed: number) {
+  material.uniforms.uTime.value = elapsed
+  material.uniforms.uHotRadius.value = settings.room.glowRadius
+  syncColor(material.uniforms.uBaseColor.value, settings.room.baseColor)
+  syncColor(material.uniforms.uLiftColor.value, settings.room.liftColor)
+  material.uniforms.uSaturation.value = settings.room.saturation
+  material.uniforms.uGrainAmount.value = settings.room.grain
 }
 
 export function SpaceRoom() {
@@ -45,7 +53,7 @@ export function SpaceRoom() {
   const halfD = depth / 2
 
   useFrame((state) => {
-    material.uniforms.uTime.value = state.clock.elapsedTime
+    useSyncDuneRoomMaterial(material, state.clock.elapsedTime)
   })
 
   return (

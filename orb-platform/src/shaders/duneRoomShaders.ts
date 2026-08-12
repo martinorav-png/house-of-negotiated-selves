@@ -4,9 +4,6 @@
  * a separately lit object. World-position based glow (two offset soft hot
  * spots, not a single perfect radial) + slow grain-broken sweep + film
  * grain. Desaturated, near-black base with a muted warm lift.
- *
- * uDissolveY peels the solid surface away from the ceiling downward so the
- * underlying point cloud can take over.
  */
 export const duneRoomVertexShader = /* glsl */ `
 varying vec3 vWorldPosition;
@@ -23,8 +20,10 @@ uniform vec3 uHotPointA;
 uniform vec3 uHotPointB;
 uniform float uHotRadius;
 uniform float uGlowStrength;
-uniform float uDissolveY;
-uniform float uDissolveSoft;
+uniform vec3 uBaseColor;
+uniform vec3 uLiftColor;
+uniform float uSaturation;
+uniform float uGrainAmount;
 varying vec3 vWorldPosition;
 
 float hash(vec2 p) {
@@ -52,20 +51,13 @@ float organicNoise(vec3 p) {
 }
 
 void main() {
-  // Solid remains below the dissolve front; above it the surface is gone.
-  float soft = max(uDissolveSoft, 0.05);
-  float jagged = (organicNoise(vWorldPosition * 2.4) - 0.5) * soft * 0.85;
-  float solid = 1.0 - smoothstep(uDissolveY - soft + jagged, uDissolveY + soft + jagged, vWorldPosition.y);
-  if (solid < 0.02) discard;
-
   float dA = length(vWorldPosition - uHotPointA) / uHotRadius;
   float dB = length(vWorldPosition - uHotPointB) / (uHotRadius * 0.72);
 
   // Values below are in "intended on-screen" terms; converted to linear
   // at the end so the renderer's sRGB output pass lands on these tones.
-  // Desaturated toward neutral grey — a hint of warmth, not an orange wash.
-  vec3 base = vec3(0.042, 0.038, 0.034);
-  vec3 lift = vec3(0.171, 0.1385, 0.109);
+  vec3 base = uBaseColor;
+  vec3 lift = uLiftColor;
 
   float glowA = smoothstep(1.0, 0.0, dA);
   float glowB = smoothstep(1.0, 0.0, dB) * 0.55;
@@ -83,11 +75,16 @@ void main() {
   col += vec3(0.045, 0.036, 0.028) * band * 0.55 * uGlowStrength;
 
   float grain = hash(gl_FragCoord.xy + fract(uTime) * 131.0) - 0.5;
-  col += grain * 0.028;
+  col += grain * uGrainAmount;
+  col = max(col, 0.0);
+
+  // Saturation — 1 = unchanged, 0 = fully desaturated (grey), >1 = punchier.
+  float luma = dot(col, vec3(0.299, 0.587, 0.114));
+  col = mix(vec3(luma), col, uSaturation);
   col = max(col, 0.0);
 
   col = pow(col, vec3(2.2));
 
-  gl_FragColor = vec4(col, solid);
+  gl_FragColor = vec4(col, 1.0);
 }
 `

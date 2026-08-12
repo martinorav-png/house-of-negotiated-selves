@@ -11,12 +11,9 @@ uniform float uShockwave;
 uniform vec3 uOrbPosition;
 uniform float uOrbIntensity;
 uniform float uReducedMotion;
-uniform float uDissolveY;
-uniform float uDissolveSoft;
-uniform float uDissolveFill;
+uniform float uScanY;
+uniform float uScanActive;
 uniform float uPointScale;
-uniform float uPeelStrength;
-uniform float uPointScaleBoost;
 uniform vec3 uScreenPosition;
 uniform vec3 uScreenColor;
 uniform float uScreenIntensity;
@@ -40,27 +37,10 @@ void main() {
   vScreenMix = 0.0;
   vec3 pos = position;
 
-  float soft = max(uDissolveSoft, 0.05);
-  float dissolved = smoothstep(uDissolveY - soft, uDissolveY + soft, pos.y);
-  if (dissolved < 0.01) {
-    gl_PointSize = 0.0;
-    gl_Position = vec4(2.0, 2.0, 2.0, 1.0);
-    vAlpha = 0.0;
-    vBright = 0.0;
-    vWave = 0.0;
-    return;
-  }
-
   // Low-frequency organic displacement
   float motion = mix(1.0, 0.2, uReducedMotion);
   float n = sin(uTime * (0.7 + aSeed) + aSeed * 40.0) * cos(uTime * 0.35 + pos.y * 1.5);
   pos += aNormal * aDisplace * n * 0.55 * motion;
-
-  // Peel dissolved wall points off the surface into free particles.
-  float peel = dissolved * uDissolveFill * uPeelStrength;
-  float drift = sin(uTime * (0.45 + aSeed * 0.7) + aSeed * 28.0);
-  pos += aNormal * peel * (0.55 + aDisplace * 18.0) * (0.65 + drift * 0.35) * motion;
-  pos.y += dissolved * uDissolveFill * aDisplace * 4.0 * drift * motion;
 
   // Activation wave — a horizontal sheet rising from floor into ceiling.
   float dist = distance(pos, uOrbPosition);
@@ -84,9 +64,8 @@ void main() {
   // Distance-based point size
   float distScale = 120.0 / max(0.1, -mvPosition.z);
   float sizeBoost = 1.0 + rippleAmt * 0.18 * near + wave * 0.36;
-  sizeBoost *= 1.0 + dissolved * uDissolveFill * uPointScaleBoost;
   gl_PointSize = aSize * uPointScale * distScale * sizeBoost;
-  gl_PointSize = clamp(gl_PointSize, 0.55, 8.5);
+  gl_PointSize = clamp(gl_PointSize, 0.55, 7.0);
 
   // Depth fade toward camera / open front (positive Z in room)
   float depthFade = smoothstep(5.2, 1.2, pos.z);
@@ -116,15 +95,19 @@ void main() {
   light += screenLight * 1.65;
   vScreenMix = clamp(screenLight * 0.85, 0.0, 1.0);
 
+  // Sweeping scan band — only while the visitor is actively typing an
+  // answer; otherwise inert. Kept grainy/soft rather than a crisp line.
+  float scan = 1.0 - smoothstep(0.0, 0.6, abs(pos.y - uScanY));
+  scan = pow(scan, 1.4);
+  light += scan * 0.85 * uScanActive;
+
   // Rising wave brightness — visible even late in the activation pulse
   float waveAmp = max(uActivation, 0.55);
   light += wave * waveAmp * 1.75;
   light += near * rippleAmt * (0.3 + hoverRipple * 0.4);
-  light += dissolved * uDissolveFill * 0.35;
 
   vBright = aBrightness * light;
   vAlpha = edgeFade * mix(0.6, 1.0, depthFade) * clamp(0.78 + light * 0.32, 0.0, 1.0);
-  vAlpha *= dissolved * mix(0.55, 1.0, uDissolveFill);
 
   gl_Position = projectionMatrix * mvPosition;
 }
@@ -174,6 +157,8 @@ uniform float uRadius;
 uniform float uAudio;
 uniform float uAudioBass;
 uniform float uAudioMid;
+uniform float uBrightness;
+uniform float uAlphaFloor;
 
 attribute float aSeed;
 attribute float aSize;
@@ -227,9 +212,9 @@ void main() {
   gl_PointSize = aSize * uPointScale * distScale * sizeBoost;
   gl_PointSize = clamp(gl_PointSize, 0.55, 7.5);
 
-  vBright = aBrightness * uIntensity * 1.65;
+  vBright = aBrightness * uIntensity * uBrightness;
   vBright += uAudio * 0.35 + uPulse * 0.5;
-  vAlpha = aVisibility * clamp(0.95 + uIntensity * 0.15 + uPulse * 0.08, 0.0, 1.0);
+  vAlpha = aVisibility * clamp(uAlphaFloor + uIntensity * 0.15 + uPulse * 0.08, 0.0, 1.0);
 
   gl_Position = projectionMatrix * mvPosition;
 }

@@ -98,9 +98,10 @@ export const PARTICLES = {
 
 /** Point-cloud densities — tune for GPU */
 export const SCAN = {
-  orbShell: 46000,
-  orbVolume: 15000,
-  orbHalo: 6500,
+  // Modest trim (~30%) — still dense enough for the soft orb silhouette.
+  orbShell: 32000,
+  orbVolume: 10500,
+  orbHalo: 4500,
   roomBack: 42000,
   roomLeft: 24000,
   roomRight: 24000,
@@ -111,24 +112,19 @@ export const SCAN = {
   envPointScale: 0.26,
   orbPointScale: 0.2,
   shockwaveMaxRadius: 6.2,
+  scanSpeed: 0.28,
 } as const
 
 /**
- * Orb-station room dissolve — solid dune walls peel into particles from
- * ceiling → floor as each question is entered.
+ * Legacy orb-station room dissolve knobs — kept for unused Room/RoomDissolve
+ * modules. The live orb scene uses solid SpaceRoom + ScanSweep instead.
  */
 export const ROOM_DISSOLVE = {
-  /** Softness of the solid/particle boundary (world units) */
   soft: 0.55,
-  /** Damp lambda toward the next question's dissolve front */
   damp: 1.15,
-  /** Faster catch-up when reduced motion is preferred */
   reducedDamp: 7,
-  /** Extra point size once a region has dissolved */
   pointScaleBoost: 0.55,
-  /** How far dissolved wall points drift off the surface */
   peelStrength: 0.085,
-  /** Ambient volume dust that fills the dissolved void (0–1 mix strength) */
   dustStrength: 0.72,
   dustCount: 9000,
   dustReducedCount: 2800,
@@ -141,7 +137,7 @@ export const POST = {
   bloomLuminanceSmoothing: 0.05,
   bloomMipmapBlur: true,
   bloomRadius: 0.18,
-  bloomLevels: 3,
+  bloomLevels: 2,
   /** Global CA is off: keep orb/background away from VHS language */
   chromaticAberration: 0,
   vignetteOffset: 0.32,
@@ -150,7 +146,7 @@ export const POST = {
 } as const
 
 export const RENDERER = {
-  maxDpr: 2,
+  maxDpr: 1.5,
   exposure: 0.88,
 } as const
 
@@ -178,7 +174,7 @@ export const PARALLAX = {
   faceSizeFar: 0.18,
   damp: 3.2,
   lostDamp: 2.0,
-  detectIntervalMs: 33,
+  detectIntervalMs: 66,
   reducedMotionScale: 0.3,
   wasmBase:
     'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.18/wasm',

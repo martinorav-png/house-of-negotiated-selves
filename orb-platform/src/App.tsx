@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, type KeyboardEvent } from 'react'
+import { lazy, Suspense, useCallback, useEffect, useState, type KeyboardEvent } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { CAMERA, RENDERER } from './config'
 import { OrbProvider } from './context/OrbProvider'
@@ -10,10 +10,17 @@ import { useMediaSensors } from './hooks/useMediaSensors'
 import { usePrefersReducedMotion } from './hooks/usePrefersReducedMotion'
 import { QUESTIONS } from './lib/questions'
 import { applySpatialInput } from './lib/spatialInput'
+import { typingState } from './lib/typingState'
 import { getStationFromHash, getStationHref, type StationRoute } from './lib/stationRoute'
 import './index.css'
 
+// Dynamically imported so `leva` (and the panel) is excluded from the
+// production bundle entirely — only fetched when import.meta.env.DEV
+// actually renders it, never requested otherwise.
+const DevPanel = lazy(() => import('./dev/DevPanel').then((m) => ({ default: m.DevPanel })))
+
 function ExperienceShell({
+  focused,
   postEnabled,
   parallaxEnabled,
   answerText,
@@ -22,6 +29,7 @@ function ExperienceShell({
   onToggleParallax,
   onInputKey,
 }: {
+  focused: boolean
   postEnabled: boolean
   parallaxEnabled: boolean
   answerText: string
@@ -37,6 +45,7 @@ function ExperienceShell({
     void sensors.start()
   }, [sensors])
 
+  const sensorsActive = sensors.audioActive || sensors.videoActive
   const sensorStatus = sensors.error
     ? sensors.error
     : sensors.starting
@@ -59,6 +68,11 @@ function ExperienceShell({
         ensureSensors()
         if (!locked) triggerActivation()
       }
+      if (e.key === 'm' || e.key === 'M') {
+        e.preventDefault()
+        if (sensorsActive) sensors.stop()
+        else void sensors.start()
+      }
       if (e.key === 'v' || e.key === 'V') {
         e.preventDefault()
         onToggleParallax()
@@ -68,6 +82,8 @@ function ExperienceShell({
       locked,
       triggerActivation,
       ensureSensors,
+      sensors,
+      sensorsActive,
       onToggleParallax,
       onInputKey,
     ],
@@ -75,10 +91,10 @@ function ExperienceShell({
 
   return (
     <div
-      className="viewport"
+      className={`viewport${focused ? ' is-focused' : ''}`}
       tabIndex={0}
       role="application"
-      aria-label="Interactive scan orb. Type to answer the spatial question. Press Enter to submit an answer. Press V to toggle camera parallax."
+      aria-label="Interactive scan orb. Type to answer the spatial question. Press Enter to submit an answer. Press M to toggle sensors. Press V to toggle camera parallax."
       onKeyDown={onKeyDown}
       onPointerDown={ensureSensors}
     >
@@ -120,6 +136,7 @@ export default function App() {
   const [station, setStation] = useState<StationRoute>(() =>
     getStationFromHash(window.location.hash),
   )
+  const [focused, setFocused] = useState(false)
   const [postEnabled, setPostEnabled] = useState(true)
   const [parallaxEnabled, setParallaxEnabled] = useState(true)
   const [answerText, setAnswerText] = useState('')
@@ -134,6 +151,8 @@ export default function App() {
       event.ctrlKey ||
       event.metaKey ||
       event.altKey ||
+      event.key === 'm' ||
+      event.key === 'M' ||
       event.key === 'v' ||
       event.key === 'V'
     ) {
@@ -154,6 +173,9 @@ export default function App() {
       if (next.submitted) {
         setSubmitSerial((serial) => serial + 1)
         setQuestionIndex((index) => (index + 1) % QUESTIONS.length)
+        typingState.active = false
+      } else {
+        typingState.active = next.value.trim().length > 0
       }
       return next.value
     })
@@ -187,6 +209,11 @@ export default function App() {
 
   return (
     <main className="experience">
+      {import.meta.env.DEV ? (
+        <Suspense fallback={null}>
+          <DevPanel />
+        </Suspense>
+      ) : null}
       <nav className={`station-switcher station-switcher-${station}`} aria-label="Station switcher">
         <a aria-current={station === 'orb' ? 'page' : undefined} href={getStationHref('orb')}>
           Orb
@@ -208,8 +235,13 @@ export default function App() {
       {station === 'orb' ? (
         <section className="orb-station" aria-label="Orb station">
           <OrbProvider reducedMotion={reducedMotion}>
-            <div className="experience-inner">
+            <div
+              className="experience-inner"
+              onFocus={() => setFocused(true)}
+              onBlur={() => setFocused(false)}
+            >
               <ExperienceShell
+                focused={focused}
                 postEnabled={postEnabled}
                 parallaxEnabled={parallaxEnabled}
                 answerText={answerText}
