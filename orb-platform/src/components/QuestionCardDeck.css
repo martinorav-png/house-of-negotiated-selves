@@ -103,7 +103,7 @@
   overflow: hidden;
   border: 1px solid var(--holo-mint);
   border-radius: 0;
-  background-color: rgba(9, 13, 12, 0.22);
+  background-color: rgba(10, 10, 10, 0.22);
   background-image:
     radial-gradient(circle at 1px 1px, var(--holo-mint) 0.55px, transparent 0.75px),
     radial-gradient(circle at 2px 2px, var(--holo-violet) 0.4px, transparent 0.7px),

@@ -3,7 +3,7 @@
   min-height: 100svh;
   overflow: hidden;
   background: #030406;
-  color: rgba(232, 244, 234, 0.9);
+  color: var(--holo-mint, rgba(232, 244, 234, 0.9));
   font-family: system-ui, sans-serif;
 }
 
@@ -29,44 +29,55 @@
   background: linear-gradient(90deg, rgba(3, 4, 6, 0.28), transparent 30%, transparent 70%, rgba(3, 4, 6, 0.28));
 }
 
+/*
+ * Per-question "art" texture layered under the holo overlay in
+ * QuestionCardDeck.css (via var(--card-art)). Previously these baked in
+ * their own hardcoded teal/violet/mint/green rgba() values — independent
+ * of --holo-teal/violet/mint/green and of the near-black "void" stops
+ * used elsewhere, and several of them (1, 4, 5, 6) used a literal
+ * green — which is why green kept showing up even after the holo
+ * variables were wired up and set to grayscale defaults. Now reuses the
+ * same holo variables so a panel change recolors this layer too, and
+ * the void stops are neutral gray instead of green-biased near-black.
+ */
 .station-card-1 {
   --card-art:
-    radial-gradient(circle at 28% 62%, rgba(69, 138, 148, 0.26) 0 10%, transparent 34%),
-    linear-gradient(110deg, rgba(69, 138, 148, 0.18) 0%, rgba(87, 140, 99, 0.12) 38%, rgba(9, 13, 12, 0.36) 100%);
+    radial-gradient(circle at 28% 62%, var(--holo-teal) 0 10%, transparent 34%),
+    linear-gradient(110deg, var(--holo-teal) 0%, var(--holo-green) 38%, rgba(10, 10, 10, 0.36) 100%);
 }
 
 .station-card-2 {
   --card-art:
-    radial-gradient(circle at 68% 44%, rgba(184, 214, 208, 0.2) 0 8%, transparent 32%),
-    linear-gradient(115deg, rgba(24, 36, 34, 0.34) 0%, rgba(69, 138, 148, 0.16) 40%, rgba(97, 77, 133, 0.12) 72%, rgba(9, 13, 12, 0.38) 100%);
+    radial-gradient(circle at 68% 44%, var(--holo-mint) 0 8%, transparent 32%),
+    linear-gradient(115deg, rgba(30, 30, 30, 0.34) 0%, var(--holo-teal) 40%, var(--holo-violet) 72%, rgba(10, 10, 10, 0.38) 100%);
 }
 
 .station-card-3 {
   --card-art:
-    radial-gradient(circle at 62% 30%, rgba(209, 230, 224, 0.2) 0 8%, transparent 26%),
-    linear-gradient(120deg, rgba(97, 77, 133, 0.16) 0%, rgba(69, 138, 148, 0.16) 44%, rgba(9, 13, 12, 0.4) 100%);
+    radial-gradient(circle at 62% 30%, var(--holo-mint) 0 8%, transparent 26%),
+    linear-gradient(120deg, var(--holo-violet) 0%, var(--holo-teal) 44%, rgba(10, 10, 10, 0.4) 100%);
 }
 
 .station-card-4 {
   --card-art:
-    radial-gradient(circle at 57% 24%, rgba(9, 13, 12, 0.42) 0 10%, transparent 26%),
-    linear-gradient(105deg, rgba(184, 214, 208, 0.18) 0%, rgba(69, 138, 148, 0.14) 36%, rgba(87, 140, 99, 0.14) 68%, rgba(9, 13, 12, 0.4) 100%);
+    radial-gradient(circle at 57% 24%, rgba(10, 10, 10, 0.42) 0 10%, transparent 26%),
+    linear-gradient(105deg, var(--holo-mint) 0%, var(--holo-teal) 36%, var(--holo-green) 68%, rgba(10, 10, 10, 0.4) 100%);
 }
 
 .station-card-5 {
   --card-art:
-    radial-gradient(circle at 80% 42%, rgba(97, 77, 133, 0.18) 0 8%, transparent 26%),
-    linear-gradient(112deg, rgba(28, 40, 38, 0.3) 0%, rgba(69, 138, 148, 0.15) 44%, rgba(87, 140, 99, 0.12) 72%, rgba(9, 13, 12, 0.38) 100%);
+    radial-gradient(circle at 80% 42%, var(--holo-violet) 0 8%, transparent 26%),
+    linear-gradient(112deg, rgba(32, 32, 32, 0.3) 0%, var(--holo-teal) 44%, var(--holo-green) 72%, rgba(10, 10, 10, 0.38) 100%);
 }
 
 .station-card-6 {
   --card-art:
-    radial-gradient(circle at 52% 34%, rgba(184, 214, 208, 0.22) 0 7%, transparent 22%),
-    linear-gradient(112deg, rgba(69, 138, 148, 0.16) 0%, rgba(87, 140, 99, 0.14) 40%, rgba(9, 13, 12, 0.38) 100%);
+    radial-gradient(circle at 52% 34%, var(--holo-mint) 0 7%, transparent 22%),
+    linear-gradient(112deg, var(--holo-teal) 0%, var(--holo-green) 40%, rgba(10, 10, 10, 0.38) 100%);
 }
 
 .station-card-7 {
   --card-art:
-    radial-gradient(circle at 72% 40%, rgba(184, 214, 208, 0.2) 0 8%, transparent 28%),
-    linear-gradient(112deg, rgba(69, 138, 148, 0.16) 0%, rgba(40, 54, 52, 0.28) 42%, rgba(9, 13, 12, 0.4) 100%);
+    radial-gradient(circle at 72% 40%, var(--holo-mint) 0 8%, transparent 28%),
+    linear-gradient(112deg, var(--holo-teal) 0%, rgba(46, 46, 46, 0.28) 42%, rgba(10, 10, 10, 0.4) 100%);
 }
