@@ -1,12 +1,20 @@
-.question-deck-viewport {
-  --deck-visible-slots: 3;
-  --deck-card-width: clamp(180px, 16vw, 230px);
-  --deck-card-height: clamp(250px, 22vw, 320px);
-  /* Match cardPointCloudShaders: mutedCyan / mutedViolet / mint ripple */
+:root {
+  /* Fallback defaults — the dev panel overrides these on documentElement
+   * at runtime. Declared at :root (not on .question-deck-viewport) so
+   * that JS-set inline values actually win: a custom property declared
+   * locally on an element always beats one inherited from an ancestor,
+   * so redeclaring these on .question-deck-viewport would (and did)
+   * silently shadow any :root-level override. */
   --holo-teal: rgba(69, 138, 148, 0.72);
   --holo-violet: rgba(97, 77, 133, 0.55);
   --holo-mint: rgba(199, 230, 224, 0.9);
   --holo-green: rgba(87, 140, 99, 0.35);
+}
+
+.question-deck-viewport {
+  --deck-visible-slots: 3;
+  --deck-card-width: clamp(180px, 16vw, 230px);
+  --deck-card-height: clamp(250px, 22vw, 320px);
   position: absolute;
   left: 50%;
   top: 72%;

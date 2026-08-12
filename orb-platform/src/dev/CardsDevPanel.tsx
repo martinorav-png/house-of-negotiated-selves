@@ -34,6 +34,8 @@ export function CardsDevPanel() {
     colorViolet: cardSettings.pointCloud.colorViolet,
     colorGreen: cardSettings.pointCloud.colorGreen,
     colorMagenta: cardSettings.pointCloud.colorMagenta,
+    colorOrbInfluence: cardSettings.pointCloud.colorOrbInfluence,
+    colorRipple: cardSettings.pointCloud.colorRipple,
   })
   Object.assign(cardSettings.pointCloud, pointCloud)
 

@@ -99,6 +99,8 @@ uniform vec3 uMutedCyan;
 uniform vec3 uMutedViolet;
 uniform vec3 uDimGreen;
 uniform vec3 uRareMagenta;
+uniform vec3 uOrbInfluenceColor;
+uniform vec3 uRippleColor;
 
 varying float vAlpha;
 varying float vBrightness;
@@ -124,8 +126,8 @@ void main() {
   color = mix(color, mutedViolet, smoothstep(0.78, 0.96, tone) * 0.46);
   color = mix(color, dimGreen, smoothstep(0.32, 0.5, fract(vSeed * 8.7)) * 0.22);
   color = mix(color, rareMagenta, step(0.982, fract(vSeed * 41.9)) * 0.22);
-  color = mix(color, vec3(0.78, 0.9, 0.88), vOrbInfluence * 0.28);
-  color = mix(color, vec3(0.72, 0.93, 0.9), vRipple * 0.34);
+  color = mix(color, uOrbInfluenceColor, vOrbInfluence * 0.28);
+  color = mix(color, uRippleColor, vRipple * 0.34);
   color *= vBrightness * mix(1.12, 0.82, vDepth);
 
   float alpha = edge * min(vAlpha, 1.0);

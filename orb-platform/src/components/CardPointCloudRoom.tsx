@@ -65,6 +65,8 @@ function makeUniforms(pixelRatio: number) {
     uMutedViolet: { value: new THREE.Color(pc.colorViolet) },
     uDimGreen: { value: new THREE.Color(pc.colorGreen) },
     uRareMagenta: { value: new THREE.Color(pc.colorMagenta) },
+    uOrbInfluenceColor: { value: new THREE.Color(pc.colorOrbInfluence) },
+    uRippleColor: { value: new THREE.Color(pc.colorRipple) },
   }
 }
 
@@ -110,6 +112,8 @@ function ScannedInstallation({ quality }: { quality: PointCloudQuality }) {
     roomUniforms.uMutedViolet.value.set(pc.colorViolet)
     roomUniforms.uDimGreen.value.set(pc.colorGreen)
     roomUniforms.uRareMagenta.value.set(pc.colorMagenta)
+    roomUniforms.uOrbInfluenceColor.value.set(pc.colorOrbInfluence)
+    roomUniforms.uRippleColor.value.set(pc.colorRipple)
   })
 
   useEffect(
