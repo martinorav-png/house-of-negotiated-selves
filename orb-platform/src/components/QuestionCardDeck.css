@@ -4,7 +4,13 @@
    * that JS-set inline values actually win: a custom property declared
    * locally on an element always beats one inherited from an ancestor,
    * so redeclaring these on .question-deck-viewport would (and did)
-   * silently shadow any :root-level override. */
+   * silently shadow any :root-level override.
+   *
+   * Every teal/violet/mint/green tint below (borders, box-shadows,
+   * background gradients, text-shadow fringing) is driven by these same
+   * four variables rather than separate hardcoded rgba() values, so a
+   * single slider recolors all of that element's occurrences at once —
+   * individual per-layer alpha nuance is traded for that controllability. */
   --holo-teal: rgba(69, 138, 148, 0.72);
   --holo-violet: rgba(97, 77, 133, 0.55);
   --holo-mint: rgba(199, 230, 224, 0.9);
@@ -26,8 +32,8 @@
   animation: question-deck-hover var(--hover-duration, 5.4s) ease-in-out infinite;
   will-change: transform;
   isolation: isolate;
-  filter: drop-shadow(-1px 0 0 rgba(97, 77, 133, 0.32))
-    drop-shadow(1px 0 0 rgba(69, 138, 148, 0.36));
+  filter: drop-shadow(-1px 0 0 var(--holo-violet))
+    drop-shadow(1px 0 0 var(--holo-teal));
 }
 
 @keyframes question-deck-hover {
@@ -95,13 +101,13 @@
   justify-content: space-between;
   padding: clamp(18px, 2vw, 26px);
   overflow: hidden;
-  border: 1px solid rgba(184, 214, 208, 0.3);
+  border: 1px solid var(--holo-mint);
   border-radius: 0;
   background-color: rgba(9, 13, 12, 0.22);
   background-image:
-    radial-gradient(circle at 1px 1px, rgba(184, 214, 208, 0.38) 0.55px, transparent 0.75px),
-    radial-gradient(circle at 2px 2px, rgba(97, 77, 133, 0.16) 0.4px, transparent 0.7px),
-    radial-gradient(circle at 50% 120%, rgba(69, 138, 148, 0.14), transparent 55%),
+    radial-gradient(circle at 1px 1px, var(--holo-mint) 0.55px, transparent 0.75px),
+    radial-gradient(circle at 2px 2px, var(--holo-violet) 0.4px, transparent 0.7px),
+    radial-gradient(circle at 50% 120%, var(--holo-teal), transparent 55%),
     var(--card-art);
   background-size:
     5px 5px,
@@ -112,11 +118,11 @@
   -webkit-backdrop-filter: blur(var(--holo-blur, 7px)) saturate(118%);
   backdrop-filter: blur(var(--holo-blur, 7px)) saturate(118%);
   box-shadow:
-    -2px 0 0 rgba(97, 77, 133, 0.28),
-    2px 0 0 rgba(69, 138, 148, 0.3),
-    inset 0 0 0 1px rgba(184, 214, 208, 0.1),
-    inset 0 0 28px rgba(69, 138, 148, 0.07),
-    0 0 26px rgba(69, 138, 148, 0.14),
+    -2px 0 0 var(--holo-violet),
+    2px 0 0 var(--holo-teal),
+    inset 0 0 0 1px var(--holo-mint),
+    inset 0 0 28px var(--holo-teal),
+    0 0 26px var(--holo-teal),
     0 22px 48px rgba(0, 0, 0, 0.24);
   color: var(--holo-mint);
   animation: holo-grain var(--grain-duration, 4.8s) steps(3) infinite;
@@ -135,10 +141,10 @@
   z-index: 0;
   pointer-events: none;
   background:
-    linear-gradient(90deg, rgba(97, 77, 133, 0.2), transparent 18%, transparent 82%, rgba(69, 138, 148, 0.22)),
-    radial-gradient(circle at 18% 24%, rgba(209, 230, 224, 0.22) 0 1px, transparent 1.6px),
-    radial-gradient(circle at 72% 58%, rgba(69, 138, 148, 0.34) 0 1px, transparent 1.8px),
-    radial-gradient(circle at 44% 78%, rgba(87, 140, 99, 0.2) 0 1px, transparent 1.7px);
+    linear-gradient(90deg, var(--holo-violet), transparent 18%, transparent 82%, var(--holo-teal)),
+    radial-gradient(circle at 18% 24%, var(--holo-mint) 0 1px, transparent 1.6px),
+    radial-gradient(circle at 72% 58%, var(--holo-teal) 0 1px, transparent 1.8px),
+    radial-gradient(circle at 44% 78%, var(--holo-green) 0 1px, transparent 1.7px);
   background-size:
     100% 100%,
     18px 18px,
@@ -157,11 +163,11 @@
   z-index: 0;
   pointer-events: none;
   background:
-    linear-gradient(135deg, rgba(232, 244, 234, 0.1) 0%, transparent 16%),
+    linear-gradient(135deg, var(--holo-mint) 0%, transparent 16%),
     linear-gradient(180deg, transparent 42%, rgba(3, 4, 6, 0.42) 100%);
   box-shadow:
-    inset 0 1px 0 rgba(232, 244, 234, 0.12),
-    inset 1px 0 0 rgba(184, 214, 208, 0.06);
+    inset 0 1px 0 var(--holo-mint),
+    inset 1px 0 0 var(--holo-mint);
 }
 
 .question-swap-kicker,
@@ -174,8 +180,8 @@
 .question-swap-kicker {
   align-self: flex-start;
   padding-bottom: 8px;
-  border-bottom: 1px solid rgba(184, 214, 208, 0.4);
-  color: rgba(209, 230, 224, 0.9);
+  border-bottom: 1px solid var(--holo-mint);
+  color: var(--holo-mint);
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   font-size: clamp(0.56rem, 0.62vw, 0.68rem);
   font-weight: 650;
@@ -183,14 +189,14 @@
   line-height: 1.25;
   text-transform: uppercase;
   text-shadow:
-    -1px 0 0 rgba(97, 77, 133, 0.55),
-    1px 0 0 rgba(69, 138, 148, 0.6),
-    0 0 12px rgba(184, 214, 208, 0.28);
+    -1px 0 0 var(--holo-violet),
+    1px 0 0 var(--holo-teal),
+    0 0 12px var(--holo-mint);
 }
 
 .question-swap-title {
   max-width: 100%;
-  color: rgba(232, 244, 234, 0.94);
+  color: var(--holo-mint);
   font-family: Georgia, 'Times New Roman', serif;
   font-size: clamp(1.12rem, 1.7vw, 1.65rem);
   font-weight: 400;
@@ -198,9 +204,9 @@
   line-height: 0.98;
   text-wrap: balance;
   text-shadow:
-    -1.5px 0 0 rgba(97, 77, 133, 0.4),
-    1.5px 0 0 rgba(69, 138, 148, 0.45),
-    0 0 18px rgba(184, 214, 208, 0.22);
+    -1.5px 0 0 var(--holo-violet),
+    1.5px 0 0 var(--holo-teal),
+    0 0 18px var(--holo-mint);
 }
 
 .question-deck-static .question-swap-card {
