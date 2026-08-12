@@ -120,7 +120,10 @@ describe('QuestionCardDeck animated depth limit', () => {
 
   it('cleans up the initial hold timer on unmount', () => {
     act(() => root.render(<QuestionCardDeck />))
-    expect(vi.getTimerCount()).toBe(1)
+    // 1 = the initial-hold timeout; 1 = the dev-panel live-settings poll
+    // (a throttled requestAnimationFrame loop, which fake timers count
+    // alongside setTimeout/setInterval). Both must be cleaned up on unmount.
+    expect(vi.getTimerCount()).toBe(2)
 
     act(() => root.unmount())
     rootMounted = false

@@ -15,6 +15,7 @@ import {
 } from '../shaders/cardPointCloudShaders'
 import { CardScanSweep } from './CardScanSweep'
 import { CardStationPostProcessing } from './CardStationPostProcessing'
+import { cardSettings } from '../dev/cardSettingsStore'
 
 function CardRoomCamera() {
   const { camera, gl, size } = useThree()
@@ -41,23 +42,29 @@ function CardRoomCamera() {
 
 function makeUniforms(pixelRatio: number) {
   const config = SECOND_STATION_POINT_CLOUD_CONFIG
+  const pc = cardSettings.pointCloud
   return {
     uTime: { value: 0 },
-    uPointScale: { value: config.pointSize.scale },
+    uPointScale: { value: pc.pointScale },
     uPixelRatio: { value: pixelRatio },
     uOrbPosition: { value: new THREE.Vector3(0, -100, 0) },
     uOrbInfluenceRadius: { value: config.orbInfluenceRadius },
     uOrbInfluenceStrength: { value: 0 },
-    uFlickerAmount: { value: config.flickerAmount },
-    uFlickerSpeed: { value: config.flickerSpeed },
-    uDepthFade: { value: config.depthFade },
+    uFlickerAmount: { value: pc.flickerAmount },
+    uFlickerSpeed: { value: pc.flickerSpeed },
+    uDepthFade: { value: pc.depthFade },
     uRippleCenter: { value: new THREE.Vector3(...config.ripple.center) },
-    uRippleDuration: { value: config.ripple.duration },
-    uRippleRadius: { value: config.ripple.radius },
-    uRippleWidth: { value: config.ripple.width },
-    uRippleDisplacement: { value: config.ripple.displacement },
-    uRippleBrightness: { value: config.ripple.brightness },
+    uRippleDuration: { value: pc.rippleDuration },
+    uRippleRadius: { value: pc.rippleRadius },
+    uRippleWidth: { value: pc.rippleWidth },
+    uRippleDisplacement: { value: pc.rippleDisplacement },
+    uRippleBrightness: { value: pc.rippleBrightness },
     uIsOrb: { value: 0 },
+    uNearBlack: { value: new THREE.Color(pc.colorNearBlack) },
+    uMutedCyan: { value: new THREE.Color(pc.colorCyan) },
+    uMutedViolet: { value: new THREE.Color(pc.colorViolet) },
+    uDimGreen: { value: new THREE.Color(pc.colorGreen) },
+    uRareMagenta: { value: new THREE.Color(pc.colorMagenta) },
   }
 }
 
@@ -88,6 +95,21 @@ function ScannedInstallation({ quality }: { quality: PointCloudQuality }) {
   )
   useFrame((state) => {
     roomUniforms.uTime.value = state.clock.elapsedTime
+    const pc = cardSettings.pointCloud
+    roomUniforms.uPointScale.value = pc.pointScale
+    roomUniforms.uFlickerAmount.value = pc.flickerAmount
+    roomUniforms.uFlickerSpeed.value = pc.flickerSpeed
+    roomUniforms.uDepthFade.value = pc.depthFade
+    roomUniforms.uRippleDuration.value = pc.rippleDuration
+    roomUniforms.uRippleRadius.value = pc.rippleRadius
+    roomUniforms.uRippleWidth.value = pc.rippleWidth
+    roomUniforms.uRippleDisplacement.value = pc.rippleDisplacement
+    roomUniforms.uRippleBrightness.value = pc.rippleBrightness
+    roomUniforms.uNearBlack.value.set(pc.colorNearBlack)
+    roomUniforms.uMutedCyan.value.set(pc.colorCyan)
+    roomUniforms.uMutedViolet.value.set(pc.colorViolet)
+    roomUniforms.uDimGreen.value.set(pc.colorGreen)
+    roomUniforms.uRareMagenta.value.set(pc.colorMagenta)
   })
 
   useEffect(
@@ -99,6 +121,29 @@ function ScannedInstallation({ quality }: { quality: PointCloudQuality }) {
   )
 
   return <points geometry={roomGeometry} material={roomMaterial} frustumCulled={false} />
+}
+
+/**
+ * Bridges cardSettings.post (a plain object, no leva dependency, safe for
+ * production) into real React props for CardStationPostProcessing — polled
+ * via useFrame rather than imported reactively, so the always-loaded
+ * post-processing component never needs to import leva itself.
+ */
+function CardsPostBridge() {
+  const [post, setPost] = useState(() => ({ ...cardSettings.post }))
+  useFrame(() => {
+    const s = cardSettings.post
+    if (
+      s.bloomIntensity !== post.bloomIntensity ||
+      s.bloomThreshold !== post.bloomThreshold ||
+      s.bloomSmoothing !== post.bloomSmoothing ||
+      s.chromaticAberration !== post.chromaticAberration ||
+      s.noiseOpacity !== post.noiseOpacity
+    ) {
+      setPost({ ...s })
+    }
+  })
+  return <CardStationPostProcessing post={post} />
 }
 
 export function CardPointCloudRoom() {
@@ -130,7 +175,7 @@ export function CardPointCloudRoom() {
         <CardRoomCamera />
         <ScannedInstallation quality={quality} />
         <CardScanSweep />
-        <CardStationPostProcessing />
+        <CardsPostBridge />
       </Canvas>
     </div>
   )

@@ -2,9 +2,9 @@ import { useEffect, useMemo } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import { ROOM } from '../config'
-import { SECOND_STATION_POINT_CLOUD_CONFIG } from '../lib/secondStationPointCloud'
 import { rand } from '../lib/samplePoints'
 import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion'
+import { cardSettings } from '../dev/cardSettingsStore'
 
 const SCAN_COUNT = 12000
 const SCAN_REDUCED_COUNT = 4200
@@ -57,6 +57,7 @@ void main() {
 `
 
 const fragmentShader = /* glsl */ `
+uniform vec3 uColor;
 varying float vAlpha;
 varying float vBright;
 varying float vSeed;
@@ -67,8 +68,8 @@ void main() {
   if (r > 0.5) discard;
   float soft = smoothstep(0.5, 0.22, r);
   float tone = fract(vSeed * 11.3);
-  vec3 core = vec3(1.0, 1.0, 1.0);
-  vec3 rim = vec3(0.82, 0.9, 0.88);
+  vec3 core = uColor;
+  vec3 rim = uColor * 0.87;
   vec3 col = mix(rim, core, tone) * vBright;
   float alpha = soft * vAlpha;
   if (alpha < 0.02) discard;
@@ -155,10 +156,11 @@ export function CardScanSweep() {
         uniforms: {
           uTime: { value: 0 },
           uScanZ: { value: SCAN_Z_NEAR },
-          uPointScale: { value: 0.3 },
-          uThickness: { value: SCAN_THICKNESS },
+          uPointScale: { value: cardSettings.scan.pointScale },
+          uThickness: { value: cardSettings.scan.thickness },
           uPixelRatio: { value: 1 },
           uReducedMotion: { value: reducedMotion ? 1 : 0 },
+          uColor: { value: new THREE.Color(cardSettings.scan.color) },
         },
         transparent: true,
         depthWrite: false,
@@ -175,8 +177,7 @@ export function CardScanSweep() {
   }, [geometry, material])
 
   useFrame((state) => {
-    const duration = SECOND_STATION_POINT_CLOUD_CONFIG.ripple.duration
-    const cycle = Math.max(0.05, duration)
+    const cycle = Math.max(0.05, cardSettings.scan.cycleDuration)
     const t2 = state.clock.elapsedTime % (cycle * 2)
     // Triangle wave 0→1→0, then ease-in-out-back so turnarounds settle with a bounce.
     const linear = t2 < cycle ? t2 / cycle : 1 - (t2 - cycle) / cycle
@@ -190,6 +191,9 @@ export function CardScanSweep() {
     material.uniforms.uScanZ.value = THREE.MathUtils.lerp(SCAN_Z_NEAR, SCAN_Z_FAR, phase)
     material.uniforms.uPixelRatio.value = state.gl.getPixelRatio()
     material.uniforms.uReducedMotion.value = reducedMotion ? 1 : 0
+    material.uniforms.uPointScale.value = cardSettings.scan.pointScale
+    material.uniforms.uThickness.value = cardSettings.scan.thickness
+    material.uniforms.uColor.value.set(cardSettings.scan.color)
   })
 
   return <points geometry={geometry} material={material} frustumCulled={false} />

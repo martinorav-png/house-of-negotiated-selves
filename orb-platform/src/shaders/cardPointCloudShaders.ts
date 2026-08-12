@@ -94,6 +94,12 @@ void main() {
 `
 
 export const cardPointCloudFragmentShader = /* glsl */ `
+uniform vec3 uNearBlack;
+uniform vec3 uMutedCyan;
+uniform vec3 uMutedViolet;
+uniform vec3 uDimGreen;
+uniform vec3 uRareMagenta;
+
 varying float vAlpha;
 varying float vBrightness;
 varying float vSeed;
@@ -107,11 +113,11 @@ void main() {
   if (radius > 0.5) discard;
   float edge = smoothstep(0.5, 0.39, radius);
 
-  vec3 nearBlack = vec3(0.035, 0.052, 0.047);
-  vec3 mutedCyan = vec3(0.27, 0.54, 0.58);
-  vec3 mutedViolet = vec3(0.38, 0.3, 0.52);
-  vec3 dimGreen = vec3(0.34, 0.55, 0.39);
-  vec3 rareMagenta = vec3(0.56, 0.22, 0.43);
+  vec3 nearBlack = uNearBlack;
+  vec3 mutedCyan = uMutedCyan;
+  vec3 mutedViolet = uMutedViolet;
+  vec3 dimGreen = uDimGreen;
+  vec3 rareMagenta = uRareMagenta;
 
   float tone = fract(vSeed * 17.31);
   vec3 color = mix(nearBlack, mutedCyan, smoothstep(0.08, 0.72, tone) * 0.72);

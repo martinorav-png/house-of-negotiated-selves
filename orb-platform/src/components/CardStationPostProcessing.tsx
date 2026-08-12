@@ -10,13 +10,24 @@ import * as THREE from 'three'
 import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion'
 import { SECOND_STATION_POINT_CLOUD_CONFIG } from '../lib/secondStationPointCloud'
 
+type PostSettings = {
+  bloomIntensity: number
+  bloomThreshold: number
+  bloomSmoothing: number
+  chromaticAberration: number
+  noiseOpacity: number
+}
+
 /**
  * Station-2 post stack — same language as the previous GridScan:
- * soft bloom, radial chromatic aberration, and film grain.
+ * soft bloom, radial chromatic aberration, and film grain. Accepts an
+ * optional live-tunable `post` prop (see CardPointCloudRoom's
+ * CardsPostBridge); defaults to the static config so behavior is
+ * unchanged when nothing overrides it.
  */
-export function CardStationPostProcessing() {
+export function CardStationPostProcessing({ post: postOverride }: { post?: PostSettings } = {}) {
   const reducedMotion = usePrefersReducedMotion()
-  const { post } = SECOND_STATION_POINT_CLOUD_CONFIG
+  const post = postOverride ?? SECOND_STATION_POINT_CLOUD_CONFIG.post
   const bloom = reducedMotion ? post.bloomIntensity * 0.45 : post.bloomIntensity
   const noise = reducedMotion ? post.noiseOpacity * 0.4 : post.noiseOpacity
   const chromaOffset = useMemo(

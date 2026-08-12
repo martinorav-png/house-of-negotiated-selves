@@ -15,7 +15,7 @@
   height: calc(var(--deck-card-height) + 88px);
   overflow: visible;
   transform: translate(-50%, -50%);
-  animation: question-deck-hover 5.4s ease-in-out infinite;
+  animation: question-deck-hover var(--hover-duration, 5.4s) ease-in-out infinite;
   will-change: transform;
   isolation: isolate;
   filter: drop-shadow(-1px 0 0 rgba(97, 77, 133, 0.32))
@@ -101,8 +101,8 @@
     100% 100%,
     auto;
   background-blend-mode: screen, soft-light, soft-light, soft-light;
-  -webkit-backdrop-filter: blur(7px) saturate(118%);
-  backdrop-filter: blur(7px) saturate(118%);
+  -webkit-backdrop-filter: blur(var(--holo-blur, 7px)) saturate(118%);
+  backdrop-filter: blur(var(--holo-blur, 7px)) saturate(118%);
   box-shadow:
     -2px 0 0 rgba(97, 77, 133, 0.28),
     2px 0 0 rgba(69, 138, 148, 0.3),
@@ -111,7 +111,7 @@
     0 0 26px rgba(69, 138, 148, 0.14),
     0 22px 48px rgba(0, 0, 0, 0.24);
   color: var(--holo-mint);
-  animation: holo-grain 4.8s steps(3) infinite;
+  animation: holo-grain var(--grain-duration, 4.8s) steps(3) infinite;
 }
 
 .question-deck-viewport:not(.question-deck-static) .question-swap-card:not([data-deck-visible]) {
@@ -138,7 +138,7 @@
     16px 16px;
   mix-blend-mode: screen;
   opacity: 0.75;
-  animation: holo-flicker 3.6s ease-in-out infinite;
+  animation: holo-flicker var(--flicker-duration, 3.6s) ease-in-out infinite;
 }
 
 /* Soft vignette + edge light — no moving scan band */
