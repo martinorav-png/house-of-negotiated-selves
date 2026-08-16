@@ -241,10 +241,10 @@ function MiniBar({ style, fill }: { style?: CSSProperties; fill: number }) {
 /** Persistent scattered technical debris — small scrolling log panels, one
  * deliberately overlapping a second "ghost" panel behind it, and a few
  * mini progress bars — living around the main content on every phase.
- * Positions are intentionally off-grid and asymmetric (odd offsets, small
- * rotations, a couple clipped right at the frame edge) rather than neatly
- * centered/paired, so it reads as debris that leaked into frame rather
- * than a designed HUD layout. */
+ * Positions are off-grid and asymmetric (odd offsets, a couple clipped
+ * right at the frame edge) rather than neatly centered/paired or
+ * corner-anchored, so it reads as debris that leaked into frame rather
+ * than a designed layout. Kept flat/unrotated on purpose. */
 function HudDebrisField() {
   return (
     <div className="mirror-hud-debris" aria-hidden="true">
@@ -253,43 +253,40 @@ function HudDebrisField() {
         rowCount={6}
         duration={16}
         hasAlert
-        style={{ top: '71px', left: '37px', transform: 'rotate(-2deg)', opacity: 0.38 }}
+        style={{ top: '71px', left: '37px', opacity: 0.38 }}
       />
       <CodePanel
         seed={2}
         rowCount={5}
         duration={22}
         ghost
-        style={{ top: '93px', left: '58px', transform: 'rotate(3deg)', opacity: 0.16 }}
+        style={{ top: '93px', left: '58px', opacity: 0.16 }}
       />
-      <MiniBar style={{ top: '58px', right: '46%', transform: 'rotate(-1deg)', opacity: 0.2 }} fill={35} />
+      <MiniBar style={{ top: '58px', right: '46%', opacity: 0.2 }} fill={35} />
 
       <CodePanel
         seed={3}
         rowCount={6}
         duration={19}
-        style={{ top: '118px', right: '-16px', transform: 'rotate(1.5deg)', opacity: 0.24 }}
+        style={{ top: '118px', right: '-16px', opacity: 0.24 }}
       />
-      <MiniBar style={{ top: '46%', left: '-6px', transform: 'rotate(2deg)', opacity: 0.16 }} fill={62} />
+      <MiniBar style={{ top: '46%', left: '-6px', opacity: 0.16 }} fill={62} />
 
       <CodePanel
         seed={0}
         rowCount={7}
         duration={15}
         hasAlert
-        style={{ bottom: '17%', left: '-14px', transform: 'rotate(-4deg)', opacity: 0.3 }}
+        style={{ bottom: '17%', left: '-14px', opacity: 0.3 }}
       />
       <CodePanel
         seed={4}
         rowCount={4}
         duration={25}
         ghost
-        style={{ bottom: 'calc(17% - 20px)', left: '44px', transform: 'rotate(2.5deg)', opacity: 0.14 }}
+        style={{ bottom: 'calc(17% - 20px)', left: '44px', opacity: 0.14 }}
       />
-      <MiniBar
-        style={{ bottom: '7%', right: '18px', transform: 'rotate(-2deg)', opacity: 0.22 }}
-        fill={22}
-      />
+      <MiniBar style={{ bottom: '7%', right: '18px', opacity: 0.22 }} fill={22} />
     </div>
   )
 }
