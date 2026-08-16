@@ -172,7 +172,7 @@ const CODE_ALERTS = [
   'signal degraded',
 ]
 
-const LINES_PER_BLOCK = 3
+const LINES_PER_BLOCK = 10
 const CODE_LINE_PX = 9.6
 
 /** A small, mostly-illegible "log panel" — a fixed key/value header over a
@@ -270,62 +270,170 @@ function MiniBar({ style, fill }: { style?: CSSProperties; fill: number }) {
   )
 }
 
+type DebrisPanel = {
+  seed: number
+  blockCount?: number
+  visibleRows?: number
+  large?: boolean
+  duration?: number
+  hasAlert?: boolean
+  ghost?: boolean
+  style: CSSProperties
+}
+type DebrisBar = { style: CSSProperties; fill: number }
+
+/** A different arrangement — different corners, different seeds (so the
+ * content itself differs, not just position) — per phase, so the debris
+ * visibly relocates and rewrites itself each time the scene changes
+ * instead of sitting frozen in one spot for the whole loop. */
+const DEBRIS_LAYOUTS: Record<Phase, { panels: DebrisPanel[]; bars: DebrisBar[] }> = {
+  intro: {
+    panels: [
+      {
+        seed: 1,
+        blockCount: 3,
+        visibleRows: 10,
+        large: true,
+        hasAlert: true,
+        duration: 10,
+        style: { top: '68px', left: '37px', opacity: 0.4 },
+      },
+      {
+        seed: 2,
+        blockCount: 2,
+        visibleRows: 6,
+        ghost: true,
+        duration: 13,
+        style: { top: '154px', left: '58px', opacity: 0.16 },
+      },
+      {
+        seed: 3,
+        blockCount: 2,
+        visibleRows: 6,
+        duration: 11,
+        style: { top: '96px', right: '-16px', opacity: 0.24 },
+      },
+    ],
+    bars: [
+      { style: { top: '58px', right: '46%', opacity: 0.2 }, fill: 35 },
+      { style: { top: '216px', left: '-6px', opacity: 0.16 }, fill: 62 },
+    ],
+  },
+  prompt: {
+    panels: [
+      {
+        seed: 5,
+        blockCount: 3,
+        visibleRows: 10,
+        large: true,
+        hasAlert: true,
+        duration: 9,
+        style: { bottom: '15%', left: '-14px', opacity: 0.32 },
+      },
+      {
+        seed: 6,
+        blockCount: 2,
+        visibleRows: 6,
+        ghost: true,
+        duration: 12,
+        style: { bottom: 'calc(15% - 30px)', left: '40px', opacity: 0.15 },
+      },
+      {
+        seed: 7,
+        blockCount: 2,
+        visibleRows: 6,
+        duration: 10,
+        style: { top: '70px', right: '30px', opacity: 0.22 },
+      },
+    ],
+    bars: [
+      { style: { top: '60px', left: '40px', opacity: 0.18 }, fill: 48 },
+      { style: { bottom: '9%', right: '-6px', opacity: 0.2 }, fill: 28 },
+    ],
+  },
+  recording: {
+    panels: [
+      {
+        seed: 8,
+        blockCount: 3,
+        visibleRows: 10,
+        large: true,
+        hasAlert: true,
+        duration: 8,
+        style: { top: '64px', right: '-16px', opacity: 0.3 },
+      },
+      {
+        seed: 9,
+        blockCount: 2,
+        visibleRows: 6,
+        ghost: true,
+        duration: 11,
+        style: { top: '150px', right: '10px', opacity: 0.14 },
+      },
+      {
+        seed: 10,
+        blockCount: 2,
+        visibleRows: 6,
+        duration: 10,
+        style: { bottom: '16%', left: '-14px', opacity: 0.22 },
+      },
+    ],
+    bars: [
+      { style: { top: '210px', left: '20px', opacity: 0.18 }, fill: 55 },
+      { style: { bottom: '8%', right: '30px', opacity: 0.2 }, fill: 40 },
+    ],
+  },
+  loading: {
+    panels: [
+      {
+        seed: 11,
+        blockCount: 3,
+        visibleRows: 10,
+        large: true,
+        hasAlert: true,
+        duration: 10,
+        style: { bottom: '15%', right: '-16px', opacity: 0.34 },
+      },
+      {
+        seed: 12,
+        blockCount: 2,
+        visibleRows: 6,
+        ghost: true,
+        duration: 13,
+        style: { bottom: 'calc(15% - 28px)', right: '38px', opacity: 0.15 },
+      },
+      {
+        seed: 0,
+        blockCount: 2,
+        visibleRows: 6,
+        duration: 11,
+        style: { top: '70px', left: '-12px', opacity: 0.22 },
+      },
+    ],
+    bars: [
+      { style: { top: '150px', right: '40px', opacity: 0.18 }, fill: 44 },
+      { style: { top: '58px', left: '46%', opacity: 0.2 }, fill: 30 },
+    ],
+  },
+}
+
 /** Persistent scattered technical debris — small scrolling log panels, one
- * deliberately overlapping a second "ghost" panel behind it, and a few
- * mini progress bars — living around the main content on every phase.
- * Positions are off-grid and asymmetric (odd offsets, a couple clipped
- * right at the frame edge) rather than neatly centered/paired or
- * corner-anchored, so it reads as debris that leaked into frame rather
- * than a designed layout. Kept flat/unrotated on purpose. */
-function HudDebrisField() {
+ * deliberately overlapping a second "ghost" panel behind it, and a couple
+ * mini progress bars — living around the main content. The arrangement
+ * (position AND content) switches per DEBRIS_LAYOUTS above whenever the
+ * phase changes, rather than one fixed set of panels sitting there for
+ * the whole loop. Positions stay off-grid/asymmetric (odd offsets, a
+ * couple clipped right at the frame edge) and flat/unrotated. */
+function HudDebrisField({ phase }: { phase: Phase }) {
+  const layout = DEBRIS_LAYOUTS[phase]
   return (
     <div className="mirror-hud-debris" aria-hidden="true">
-      <CodePanel
-        seed={1}
-        blockCount={6}
-        visibleRows={9}
-        large
-        duration={6}
-        hasAlert
-        style={{ top: '68px', left: '37px', opacity: 0.4 }}
-      />
-      <CodePanel
-        seed={2}
-        blockCount={3}
-        visibleRows={4}
-        duration={8}
-        ghost
-        style={{ top: '86px', left: '58px', opacity: 0.16 }}
-      />
-      <MiniBar style={{ top: '58px', right: '46%', opacity: 0.2 }} fill={35} />
-
-      <CodePanel
-        seed={3}
-        blockCount={4}
-        visibleRows={5}
-        duration={7}
-        style={{ top: '118px', right: '-16px', opacity: 0.24 }}
-      />
-      <MiniBar style={{ top: '46%', left: '-6px', opacity: 0.16 }} fill={62} />
-
-      <CodePanel
-        seed={0}
-        blockCount={5}
-        visibleRows={7}
-        large
-        duration={5}
-        hasAlert
-        style={{ bottom: '17%', left: '-14px', opacity: 0.3 }}
-      />
-      <CodePanel
-        seed={4}
-        blockCount={2}
-        visibleRows={3}
-        duration={9}
-        ghost
-        style={{ bottom: 'calc(17% - 20px)', left: '44px', opacity: 0.14 }}
-      />
-      <MiniBar style={{ bottom: '7%', right: '18px', opacity: 0.22 }} fill={22} />
+      {layout.panels.map((p, i) => (
+        <CodePanel key={i} {...p} />
+      ))}
+      {layout.bars.map((b, i) => (
+        <MiniBar key={i} style={b.style} fill={b.fill} />
+      ))}
     </div>
   )
 }
@@ -462,7 +570,7 @@ export function ThirdStation() {
           <span className="mirror-status-marker" />
           {STATUS_LABEL[phase]}
         </div>
-        <HudDebrisField />
+        <HudDebrisField phase={phase} key={phase} />
 
         {phase === 'intro' ? (
           <div className="mirror-screen mirror-screen-intro">
