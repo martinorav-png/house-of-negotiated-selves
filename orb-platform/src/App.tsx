@@ -19,6 +19,7 @@ import './index.css'
 // production bundle entirely — only fetched when import.meta.env.DEV
 // actually renders it, never requested otherwise.
 const DevPanel = lazy(() => import('./dev/DevPanel').then((m) => ({ default: m.DevPanel })))
+const LevaRoot = lazy(() => import('./dev/LevaRoot').then((m) => ({ default: m.LevaRoot })))
 
 function ExperienceShell({
   focused,
@@ -212,7 +213,8 @@ export default function App() {
     <main className="experience">
       {import.meta.env.DEV ? (
         <Suspense fallback={null}>
-          <DevPanel />
+          <LevaRoot />
+          {station === 'orb' ? <DevPanel /> : null}
         </Suspense>
       ) : null}
       <nav className={`station-switcher station-switcher-${station}`} aria-label="Station switcher">

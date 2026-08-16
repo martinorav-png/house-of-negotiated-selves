@@ -35,6 +35,68 @@
   padding: 8vh 24px;
 }
 
+/* Persistent outer HUD chrome — corner brackets, status readout, and the
+   floor line stay mounted across every phase instead of fading with the
+   .mirror-screen content, so the station reads as one continuous scanning
+   apparatus with the phase content changing inside it, Detroit-HUD style
+   layering rather than four disconnected full-screen slides. */
+.mirror-frame-corner {
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  border: 1px solid color-mix(in srgb, var(--mirror-accent) 45%, transparent);
+  opacity: 0.55;
+}
+
+.mirror-frame-corner-tl {
+  top: 18px;
+  left: 18px;
+  border-right: none;
+  border-bottom: none;
+}
+
+.mirror-frame-corner-tr {
+  top: 18px;
+  right: 18px;
+  border-left: none;
+  border-bottom: none;
+}
+
+.mirror-frame-corner-bl {
+  bottom: 18px;
+  left: 18px;
+  border-right: none;
+  border-top: none;
+}
+
+.mirror-frame-corner-br {
+  bottom: 18px;
+  right: 18px;
+  border-left: none;
+  border-top: none;
+}
+
+.mirror-status-label {
+  position: absolute;
+  top: 22px;
+  left: 54px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  color: rgba(238, 241, 240, 0.5);
+}
+
+.mirror-status-marker {
+  width: 6px;
+  height: 6px;
+  background: var(--mirror-accent);
+  transform: rotate(45deg);
+  opacity: 0.85;
+}
+
 .mirror-screen {
   display: flex;
   flex-direction: column;
@@ -55,15 +117,47 @@
   }
 }
 
-.mirror-orb-slot {
-  width: clamp(140px, 26vw, 220px);
-  height: clamp(140px, 26vw, 220px);
+/* Guide orb + its surrounding HUD ring — shared wrapper for every screen
+   the orb appears on (idle ring on intro/prompt, progress ring on
+   loading), so the ring reads as one continuing element rather than
+   something that only shows up once at the end. */
+.mirror-orb-ring-slot {
+  position: relative;
+  width: clamp(160px, 30vw, 240px);
+  height: clamp(160px, 30vw, 240px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.mirror-orb-slot canvas {
+.mirror-orb-canvas {
+  width: 62%;
+  height: 62%;
+}
+
+.mirror-orb-canvas canvas {
   display: block;
   width: 100%;
   height: 100%;
+}
+
+.mirror-idle-ring {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.4;
+  animation: mirror-ring-spin 26s linear infinite;
+}
+
+.mirror-idle-ring svg {
+  width: 100%;
+  height: 100%;
+}
+
+@keyframes mirror-ring-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .mirror-headline {
@@ -83,35 +177,24 @@
   border-radius: 50%;
   border: 1px solid rgba(238, 241, 240, 0.5);
   background: transparent;
-  transition: background 0.3s ease, border-color 0.3s ease;
+  transition: background 0.3s ease, border-color 0.3s ease, transform 0.3s ease;
 }
 
 .mirror-dot.is-lit {
   background: var(--mirror-accent);
   border-color: var(--mirror-accent);
   box-shadow: 0 0 10px var(--mirror-accent);
+  animation: mirror-dot-pop 0.4s ease-out;
 }
 
-.mirror-countdown {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: clamp(3rem, 12vw, 5rem);
-  font-weight: 600;
-  color: var(--mirror-accent);
-  text-shadow: 0 0 24px color-mix(in srgb, var(--mirror-accent) 60%, transparent);
-  animation: mirror-count-pulse 1s ease-out;
-}
-
-@keyframes mirror-count-pulse {
+@keyframes mirror-dot-pop {
   0% {
-    opacity: 0;
-    transform: scale(0.7);
+    transform: scale(0.6);
   }
-  30% {
-    opacity: 1;
-    transform: scale(1.08);
+  60% {
+    transform: scale(1.35);
   }
   100% {
-    opacity: 1;
     transform: scale(1);
   }
 }
@@ -239,21 +322,8 @@
 }
 
 /* Loading — headline, guide orb wrapped in a Detroit-style segmented
-   spinner ring, small diagnostic readout line. */
-.mirror-orb-slot-loading {
-  position: relative;
-  width: clamp(160px, 30vw, 240px);
-  height: clamp(160px, 30vw, 240px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.mirror-orb-canvas {
-  width: 62%;
-  height: 62%;
-}
-
+   spinner ring (now progress-driven instead of idly spinning), small
+   diagnostic readout line. */
 .mirror-loading-ring {
   position: absolute;
   inset: 0;
@@ -299,7 +369,8 @@
 
 @media (prefers-reduced-motion: reduce) {
   .mirror-screen,
-  .mirror-countdown,
+  .mirror-idle-ring,
+  .mirror-dot.is-lit,
   .mirror-rec-dot {
     animation: none;
   }

@@ -10,8 +10,12 @@ import { mirrorSettings } from './mirrorSettingsStore'
  */
 export function MirrorDevPanel() {
   const orb = useControls('Mirror — Orb', {
-    pointScale: { value: mirrorSettings.orb.pointScale, min: 0.3, max: 3, step: 0.05 },
+    pointScale: { value: mirrorSettings.orb.pointScale, min: 0.1, max: 3, step: 0.01 },
     radius: { value: mirrorSettings.orb.radius, min: 0.3, max: 2, step: 0.05 },
+    cameraDistance: { value: mirrorSettings.orb.cameraDistance, min: 2, max: 16, step: 0.1 },
+    shellCount: { value: mirrorSettings.orb.shellCount, min: 100, max: 12000, step: 50 },
+    volumeCount: { value: mirrorSettings.orb.volumeCount, min: 0, max: 4000, step: 25 },
+    haloCount: { value: mirrorSettings.orb.haloCount, min: 0, max: 2000, step: 10 },
     brightness: { value: mirrorSettings.orb.brightness, min: 0, max: 3, step: 0.01 },
     alphaFloor: { value: mirrorSettings.orb.alphaFloor, min: 0, max: 1, step: 0.01 },
     heartbeatBpm: { value: mirrorSettings.orb.heartbeatBpm, min: 4, max: 80, step: 1 },

@@ -6,9 +6,13 @@
  */
 export const mirrorSettings = {
   orb: {
-    pointScale: 0.8,
+    pointScale: 0.45,
     radius: 1,
-    brightness: 1.5,
+    cameraDistance: 7,
+    shellCount: 1400,
+    volumeCount: 450,
+    haloCount: 180,
+    brightness: 1.7,
     alphaFloor: 0.05,
     heartbeatBpm: 13,
     heartbeatRipple: 0.5,

@@ -1,4 +1,4 @@
-import { button, useControls, Leva } from 'leva'
+import { button, useControls } from 'leva'
 import { settings } from './settingsStore'
 
 function snapshotSettings() {
@@ -76,5 +76,5 @@ export function DevPanel() {
     }),
   })
 
-  return <Leva collapsed={false} titleBar={{ title: 'Scene tuning' }} />
+  return null
 }

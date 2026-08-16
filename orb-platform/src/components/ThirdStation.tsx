@@ -12,6 +12,13 @@ type Phase = 'intro' | 'prompt' | 'recording' | 'loading'
 
 const LIVE_POLL_MS = 150
 
+const STATUS_LABEL: Record<Phase, string> = {
+  intro: 'STANDBY',
+  prompt: 'LISTENING',
+  recording: 'RECORDING',
+  loading: 'PROCESSING',
+}
+
 /**
  * Bridges mirrorSettings.background/accent (plain objects, no leva
  * dependency, safe for production) into CSS custom properties — set on
@@ -40,12 +47,69 @@ function useLiveMirrorTheme(rootRef: RefObject<HTMLElement | null>) {
   }, [rootRef])
 }
 
+/** The 3-2-1 countdown reuses the same dot row shown during the reading
+ * hold — filling in one dot per step — rather than switching to numerals,
+ * so the countdown stays in the orb's point/particle visual language. */
 function Dots({ lit }: { lit: number }) {
   return (
     <div className="mirror-dots" aria-hidden="true">
       {[0, 1, 2].map((i) => (
         <span key={i} className={i < lit ? 'mirror-dot is-lit' : 'mirror-dot'} />
       ))}
+    </div>
+  )
+}
+
+/** Four static arcs, slowly spun by a CSS animation — the idle companion
+ * to the loading screen's progress-driven ring, present whenever the orb
+ * is on screen so the ring reads as one continuous motif, not something
+ * that only appears once at the end. */
+function IdleRing() {
+  return (
+    <div className="mirror-idle-ring" aria-hidden="true">
+      <svg viewBox="0 0 200 200">
+        {[0, 1, 2, 3].map((i) => (
+          <circle
+            key={i}
+            cx="100"
+            cy="100"
+            r="86"
+            className="mirror-loading-arc"
+            style={{ transform: `rotate(${i * 90}deg)`, transformOrigin: '100px 100px' }}
+          />
+        ))}
+      </svg>
+    </div>
+  )
+}
+
+function LoadingRing({ progress }: { progress: number }) {
+  return (
+    <div className="mirror-loading-ring" aria-hidden="true">
+      <svg viewBox="0 0 200 200">
+        {[0, 1, 2, 3].map((i) => (
+          <circle
+            key={i}
+            cx="100"
+            cy="100"
+            r="86"
+            className="mirror-loading-arc"
+            style={{
+              transform: `rotate(${i * 90 + progress * 360}deg)`,
+              transformOrigin: '100px 100px',
+            }}
+          />
+        ))}
+      </svg>
+    </div>
+  )
+}
+
+function GuideOrb({ variant, progress }: { variant: 'idle' | 'loading'; progress?: number }) {
+  return (
+    <div className="mirror-orb-ring-slot">
+      <MirrorGuideOrb className="mirror-orb-canvas" />
+      {variant === 'idle' ? <IdleRing /> : <LoadingRing progress={progress ?? 0} />}
     </div>
   )
 }
@@ -75,28 +139,6 @@ function RecordingFrame({ secondsLeft, totalSeconds }: { secondsLeft: number; to
         </svg>
         <span className="mirror-record-timer-value">{Math.ceil(secondsLeft)}</span>
       </div>
-    </div>
-  )
-}
-
-function LoadingRing({ progress }: { progress: number }) {
-  return (
-    <div className="mirror-loading-ring" aria-hidden="true">
-      <svg viewBox="0 0 200 200">
-        {[0, 1, 2, 3].map((i) => (
-          <circle
-            key={i}
-            cx="100"
-            cy="100"
-            r="86"
-            className="mirror-loading-arc"
-            style={{
-              transform: `rotate(${i * 90 + progress * 360}deg)`,
-              transformOrigin: '100px 100px',
-            }}
-          />
-        ))}
-      </svg>
     </div>
   )
 }
@@ -187,27 +229,30 @@ export function ThirdStation() {
   return (
     <section className="third-station" aria-label="Mirror station" ref={rootRef}>
       <div className="mirror-frame">
+        <span className="mirror-frame-corner mirror-frame-corner-tl" aria-hidden="true" />
+        <span className="mirror-frame-corner mirror-frame-corner-tr" aria-hidden="true" />
+        <span className="mirror-frame-corner mirror-frame-corner-bl" aria-hidden="true" />
+        <span className="mirror-frame-corner mirror-frame-corner-br" aria-hidden="true" />
+        <div className="mirror-status-label" aria-hidden="true">
+          <span className="mirror-status-marker" />
+          {STATUS_LABEL[phase]}
+        </div>
+
         {phase === 'intro' ? (
           <div className="mirror-screen mirror-screen-intro">
-            <MirrorGuideOrb className="mirror-orb-slot" />
+            <GuideOrb variant="idle" />
             <MirrorHeadline lines={['Now is your chance']} className="mirror-headline" />
           </div>
         ) : null}
 
         {phase === 'prompt' ? (
           <div className="mirror-screen mirror-screen-prompt">
-            <MirrorGuideOrb className="mirror-orb-slot" />
+            <GuideOrb variant="idle" />
             <MirrorHeadline
               lines={['Introduce yourself to', 'your future partner']}
               className="mirror-headline"
             />
-            {countdown === null ? (
-              <Dots lit={0} />
-            ) : (
-              <div className="mirror-countdown" aria-live="polite">
-                {countdown}
-              </div>
-            )}
+            <Dots lit={countdown === null ? 0 : 4 - countdown} />
           </div>
         ) : null}
 
@@ -223,10 +268,7 @@ export function ThirdStation() {
         {phase === 'loading' ? (
           <div className="mirror-screen mirror-screen-loading">
             <MirrorHeadline lines={['Creating', 'match']} className="mirror-headline" />
-            <div className="mirror-orb-slot mirror-orb-slot-loading">
-              <MirrorGuideOrb className="mirror-orb-canvas" />
-              <LoadingRing progress={loadingProgress} />
-            </div>
+            <GuideOrb variant="loading" progress={loadingProgress} />
             <div className="mirror-loading-readout">
               COMPILING MATCH DATA — {Math.round(loadingProgress * 100)}%
             </div>
