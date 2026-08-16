@@ -390,13 +390,17 @@
 
 .mirror-code-panel {
   position: absolute;
-  width: 118px;
+  width: 130px;
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 5px;
-  line-height: 1.7;
+  font-size: 5.5px;
+  line-height: 1.75;
   letter-spacing: 0.01em;
   color: rgba(238, 241, 240, 0.55);
   white-space: nowrap;
+}
+
+.mirror-code-panel.is-lg {
+  width: 158px;
 }
 
 .mirror-code-panel.is-ghost {
@@ -412,51 +416,30 @@
 }
 
 .mirror-code-scroll {
-  height: 40px;
+  height: var(--h, 44px);
   overflow: hidden;
-  -webkit-mask-image: linear-gradient(180deg, transparent, #000 18%, #000 82%, transparent);
-  mask-image: linear-gradient(180deg, transparent, #000 18%, #000 82%, transparent);
+  -webkit-mask-image: linear-gradient(180deg, transparent, #000 12%, #000 88%, transparent);
+  mask-image: linear-gradient(180deg, transparent, #000 12%, #000 88%, transparent);
 }
 
+.mirror-code-block {
+  margin-bottom: 4px;
+}
+
+/* steps() (not linear) is what makes the whole block jump-cut into place
+   instead of smoothly scrolling — every row in a block moves together as
+   one unit, holds, then the next block snaps in. */
 .mirror-code-track {
-  animation: mirror-code-scroll var(--dur, 18s) linear infinite;
+  animation: mirror-code-scroll var(--dur, 7s) steps(var(--steps, 3)) infinite;
 }
 
 .mirror-code-row.is-alert {
   color: #e0857c;
 }
 
-/* Uneven keyframe spacing (not the timing-function) is what produces the
-   speed-up/slow-down feel — equal time-steps covering very different
-   distances reads as bursts of movement with near-stalls between them,
-   rather than one constant drift. */
 @keyframes mirror-code-scroll {
   0% {
     transform: translateY(0%);
-  }
-  6% {
-    transform: translateY(-2%);
-  }
-  11% {
-    transform: translateY(-13%);
-  }
-  29% {
-    transform: translateY(-14%);
-  }
-  36% {
-    transform: translateY(-27%);
-  }
-  53% {
-    transform: translateY(-28%);
-  }
-  61% {
-    transform: translateY(-39%);
-  }
-  79% {
-    transform: translateY(-40%);
-  }
-  89% {
-    transform: translateY(-49%);
   }
   100% {
     transform: translateY(-50%);

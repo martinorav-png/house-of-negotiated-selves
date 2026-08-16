@@ -172,27 +172,37 @@ const CODE_ALERTS = [
   'signal degraded',
 ]
 
+const LINES_PER_BLOCK = 3
+const CODE_LINE_PX = 9.6
+
 /** A small, mostly-illegible "log panel" — a fixed key/value header over a
- * body that scrolls in irregular bursts (fast, then a near-stop, repeat)
- * rather than a smooth constant drift, closer to how the reference's
- * panels actually move. Body content is doubled so the loop is seamless.
- * One row can render as a dim red "alert" line. */
+ * body that jump-cuts a whole block of lines at a time (steps() timing, no
+ * interpolation in between) rather than scrolling smoothly, closer to how
+ * the reference's panels actually move. Body content is doubled so the
+ * loop is seamless. One row can render as a dim red "alert" line. Large
+ * panels show more blocks at once (a dense wall of text, matching the
+ * reference's dominant block) while ghost/secondary ones stay compact. */
 function CodePanel({
   seed,
-  rowCount = 7,
+  blockCount = 3,
+  visibleRows = 5,
+  large = false,
   style,
   ghost = false,
-  duration = 18,
+  duration = 5,
   hasAlert = false,
 }: {
   seed: number
-  rowCount?: number
+  blockCount?: number
+  visibleRows?: number
+  large?: boolean
   style?: CSSProperties
   ghost?: boolean
   duration?: number
   hasAlert?: boolean
 }) {
   const [h1, h2] = CODE_HEADERS[seed % CODE_HEADERS.length]
+  const rowCount = blockCount * LINES_PER_BLOCK
   const rows = Array.from(
     { length: rowCount },
     (_, i) => CODE_BODY_POOL[(seed * 5 + i * 3) % CODE_BODY_POOL.length],
@@ -200,26 +210,48 @@ function CodePanel({
   const alertIndex = hasAlert ? seed % rowCount : -1
   if (alertIndex >= 0) rows[alertIndex] = CODE_ALERTS[seed % CODE_ALERTS.length]
 
+  const blocks = Array.from({ length: blockCount }, (_, b) =>
+    rows.slice(b * LINES_PER_BLOCK, b * LINES_PER_BLOCK + LINES_PER_BLOCK),
+  )
+
   return (
-    <div className={ghost ? 'mirror-code-panel is-ghost' : 'mirror-code-panel'} style={style} aria-hidden="true">
+    <div
+      className={ghost ? 'mirror-code-panel is-ghost' : large ? 'mirror-code-panel is-lg' : 'mirror-code-panel'}
+      style={style}
+      aria-hidden="true"
+    >
       <div className="mirror-code-header">
         <span>{h1}</span>
         <span>{h2}</span>
       </div>
-      <div className="mirror-code-scroll" style={{ '--dur': `${duration}s` } as CSSProperties}>
+      <div
+        className="mirror-code-scroll"
+        style={
+          {
+            '--dur': `${duration}s`,
+            '--steps': blockCount,
+            '--h': `${visibleRows * CODE_LINE_PX}px`,
+          } as CSSProperties
+        }
+      >
         <div className="mirror-code-track">
-          {[0, 1].map((copy) => (
-            <div key={copy}>
-              {rows.map((text, i) => (
-                <div
-                  key={`${copy}-${i}`}
-                  className={i === alertIndex ? 'mirror-code-row is-alert' : 'mirror-code-row'}
-                >
-                  {text}
-                </div>
-              ))}
-            </div>
-          ))}
+          {[0, 1].map((copy) =>
+            blocks.map((block, b) => (
+              <div className="mirror-code-block" key={`${copy}-${b}`}>
+                {block.map((text, i) => {
+                  const rowIndex = b * LINES_PER_BLOCK + i
+                  return (
+                    <div
+                      key={i}
+                      className={rowIndex === alertIndex ? 'mirror-code-row is-alert' : 'mirror-code-row'}
+                    >
+                      {text}
+                    </div>
+                  )
+                })}
+              </div>
+            )),
+          )}
         </div>
       </div>
     </div>
@@ -250,39 +282,46 @@ function HudDebrisField() {
     <div className="mirror-hud-debris" aria-hidden="true">
       <CodePanel
         seed={1}
-        rowCount={6}
-        duration={16}
+        blockCount={6}
+        visibleRows={9}
+        large
+        duration={6}
         hasAlert
-        style={{ top: '71px', left: '37px', opacity: 0.38 }}
+        style={{ top: '68px', left: '37px', opacity: 0.4 }}
       />
       <CodePanel
         seed={2}
-        rowCount={5}
-        duration={22}
+        blockCount={3}
+        visibleRows={4}
+        duration={8}
         ghost
-        style={{ top: '93px', left: '58px', opacity: 0.16 }}
+        style={{ top: '86px', left: '58px', opacity: 0.16 }}
       />
       <MiniBar style={{ top: '58px', right: '46%', opacity: 0.2 }} fill={35} />
 
       <CodePanel
         seed={3}
-        rowCount={6}
-        duration={19}
+        blockCount={4}
+        visibleRows={5}
+        duration={7}
         style={{ top: '118px', right: '-16px', opacity: 0.24 }}
       />
       <MiniBar style={{ top: '46%', left: '-6px', opacity: 0.16 }} fill={62} />
 
       <CodePanel
         seed={0}
-        rowCount={7}
-        duration={15}
+        blockCount={5}
+        visibleRows={7}
+        large
+        duration={5}
         hasAlert
         style={{ bottom: '17%', left: '-14px', opacity: 0.3 }}
       />
       <CodePanel
         seed={4}
-        rowCount={4}
-        duration={25}
+        blockCount={2}
+        visibleRows={3}
+        duration={9}
         ghost
         style={{ bottom: 'calc(17% - 20px)', left: '44px', opacity: 0.14 }}
       />
