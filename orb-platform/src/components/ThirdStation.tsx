@@ -122,46 +122,106 @@ function LoadingRing({ progress }: { progress: number }) {
   )
 }
 
-/** A small illegible "log panel" — a couple of key/value header lines then
- * a dense paragraph of fixed-width bars standing in for text, since at
- * this size real characters would just be noise anyway (matches the
- * reference, which reads the same way on close inspection). One line can
- * be flagged as a small highlighted "alert" row. Each line quietly
- * re-"retypes" itself (width dips then recovers) on a staggered loop, plus
- * a slow opacity shimmer, so the panel reads as live/updating instead of
- * static texture. */
+/** Real (if meaningless) filler content — hex/coordinate/status noise —
+ * rather than abstract bars, since actual illegible-at-a-glance text is
+ * what the reference is doing too; a couple of key/value header lines sit
+ * above a scrolling body pulled from this pool. */
+const CODE_HEADERS: [string, string][] = [
+  ['NODE  0x7F2C', 'SIG  92.4%'],
+  ['SEQ  884219', 'CH  14/16'],
+  ['REF  A3.09', 'SYNC  0x4F'],
+  ['CTRL  0x9F1', 'BUS  2/4'],
+]
+
+const CODE_BODY_POOL = [
+  'buffer.flush(node=12) ok',
+  'req 200 · 14.2ms',
+  'vector[7] = 0.8341',
+  'thermal Δ -0.02C',
+  'auth token refreshed',
+  'queue depth 128/512',
+  'checksum 9f3a..c21',
+  'sample #442 captured',
+  'latency p99 8.7ms',
+  'compiling match.bin',
+  '0x22F1 :: nominal',
+  'gyro 0.004 0.991 -0.02',
+  'hash 7b2c4e91',
+  'frame 0441/0512',
+  'resolving vector map',
+  'sig-to-noise 41.2dB',
+  'cache miss rate 2.1%',
+  'node cluster synced',
+  'delta 0.0031s',
+  'biometric variance low',
+  'encoding stream b',
+  '42.771, -8.220',
+  'retry(3) succeeded',
+  'handshake complete',
+  'voice print matched',
+  'align pass 3/5',
+  'temp core 36.6C',
+  'packet loss 0.0%',
+  'index rebuilt ok',
+]
+
+const CODE_ALERTS = [
+  'ERR 0x22 checksum_fail',
+  'WARN drift +0.4%',
+  'retry limit reached',
+  'signal degraded',
+]
+
+/** A small, mostly-illegible "log panel" — a fixed key/value header over a
+ * body that scrolls in irregular bursts (fast, then a near-stop, repeat)
+ * rather than a smooth constant drift, closer to how the reference's
+ * panels actually move. Body content is doubled so the loop is seamless.
+ * One row can render as a dim red "alert" line. */
 function CodePanel({
-  lines,
+  seed,
+  rowCount = 7,
   style,
   ghost = false,
-  cursor = false,
-  alertLine,
+  duration = 18,
+  hasAlert = false,
 }: {
-  lines: number[]
+  seed: number
+  rowCount?: number
   style?: CSSProperties
   ghost?: boolean
-  cursor?: boolean
-  alertLine?: number
+  duration?: number
+  hasAlert?: boolean
 }) {
+  const [h1, h2] = CODE_HEADERS[seed % CODE_HEADERS.length]
+  const rows = Array.from(
+    { length: rowCount },
+    (_, i) => CODE_BODY_POOL[(seed * 5 + i * 3) % CODE_BODY_POOL.length],
+  )
+  const alertIndex = hasAlert ? seed % rowCount : -1
+  if (alertIndex >= 0) rows[alertIndex] = CODE_ALERTS[seed % CODE_ALERTS.length]
+
   return (
     <div className={ghost ? 'mirror-code-panel is-ghost' : 'mirror-code-panel'} style={style} aria-hidden="true">
-      <div className="mirror-code-kv" />
-      <div className="mirror-code-kv" style={{ width: '52%' }} />
-      <div className="mirror-code-gap" />
-      {lines.map((w, i) => (
-        <div
-          key={i}
-          className={i === alertLine ? 'mirror-code-line is-alert' : 'mirror-code-line'}
-          style={
-            {
-              '--w': `${w}%`,
-              '--sd': `${(i % 5) * 0.35}s`,
-              '--rd': `${1.2 + (i % 4) * 1.7}s`,
-            } as CSSProperties
-          }
-        />
-      ))}
-      {cursor ? <span className="mirror-code-cursor" /> : null}
+      <div className="mirror-code-header">
+        <span>{h1}</span>
+        <span>{h2}</span>
+      </div>
+      <div className="mirror-code-scroll" style={{ '--dur': `${duration}s` } as CSSProperties}>
+        <div className="mirror-code-track">
+          {[0, 1].map((copy) => (
+            <div key={copy}>
+              {rows.map((text, i) => (
+                <div
+                  key={`${copy}-${i}`}
+                  className={i === alertIndex ? 'mirror-code-row is-alert' : 'mirror-code-row'}
+                >
+                  {text}
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   )
 }
@@ -178,31 +238,58 @@ function MiniBar({ style, fill }: { style?: CSSProperties; fill: number }) {
   )
 }
 
-/** Persistent scattered technical debris — small log panels, one
+/** Persistent scattered technical debris — small scrolling log panels, one
  * deliberately overlapping a second "ghost" panel behind it, and a few
- * mini progress bars — living in the margins around the main content on
- * every phase, Detroit-HUD style clutter kept small enough not to compete
- * with the headline/orb/dots in the center. */
+ * mini progress bars — living around the main content on every phase.
+ * Positions are intentionally off-grid and asymmetric (odd offsets, small
+ * rotations, a couple clipped right at the frame edge) rather than neatly
+ * centered/paired, so it reads as debris that leaked into frame rather
+ * than a designed HUD layout. */
 function HudDebrisField() {
   return (
     <div className="mirror-hud-debris" aria-hidden="true">
-      <CodePanel style={{ top: '64px', left: '54px' }} lines={[82, 45, 91, 60, 73, 38]} cursor />
-      <MiniBar style={{ top: '132px', left: '54px' }} fill={35} />
-
-      <CodePanel style={{ top: '64px', right: '24px' }} lines={[70, 40, 85, 55]} ghost />
-      <MiniBar style={{ top: '124px', right: '24px' }} fill={62} />
-
       <CodePanel
-        style={{ bottom: '14%', left: '24px' }}
-        lines={[88, 50, 66, 40, 77, 33, 60]}
-        alertLine={3}
+        seed={1}
+        rowCount={6}
+        duration={16}
+        hasAlert
+        style={{ top: '71px', left: '37px', transform: 'rotate(-2deg)', opacity: 0.38 }}
       />
       <CodePanel
-        style={{ bottom: 'calc(14% - 14px)', left: '48px' }}
-        lines={[55, 35, 70]}
+        seed={2}
+        rowCount={5}
+        duration={22}
         ghost
+        style={{ top: '93px', left: '58px', transform: 'rotate(3deg)', opacity: 0.16 }}
       />
-      <MiniBar style={{ bottom: '10%', right: '28px' }} fill={22} />
+      <MiniBar style={{ top: '58px', right: '46%', transform: 'rotate(-1deg)', opacity: 0.2 }} fill={35} />
+
+      <CodePanel
+        seed={3}
+        rowCount={6}
+        duration={19}
+        style={{ top: '118px', right: '-16px', transform: 'rotate(1.5deg)', opacity: 0.24 }}
+      />
+      <MiniBar style={{ top: '46%', left: '-6px', transform: 'rotate(2deg)', opacity: 0.16 }} fill={62} />
+
+      <CodePanel
+        seed={0}
+        rowCount={7}
+        duration={15}
+        hasAlert
+        style={{ bottom: '17%', left: '-14px', transform: 'rotate(-4deg)', opacity: 0.3 }}
+      />
+      <CodePanel
+        seed={4}
+        rowCount={4}
+        duration={25}
+        ghost
+        style={{ bottom: 'calc(17% - 20px)', left: '44px', transform: 'rotate(2.5deg)', opacity: 0.14 }}
+      />
+      <MiniBar
+        style={{ bottom: '7%', right: '18px', transform: 'rotate(-2deg)', opacity: 0.22 }}
+        fill={22}
+      />
     </div>
   )
 }

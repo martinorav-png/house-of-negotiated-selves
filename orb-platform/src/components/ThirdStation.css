@@ -376,11 +376,12 @@
   );
 }
 
-/* Scattered background HUD debris — small "log panel" text blocks and
-   mini progress slivers living in the margins on every phase. Everything
-   here is deliberately tiny/illegible (fixed-width bars standing in for
-   text, same as the reference reads at this scale) so it stays texture,
-   not a competing focal point. */
+/* Scattered background HUD debris — small scrolling log panels and mini
+   progress slivers living around the main content on every phase.
+   Positions are off-grid/rotated on purpose (see HudDebrisField's own
+   comment) so this reads as debris that leaked into frame, not a designed
+   layout — and it's dim/tiny enough throughout to stay texture rather
+   than competing with the headline/orb/dots. */
 .mirror-hud-debris {
   position: absolute;
   inset: 0;
@@ -389,80 +390,84 @@
 
 .mirror-code-panel {
   position: absolute;
-  width: 92px;
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
+  width: 118px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 5px;
+  line-height: 1.7;
+  letter-spacing: 0.01em;
+  color: rgba(238, 241, 240, 0.55);
+  white-space: nowrap;
 }
 
 .mirror-code-panel.is-ghost {
-  opacity: 0.5;
+  filter: blur(0.2px);
 }
 
-.mirror-code-kv {
-  height: 2px;
-  width: 38%;
-  background: color-mix(in srgb, var(--mirror-accent) 55%, transparent);
-  border-radius: 1px;
+.mirror-code-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 6px;
+  color: color-mix(in srgb, var(--mirror-accent) 75%, transparent);
+  margin-bottom: 3px;
 }
 
-.mirror-code-gap {
-  height: 4px;
+.mirror-code-scroll {
+  height: 40px;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(180deg, transparent, #000 18%, #000 82%, transparent);
+  mask-image: linear-gradient(180deg, transparent, #000 18%, #000 82%, transparent);
 }
 
-.mirror-code-line {
-  width: var(--w, 60%);
-  height: 2px;
-  border-radius: 1px;
-  background: rgba(238, 241, 240, 0.32);
-  animation:
-    mirror-code-shimmer 5s ease-in-out infinite var(--sd, 0s),
-    mirror-code-retype 8s ease-in-out infinite var(--rd, 0s);
+.mirror-code-track {
+  animation: mirror-code-scroll var(--dur, 18s) linear infinite;
 }
 
-.mirror-code-line.is-alert {
-  background: #e0554c;
-  box-shadow: 0 0 6px rgba(224, 85, 76, 0.5);
+.mirror-code-row.is-alert {
+  color: #e0857c;
 }
 
-@keyframes mirror-code-shimmer {
-  0%,
+/* Uneven keyframe spacing (not the timing-function) is what produces the
+   speed-up/slow-down feel — equal time-steps covering very different
+   distances reads as bursts of movement with near-stalls between them,
+   rather than one constant drift. */
+@keyframes mirror-code-scroll {
+  0% {
+    transform: translateY(0%);
+  }
+  6% {
+    transform: translateY(-2%);
+  }
+  11% {
+    transform: translateY(-13%);
+  }
+  29% {
+    transform: translateY(-14%);
+  }
+  36% {
+    transform: translateY(-27%);
+  }
+  53% {
+    transform: translateY(-28%);
+  }
+  61% {
+    transform: translateY(-39%);
+  }
+  79% {
+    transform: translateY(-40%);
+  }
+  89% {
+    transform: translateY(-49%);
+  }
   100% {
-    opacity: 0.3;
+    transform: translateY(-50%);
   }
-  50% {
-    opacity: 0.65;
-  }
-}
-
-@keyframes mirror-code-retype {
-  0%,
-  70%,
-  100% {
-    width: var(--w, 60%);
-  }
-  82% {
-    width: 8%;
-  }
-  92% {
-    width: var(--w, 60%);
-  }
-}
-
-.mirror-code-cursor {
-  display: block;
-  width: 3px;
-  height: 2px;
-  margin-top: 1px;
-  background: var(--mirror-accent);
-  animation: mirror-rec-blink 0.9s steps(1) infinite;
 }
 
 .mirror-mini-bar {
   position: absolute;
-  width: 46px;
-  height: 2px;
-  background: rgba(238, 241, 240, 0.14);
+  width: 38px;
+  height: 1.5px;
+  background: rgba(238, 241, 240, 0.12);
   overflow: hidden;
 }
 
@@ -491,8 +496,7 @@
   .mirror-idle-ring,
   .mirror-dot.is-lit,
   .mirror-rec-dot,
-  .mirror-code-line,
-  .mirror-code-cursor,
+  .mirror-code-track,
   .mirror-mini-bar::after {
     animation: none;
   }
