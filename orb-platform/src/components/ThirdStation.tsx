@@ -10,13 +10,18 @@ import {
 import { mirrorSettings } from '../dev/mirrorSettingsStore'
 import { MirrorGuideOrb } from './MirrorGuideOrb'
 import { MirrorHeadline } from './MirrorHeadline'
+import {
+  DebraVoiceClip,
+  thirdStationDebraClipFor,
+  type ThirdStationVoicePhase,
+} from './DebraVoice'
 import './ThirdStation.css'
 
 const MirrorDevPanel = lazy(() =>
   import('../dev/MirrorDevPanel').then((m) => ({ default: m.MirrorDevPanel })),
 )
 
-type Phase = 'intro' | 'prompt' | 'recording' | 'loading'
+type Phase = ThirdStationVoicePhase
 
 const LIVE_POLL_MS = 150
 
@@ -561,6 +566,7 @@ export function ThirdStation() {
 
   return (
     <section className="third-station" aria-label="Mirror station" ref={rootRef}>
+      <DebraVoiceClip src={thirdStationDebraClipFor(phase)} />
       <div className="mirror-frame">
         <span className="mirror-frame-corner mirror-frame-corner-tl" aria-hidden="true" />
         <span className="mirror-frame-corner mirror-frame-corner-tr" aria-hidden="true" />

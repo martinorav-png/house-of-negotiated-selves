@@ -56,6 +56,35 @@ body,
   color: rgba(0, 0, 0, 0.5);
 }
 
+.station-switcher-station-1,
+.station-switcher-station-2 {
+  display: none;
+}
+
+.mirror-preview-toggle {
+  position: fixed;
+  z-index: 120;
+  top: 8px;
+  right: 8px;
+  min-width: 112px;
+  padding: 9px 12px;
+  border: 1px solid #b9dceb;
+  border-radius: 0;
+  background: #000;
+  color: #d6eef7;
+  font: 500 10px/1 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.mirror-preview-toggle:hover,
+.mirror-preview-toggle:focus-visible {
+  background: #fff;
+  color: #000;
+  outline: 2px solid #000;
+  outline-offset: -4px;
+}
+
 .station-switcher-cards a[aria-current='page'] {
   border-color: rgba(0, 0, 0, 0.32);
   color: rgba(0, 0, 0, 0.82);

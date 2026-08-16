@@ -18,6 +18,14 @@ describe('getStationFromHash', () => {
     expect(getStationFromHash('#/mirror')).toBe('mirror')
   })
 
+  it('resolves the first mirror journey hash', () => {
+    expect(getStationFromHash('#/station-1')).toBe('station-1')
+  })
+
+  it('resolves the second mirror journey hash', () => {
+    expect(getStationFromHash('#/station-2')).toBe('station-2')
+  })
+
   it('falls back to orb for unknown hashes', () => {
     expect(getStationFromHash('#/unknown')).toBe('orb')
   })
@@ -29,5 +37,7 @@ describe('getStationHref', () => {
     expect(getStationHref('cards')).toBe('#/cards')
     expect(getStationHref('avatars')).toBe('#/avatars')
     expect(getStationHref('mirror')).toBe('#/mirror')
+    expect(getStationHref('station-1')).toBe('#/station-1')
+    expect(getStationHref('station-2')).toBe('#/station-2')
   })
 })

@@ -3,6 +3,7 @@
 node_modules/
 samples/
 *.mp3
+!orb-platform/public/audio/debra/*.mp3
 mock-ui/dist/
 mock-ui/node_modules/
 mock-ui/stitch/assets/

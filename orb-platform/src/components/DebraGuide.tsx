@@ -1,0 +1,23 @@
+import { MirrorGuideOrb } from './MirrorGuideOrb'
+
+export function DebraGuide({
+  position = 'upper',
+  showIntroduction = false,
+}: {
+  position?: 'upper' | 'left' | 'right'
+  showIntroduction?: boolean
+}) {
+  return (
+    <div className={`journey-debra journey-debra-${position}`} aria-label="Debra, companion guide">
+      <div className="journey-debra-orb-wrap">
+        <MirrorGuideOrb className="journey-debra-orb" />
+        <span className="journey-debra-name">DEBRA</span>
+      </div>
+      {showIntroduction ? (
+        <p className="journey-debra-introduction">
+          I will help you describe the companion you believe you want.
+        </p>
+      ) : null}
+    </div>
+  )
+}

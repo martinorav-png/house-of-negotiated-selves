@@ -7,6 +7,9 @@ import { Scene } from './components/Scene'
 import { AvatarStation } from './components/AvatarStation'
 import { SecondStation } from './components/SecondStation'
 import { ThirdStation } from './components/ThirdStation'
+import { StationOne } from './components/StationOne'
+import { StationTwo } from './components/StationTwo'
+import { MirrorPreviewFrame } from './components/MirrorPreviewToggle'
 import { useMediaSensors } from './hooks/useMediaSensors'
 import { usePrefersReducedMotion } from './hooks/usePrefersReducedMotion'
 import { QUESTIONS } from './lib/questions'
@@ -218,6 +221,24 @@ export default function App() {
         </Suspense>
       ) : null}
       <nav className={`station-switcher station-switcher-${station}`} aria-label="Station switcher">
+        <a
+          aria-current={station === 'station-1' ? 'page' : undefined}
+          href={getStationHref('station-1')}
+        >
+          Station I
+        </a>
+        <a
+          aria-current={station === 'station-2' ? 'page' : undefined}
+          href={getStationHref('station-2')}
+        >
+          Station II
+        </a>
+        <a
+          aria-current={station === 'mirror' ? 'page' : undefined}
+          href={getStationHref('mirror')}
+        >
+          Station III
+        </a>
         <a aria-current={station === 'orb' ? 'page' : undefined} href={getStationHref('orb')}>
           Orb
         </a>
@@ -233,15 +254,17 @@ export default function App() {
         >
           Avatars
         </a>
-        <a
-          aria-current={station === 'mirror' ? 'page' : undefined}
-          href={getStationHref('mirror')}
-        >
-          Mirror
-        </a>
       </nav>
 
-      {station === 'orb' ? (
+      {station === 'station-1' ? (
+        <MirrorPreviewFrame showToggle={import.meta.env.DEV}>
+          <StationOne />
+        </MirrorPreviewFrame>
+      ) : station === 'station-2' ? (
+        <MirrorPreviewFrame showToggle={import.meta.env.DEV}>
+          <StationTwo />
+        </MirrorPreviewFrame>
+      ) : station === 'orb' ? (
         <section className="orb-station" aria-label="Orb station">
           <OrbProvider reducedMotion={reducedMotion}>
             <div
