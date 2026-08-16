@@ -1,0 +1,306 @@
+/*
+ * Vertical "smart mirror" station — designed for a portrait 24" monitor
+ * behind a mirror film, so the background must stay dark (near-black) for
+ * the mirror effect to read, and the whole composition is a narrow tall
+ * column rather than the room-scale scenes of stations 1–2.
+ *
+ * --mirror-bg-top/--mirror-bg-bottom/--mirror-accent are set directly on
+ * .third-station itself by useLiveMirrorTheme in ThirdStation.tsx (not on
+ * :root) and never redeclared anywhere below — the Cards station's color
+ * controls broke earlier because a descendant rule redeclared the same
+ * custom properties with hardcoded values, which always wins over an
+ * ancestor's value. Keeping the single declaration site here avoids that.
+ */
+.third-station {
+  --mirror-bg-top: #2b2e2f;
+  --mirror-bg-bottom: #020303;
+  --mirror-accent: #6fd6c4;
+  position: relative;
+  min-height: 100svh;
+  overflow: hidden;
+  background: linear-gradient(180deg, var(--mirror-bg-top) 0%, var(--mirror-bg-bottom) 78%);
+  color: #eef1f0;
+  font-family: system-ui, sans-serif;
+}
+
+.mirror-frame {
+  position: relative;
+  width: min(100vw, 620px);
+  min-height: 100svh;
+  margin-inline: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 8vh 24px;
+}
+
+.mirror-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(18px, 4vh, 40px);
+  width: 100%;
+  animation: mirror-screen-in 0.7s ease-out both;
+}
+
+@keyframes mirror-screen-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.mirror-orb-slot {
+  width: clamp(140px, 26vw, 220px);
+  height: clamp(140px, 26vw, 220px);
+}
+
+.mirror-orb-slot canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.mirror-headline {
+  width: 100%;
+  max-width: 480px;
+  height: auto;
+}
+
+.mirror-dots {
+  display: flex;
+  gap: 14px;
+}
+
+.mirror-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 1px solid rgba(238, 241, 240, 0.5);
+  background: transparent;
+  transition: background 0.3s ease, border-color 0.3s ease;
+}
+
+.mirror-dot.is-lit {
+  background: var(--mirror-accent);
+  border-color: var(--mirror-accent);
+  box-shadow: 0 0 10px var(--mirror-accent);
+}
+
+.mirror-countdown {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: clamp(3rem, 12vw, 5rem);
+  font-weight: 600;
+  color: var(--mirror-accent);
+  text-shadow: 0 0 24px color-mix(in srgb, var(--mirror-accent) 60%, transparent);
+  animation: mirror-count-pulse 1s ease-out;
+}
+
+@keyframes mirror-count-pulse {
+  0% {
+    opacity: 0;
+    transform: scale(0.7);
+  }
+  30% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Recording — dashed viewfinder frame, HUD corner ticks, REC indicator,
+   circular countdown badge. No orb here, matching the sketch. */
+.mirror-screen-recording {
+  height: 100%;
+  justify-content: center;
+}
+
+.mirror-record-frame {
+  position: relative;
+  width: min(78vw, 360px);
+  aspect-ratio: 3 / 4;
+  border: 1px dashed rgba(238, 241, 240, 0.45);
+  border-radius: 6px;
+}
+
+.mirror-hud-corner {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--mirror-accent);
+}
+
+.mirror-hud-corner-tl {
+  top: -2px;
+  left: -2px;
+  border-right: none;
+  border-bottom: none;
+}
+
+.mirror-hud-corner-tr {
+  top: -2px;
+  right: -2px;
+  border-left: none;
+  border-bottom: none;
+}
+
+.mirror-hud-corner-bl {
+  bottom: -2px;
+  left: -2px;
+  border-right: none;
+  border-top: none;
+}
+
+.mirror-hud-corner-br {
+  bottom: -2px;
+  right: -2px;
+  border-left: none;
+  border-top: none;
+}
+
+.mirror-rec-indicator {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  color: rgba(238, 241, 240, 0.85);
+}
+
+.mirror-rec-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #e0554c;
+  box-shadow: 0 0 10px rgba(224, 85, 76, 0.7);
+  animation: mirror-rec-blink 1.4s ease-in-out infinite;
+}
+
+@keyframes mirror-rec-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.25;
+  }
+}
+
+.mirror-record-timer {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mirror-record-timer-ring {
+  position: absolute;
+  inset: 0;
+  transform: rotate(-90deg);
+}
+
+.mirror-record-timer-track {
+  fill: none;
+  stroke: rgba(238, 241, 240, 0.18);
+  stroke-width: 3;
+}
+
+.mirror-record-timer-progress {
+  fill: none;
+  stroke: var(--mirror-accent);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-dasharray: 175.93px;
+  transition: stroke-dashoffset 0.2s linear;
+}
+
+.mirror-record-timer-value {
+  position: relative;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 15px;
+  color: rgba(238, 241, 240, 0.92);
+}
+
+/* Loading — headline, guide orb wrapped in a Detroit-style segmented
+   spinner ring, small diagnostic readout line. */
+.mirror-orb-slot-loading {
+  position: relative;
+  width: clamp(160px, 30vw, 240px);
+  height: clamp(160px, 30vw, 240px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mirror-orb-canvas {
+  width: 62%;
+  height: 62%;
+}
+
+.mirror-loading-ring {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.mirror-loading-ring svg {
+  width: 100%;
+  height: 100%;
+}
+
+.mirror-loading-arc {
+  fill: none;
+  stroke: var(--mirror-accent);
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-dasharray: 117 423;
+  opacity: 0.85;
+}
+
+.mirror-loading-readout {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: color-mix(in srgb, var(--mirror-accent) 70%, rgba(238, 241, 240, 0.8));
+  text-transform: uppercase;
+}
+
+.mirror-horizon {
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  bottom: 6%;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(238, 241, 240, 0.16) 20%,
+    rgba(238, 241, 240, 0.16) 80%,
+    transparent
+  );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mirror-screen,
+  .mirror-countdown,
+  .mirror-rec-dot {
+    animation: none;
+  }
+}

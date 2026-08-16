@@ -72,6 +72,17 @@ body,
   color: rgba(229, 239, 222, 0.94);
 }
 
+.station-switcher-mirror a {
+  border-color: rgba(111, 214, 196, 0.22);
+  background: rgba(4, 8, 8, 0.5);
+  color: rgba(238, 241, 240, 0.62);
+}
+
+.station-switcher-mirror a[aria-current='page'] {
+  border-color: rgba(111, 214, 196, 0.68);
+  color: rgba(238, 241, 240, 0.95);
+}
+
 .viewport {
   outline: none;
   position: relative;

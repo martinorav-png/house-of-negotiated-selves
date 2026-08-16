@@ -6,6 +6,7 @@ import { useOrbContext } from './context/OrbContext'
 import { Scene } from './components/Scene'
 import { AvatarStation } from './components/AvatarStation'
 import { SecondStation } from './components/SecondStation'
+import { ThirdStation } from './components/ThirdStation'
 import { useMediaSensors } from './hooks/useMediaSensors'
 import { usePrefersReducedMotion } from './hooks/usePrefersReducedMotion'
 import { QUESTIONS } from './lib/questions'
@@ -230,6 +231,12 @@ export default function App() {
         >
           Avatars
         </a>
+        <a
+          aria-current={station === 'mirror' ? 'page' : undefined}
+          href={getStationHref('mirror')}
+        >
+          Mirror
+        </a>
       </nav>
 
       {station === 'orb' ? (
@@ -255,6 +262,8 @@ export default function App() {
         </section>
       ) : station === 'cards' ? (
         <SecondStation />
+      ) : station === 'mirror' ? (
+        <ThirdStation />
       ) : (
         <AvatarStation />
       )}
