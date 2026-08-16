@@ -344,6 +344,15 @@
   opacity: 0.85;
 }
 
+/* The soft duplicate behind each crisp arc — wider, blurred, dimmer —
+   is what gives the ring its double-layered depth instead of a single
+   flat line. */
+.mirror-loading-arc-glow {
+  stroke-width: 12;
+  opacity: 0.28;
+  filter: blur(4px);
+}
+
 .mirror-loading-readout {
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   font-size: 11px;
@@ -367,11 +376,124 @@
   );
 }
 
+/* Scattered background HUD debris — small "log panel" text blocks and
+   mini progress slivers living in the margins on every phase. Everything
+   here is deliberately tiny/illegible (fixed-width bars standing in for
+   text, same as the reference reads at this scale) so it stays texture,
+   not a competing focal point. */
+.mirror-hud-debris {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.mirror-code-panel {
+  position: absolute;
+  width: 92px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.mirror-code-panel.is-ghost {
+  opacity: 0.5;
+}
+
+.mirror-code-kv {
+  height: 2px;
+  width: 38%;
+  background: color-mix(in srgb, var(--mirror-accent) 55%, transparent);
+  border-radius: 1px;
+}
+
+.mirror-code-gap {
+  height: 4px;
+}
+
+.mirror-code-line {
+  width: var(--w, 60%);
+  height: 2px;
+  border-radius: 1px;
+  background: rgba(238, 241, 240, 0.32);
+  animation:
+    mirror-code-shimmer 5s ease-in-out infinite var(--sd, 0s),
+    mirror-code-retype 8s ease-in-out infinite var(--rd, 0s);
+}
+
+.mirror-code-line.is-alert {
+  background: #e0554c;
+  box-shadow: 0 0 6px rgba(224, 85, 76, 0.5);
+}
+
+@keyframes mirror-code-shimmer {
+  0%,
+  100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.65;
+  }
+}
+
+@keyframes mirror-code-retype {
+  0%,
+  70%,
+  100% {
+    width: var(--w, 60%);
+  }
+  82% {
+    width: 8%;
+  }
+  92% {
+    width: var(--w, 60%);
+  }
+}
+
+.mirror-code-cursor {
+  display: block;
+  width: 3px;
+  height: 2px;
+  margin-top: 1px;
+  background: var(--mirror-accent);
+  animation: mirror-rec-blink 0.9s steps(1) infinite;
+}
+
+.mirror-mini-bar {
+  position: absolute;
+  width: 46px;
+  height: 2px;
+  background: rgba(238, 241, 240, 0.14);
+  overflow: hidden;
+}
+
+.mirror-mini-bar::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  width: var(--fill, 40%);
+  background: var(--mirror-accent);
+  opacity: 0.55;
+  animation: mirror-bar-tick 7s ease-in-out infinite;
+}
+
+@keyframes mirror-bar-tick {
+  0%,
+  100% {
+    width: var(--fill, 40%);
+  }
+  50% {
+    width: calc(var(--fill, 40%) + 15%);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .mirror-screen,
   .mirror-idle-ring,
   .mirror-dot.is-lit,
-  .mirror-rec-dot {
+  .mirror-rec-dot,
+  .mirror-code-line,
+  .mirror-code-cursor,
+  .mirror-mini-bar::after {
     animation: none;
   }
 }

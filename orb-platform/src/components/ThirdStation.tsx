@@ -1,4 +1,12 @@
-import { lazy, Suspense, useEffect, useRef, useState, type RefObject } from 'react'
+import {
+  lazy,
+  Suspense,
+  useEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+  type RefObject,
+} from 'react'
 import { mirrorSettings } from '../dev/mirrorSettingsStore'
 import { MirrorGuideOrb } from './MirrorGuideOrb'
 import { MirrorHeadline } from './MirrorHeadline'
@@ -60,24 +68,45 @@ function Dots({ lit }: { lit: number }) {
   )
 }
 
-/** Four static arcs, slowly spun by a CSS animation — the idle companion
- * to the loading screen's progress-driven ring, present whenever the orb
- * is on screen so the ring reads as one continuous motif, not something
- * that only appears once at the end. */
+/** Each ring segment is drawn twice — a wider, blurred "glow" arc behind a
+ * thinner crisp one — matching the reference's soft double-layered ring
+ * rather than a single flat stroke. */
+function RingSegments({ rotation }: { rotation: number }) {
+  return (
+    <>
+      {[0, 1, 2, 3].map((i) => (
+        <circle
+          key={`glow-${i}`}
+          cx="100"
+          cy="100"
+          r="86"
+          className="mirror-loading-arc mirror-loading-arc-glow"
+          style={{ transform: `rotate(${i * 90 + rotation}deg)`, transformOrigin: '100px 100px' }}
+        />
+      ))}
+      {[0, 1, 2, 3].map((i) => (
+        <circle
+          key={`crisp-${i}`}
+          cx="100"
+          cy="100"
+          r="86"
+          className="mirror-loading-arc"
+          style={{ transform: `rotate(${i * 90 + rotation}deg)`, transformOrigin: '100px 100px' }}
+        />
+      ))}
+    </>
+  )
+}
+
+/** Slowly spun by a CSS animation — the idle companion to the loading
+ * screen's progress-driven ring, present whenever the orb is on screen so
+ * the ring reads as one continuous motif, not something that only appears
+ * once at the end. */
 function IdleRing() {
   return (
     <div className="mirror-idle-ring" aria-hidden="true">
       <svg viewBox="0 0 200 200">
-        {[0, 1, 2, 3].map((i) => (
-          <circle
-            key={i}
-            cx="100"
-            cy="100"
-            r="86"
-            className="mirror-loading-arc"
-            style={{ transform: `rotate(${i * 90}deg)`, transformOrigin: '100px 100px' }}
-          />
-        ))}
+        <RingSegments rotation={0} />
       </svg>
     </div>
   )
@@ -87,20 +116,93 @@ function LoadingRing({ progress }: { progress: number }) {
   return (
     <div className="mirror-loading-ring" aria-hidden="true">
       <svg viewBox="0 0 200 200">
-        {[0, 1, 2, 3].map((i) => (
-          <circle
-            key={i}
-            cx="100"
-            cy="100"
-            r="86"
-            className="mirror-loading-arc"
-            style={{
-              transform: `rotate(${i * 90 + progress * 360}deg)`,
-              transformOrigin: '100px 100px',
-            }}
-          />
-        ))}
+        <RingSegments rotation={progress * 360} />
       </svg>
+    </div>
+  )
+}
+
+/** A small illegible "log panel" — a couple of key/value header lines then
+ * a dense paragraph of fixed-width bars standing in for text, since at
+ * this size real characters would just be noise anyway (matches the
+ * reference, which reads the same way on close inspection). One line can
+ * be flagged as a small highlighted "alert" row. Each line quietly
+ * re-"retypes" itself (width dips then recovers) on a staggered loop, plus
+ * a slow opacity shimmer, so the panel reads as live/updating instead of
+ * static texture. */
+function CodePanel({
+  lines,
+  style,
+  ghost = false,
+  cursor = false,
+  alertLine,
+}: {
+  lines: number[]
+  style?: CSSProperties
+  ghost?: boolean
+  cursor?: boolean
+  alertLine?: number
+}) {
+  return (
+    <div className={ghost ? 'mirror-code-panel is-ghost' : 'mirror-code-panel'} style={style} aria-hidden="true">
+      <div className="mirror-code-kv" />
+      <div className="mirror-code-kv" style={{ width: '52%' }} />
+      <div className="mirror-code-gap" />
+      {lines.map((w, i) => (
+        <div
+          key={i}
+          className={i === alertLine ? 'mirror-code-line is-alert' : 'mirror-code-line'}
+          style={
+            {
+              '--w': `${w}%`,
+              '--sd': `${(i % 5) * 0.35}s`,
+              '--rd': `${1.2 + (i % 4) * 1.7}s`,
+            } as CSSProperties
+          }
+        />
+      ))}
+      {cursor ? <span className="mirror-code-cursor" /> : null}
+    </div>
+  )
+}
+
+/** A tiny fake progress sliver — fixed base fill that idly ticks up and
+ * back down, standing in for a background diagnostic process. */
+function MiniBar({ style, fill }: { style?: CSSProperties; fill: number }) {
+  return (
+    <span
+      className="mirror-mini-bar"
+      aria-hidden="true"
+      style={{ ...style, '--fill': `${fill}%` } as CSSProperties}
+    />
+  )
+}
+
+/** Persistent scattered technical debris — small log panels, one
+ * deliberately overlapping a second "ghost" panel behind it, and a few
+ * mini progress bars — living in the margins around the main content on
+ * every phase, Detroit-HUD style clutter kept small enough not to compete
+ * with the headline/orb/dots in the center. */
+function HudDebrisField() {
+  return (
+    <div className="mirror-hud-debris" aria-hidden="true">
+      <CodePanel style={{ top: '64px', left: '54px' }} lines={[82, 45, 91, 60, 73, 38]} cursor />
+      <MiniBar style={{ top: '132px', left: '54px' }} fill={35} />
+
+      <CodePanel style={{ top: '64px', right: '24px' }} lines={[70, 40, 85, 55]} ghost />
+      <MiniBar style={{ top: '124px', right: '24px' }} fill={62} />
+
+      <CodePanel
+        style={{ bottom: '14%', left: '24px' }}
+        lines={[88, 50, 66, 40, 77, 33, 60]}
+        alertLine={3}
+      />
+      <CodePanel
+        style={{ bottom: 'calc(14% - 14px)', left: '48px' }}
+        lines={[55, 35, 70]}
+        ghost
+      />
+      <MiniBar style={{ bottom: '10%', right: '28px' }} fill={22} />
     </div>
   )
 }
@@ -237,6 +339,7 @@ export function ThirdStation() {
           <span className="mirror-status-marker" />
           {STATUS_LABEL[phase]}
         </div>
+        <HudDebrisField />
 
         {phase === 'intro' ? (
           <div className="mirror-screen mirror-screen-intro">
