@@ -92,7 +92,9 @@ describe('StationOne', () => {
       '/audio/debra/08-do-you-like-what-you-see.mp3',
     )
 
-    act(() => container.querySelector<HTMLButtonElement>('button')!.click())
+    // Station I answers by keyboard only now — no on-screen Yes/No buttons.
+    expect(container.querySelector('button')).toBeNull()
+    act(() => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'y' })))
     expect(container.querySelector('.journey-camera-stage')?.className).toContain('is-dissolving')
     expect(container.querySelector('audio')).toBeNull()
 
@@ -102,9 +104,9 @@ describe('StationOne', () => {
         await Promise.resolve()
       })
     }
-    expect(container.textContent).toContain('Proceed to the next station')
+    expect(container.textContent).toContain('Analysis complete')
     expect(container.querySelector('.journey-complete h1 .journey-headline-canvas')).not.toBeNull()
-    expect(container.textContent).not.toContain('ANALYSIS COMPLETE')
-    expect(container.querySelector('a')?.getAttribute('href')).toBe('#/station-2')
+    // Stations stay separate — no "continue to Station II" link.
+    expect(container.querySelector('a')).toBeNull()
   })
 })

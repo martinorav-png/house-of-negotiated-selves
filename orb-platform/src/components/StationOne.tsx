@@ -95,7 +95,7 @@ export function StationOne({ phaseDurationMs = 2200 }: { phaseDurationMs?: numbe
           <JourneyHeadline lines={['DO YOU LIKE', 'WHAT YOU SEE?']}>
             Do you like what you see?
           </JourneyHeadline>
-          <MirrorChoice onAnswer={answer} />
+          <MirrorChoice onAnswer={answer} hideButtons />
         </div>
       ) : null}
       {state.phase === 'dissolve' ? (
@@ -112,10 +112,7 @@ export function StationOne({ phaseDurationMs = 2200 }: { phaseDurationMs?: numbe
       ) : null}
       {state.phase === 'complete' ? (
         <div className="journey-complete">
-          <JourneyHeadline lines={['PROCEED TO THE', 'NEXT STATION']}>
-            Proceed to the next station
-          </JourneyHeadline>
-          <a href="#/station-2">Continue to Station II</a>
+          <JourneyHeadline lines={['ANALYSIS', 'COMPLETE']}>Analysis complete</JourneyHeadline>
         </div>
       ) : null}
     </MirrorStationShell>

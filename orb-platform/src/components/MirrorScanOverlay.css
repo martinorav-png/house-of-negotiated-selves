@@ -1,0 +1,68 @@
+.journey-scan-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  /* HudDebris.css falls back to this same ice-blue when the var isn't
+     set, but declaring it explicitly keeps Station I's palette obvious
+     here rather than relying on the fallback silently doing the work. */
+  --mirror-accent: #b9dceb;
+}
+
+.journey-profile-panel {
+  position: absolute;
+  top: 96px;
+  left: 20px;
+  width: 132px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  color: rgba(198, 214, 220, 0.62);
+}
+
+.journey-profile-header {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 8px;
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  color: rgba(185, 220, 235, 0.85);
+}
+
+.journey-profile-marker {
+  width: 5px;
+  height: 5px;
+  background: #b9dceb;
+  transform: rotate(45deg);
+}
+
+.journey-profile-panel ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.journey-profile-panel li {
+  position: relative;
+  padding-left: 10px;
+  font-size: 8.5px;
+  letter-spacing: 0.02em;
+}
+
+.journey-profile-panel li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 4px;
+  width: 4px;
+  height: 1px;
+  background: rgba(185, 220, 235, 0.5);
+}
+
+@media (max-height: 700px) {
+  .journey-profile-panel {
+    top: 74px;
+  }
+}

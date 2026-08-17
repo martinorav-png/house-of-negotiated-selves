@@ -5,10 +5,13 @@ import type { MirrorFaceSignals } from '../lib/mirrorFaceSignals'
 import { sampleFaceTopologyConnections } from '../lib/mirrorFaceTopology'
 import {
   computeCameraFocus,
+  landmarkBounds,
   mapLandmarkToMirror,
   type CameraFocusMode,
+  type Dimensions,
   type NormalizedLandmark,
 } from '../lib/mirrorLandmarks'
+import { MirrorScanOverlay } from './MirrorScanOverlay'
 
 export type MirrorOverlayMode = 'none' | 'face' | 'eyes' | 'dissolve'
 
@@ -55,20 +58,26 @@ export function MirrorCameraLayer({ mode }: { mode: MirrorOverlayMode }) {
   }, [camera.landmarks, camera.signals, camera.videoRef, mode])
 
   return (
-    <div
-      className={`journey-camera-stage journey-camera-${mode}${mode === 'dissolve' ? ' is-dissolving' : ''}`}
-      style={style}
-      aria-hidden="true"
-    >
-      <video ref={camera.videoRef} className="journey-camera-video" muted playsInline autoPlay />
-      <div className="journey-camera-veil" />
-      <canvas ref={canvasRef} className="journey-landmarks" />
-      {camera.status !== 'active' ? (
-        <div className="journey-camera-fallback">
-          {camera.status === 'starting' ? 'Starting camera' : 'Camera unavailable'}
-        </div>
-      ) : null}
-    </div>
+    <>
+      <div
+        className={`journey-camera-stage journey-camera-${mode}${mode === 'dissolve' ? ' is-dissolving' : ''}`}
+        style={style}
+        aria-hidden="true"
+      >
+        <video ref={camera.videoRef} className="journey-camera-video" muted playsInline autoPlay />
+        <div className="journey-camera-veil" />
+        <canvas ref={canvasRef} className="journey-landmarks" />
+        {camera.status !== 'active' ? (
+          <div className="journey-camera-fallback">
+            {camera.status === 'starting' ? 'Starting camera' : 'Camera unavailable'}
+          </div>
+        ) : null}
+      </div>
+      {/* Outside the zoom-transformed stage above on purpose — this HUD
+          chrome (fake profile panel + debris) should stay put as the
+          camera focus zooms in/out on eyes vs. face, not scale with it. */}
+      <MirrorScanOverlay mode={mode} />
+    </>
   )
 }
 
@@ -165,6 +174,75 @@ function drawLandmarks(
     context.lineWidth = 1.2
     context.stroke()
   })
+
+  // TouchDesigner-style blob-tracking boxes — corner-bracket bounding
+  // rects (not a full outline) around the whole face and each eye,
+  // matching the reference sketch's tracking markers. Purely decorative
+  // read-outs (fixed labels), not a real confidence score.
+  if (mode !== 'none' && !dissolve) {
+    const faceBox = trackingBoxFor(FACE_OVAL, landmarks, viewport, videoSize, 14)
+    if (faceBox) drawTrackingBox(context, faceBox, 'FACE · TRACK', 0.55)
+    const leftEyeBox = trackingBoxFor(LEFT_EYE, landmarks, viewport, videoSize, 9)
+    if (leftEyeBox) drawTrackingBox(context, leftEyeBox, 'EYE.L', 0.7)
+    const rightEyeBox = trackingBoxFor(RIGHT_EYE, landmarks, viewport, videoSize, 9)
+    if (rightEyeBox) drawTrackingBox(context, rightEyeBox, 'EYE.R', 0.7)
+  }
+}
+
+type TrackingBox = { x: number; y: number; width: number; height: number }
+
+function trackingBoxFor(
+  indices: number[],
+  landmarks: NormalizedLandmark[],
+  viewport: Dimensions,
+  videoSize: Dimensions,
+  padding: number,
+): TrackingBox | null {
+  const subset = indices.map((index) => landmarks[index]).filter(Boolean) as NormalizedLandmark[]
+  const bounds = landmarkBounds(subset)
+  if (!bounds) return null
+  const a = mapLandmarkToMirror({ x: bounds.minX, y: bounds.minY }, viewport, videoSize)
+  const b = mapLandmarkToMirror({ x: bounds.maxX, y: bounds.maxY }, viewport, videoSize)
+  const x = Math.min(a.x, b.x) - padding
+  const y = Math.min(a.y, b.y) - padding
+  return {
+    x,
+    y,
+    width: Math.abs(a.x - b.x) + padding * 2,
+    height: Math.abs(a.y - b.y) + padding * 2,
+  }
+}
+
+/** Four short L-shaped corner ticks (not a full rectangle stroke) plus a
+ * small caption — the recognizable "blob tracker" look from TouchDesigner/
+ * OpenCV debug overlays, reused from the same corner-bracket language as
+ * Station III's HUD chrome. */
+function drawTrackingBox(
+  context: CanvasRenderingContext2D,
+  box: TrackingBox,
+  label: string,
+  alpha: number,
+) {
+  const { x, y, width, height } = box
+  const tick = clamp(Math.min(width, height) * 0.24, 5, 13)
+  context.strokeStyle = `rgba(185, 220, 235, ${alpha})`
+  context.lineWidth = 1
+  const corners: Array<[number, number, number, number]> = [
+    [x, y, 1, 1],
+    [x + width, y, -1, 1],
+    [x, y + height, 1, -1],
+    [x + width, y + height, -1, -1],
+  ]
+  corners.forEach(([cx, cy, dx, dy]) => {
+    context.beginPath()
+    context.moveTo(cx, cy + tick * dy)
+    context.lineTo(cx, cy)
+    context.lineTo(cx + tick * dx, cy)
+    context.stroke()
+  })
+  context.font = '9px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace'
+  context.fillStyle = `rgba(185, 220, 235, ${alpha * 0.95})`
+  context.fillText(label, x, Math.max(9, y - 5))
 }
 
 function clamp(value: number, minimum: number, maximum: number) {
