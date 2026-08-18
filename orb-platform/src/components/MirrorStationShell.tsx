@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { useStationVibe } from '../hooks/useStationVibe'
 import { MirrorCameraLayer, type MirrorOverlayMode } from './MirrorCameraLayer'
 import './MirrorJourney.css'
 
@@ -13,17 +14,20 @@ export function MirrorStationShell({
   statusLeft?: ReactNode
   children: ReactNode
 }) {
+  const [vibe] = useStationVibe()
+  const warm = vibe === 'warm'
+
   return (
     <section className="journey-station" aria-label={`Station ${station}`}>
       <div className="journey-portrait">
         <MirrorCameraLayer mode={cameraMode} />
         <header className="journey-status">
-          <span>{statusLeft ?? `STATION ${station}`}</span>
+          <span>{statusLeft ?? (warm ? `Station ${station} · Welcome` : `STATION ${station}`)}</span>
         </header>
         <div className="journey-content">{children}</div>
         <footer className="journey-folio">
           <span>{station}</span>
-          <span>HOUSE OF NEGOTIATED SELVES</span>
+          <span>{warm ? 'House of Negotiated Selves' : 'HOUSE OF NEGOTIATED SELVES'}</span>
         </footer>
       </div>
     </section>

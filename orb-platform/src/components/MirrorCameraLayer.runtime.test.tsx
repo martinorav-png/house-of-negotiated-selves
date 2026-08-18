@@ -82,7 +82,7 @@ describe('MirrorCameraLayer', () => {
 
     expect(context.stroke).toHaveBeenCalled()
     expect(strokeOperations).toContainEqual({
-      strokeStyle: 'rgba(185, 220, 235, 0.16)',
+      strokeStyle: 'rgba(232, 184, 140, 0.16)',
       lineWidth: 0.55,
       lineToCount: expect.any(Number),
     })

@@ -1,8 +1,10 @@
 import { useEffect, useRef, type CSSProperties } from 'react'
 import { FaceLandmarker } from '@mediapipe/tasks-vision'
 import { useMirrorCamera } from '../hooks/useMirrorCamera'
+import { useStationVibe } from '../hooks/useStationVibe'
 import type { MirrorFaceSignals } from '../lib/mirrorFaceSignals'
 import { sampleFaceTopologyConnections } from '../lib/mirrorFaceTopology'
+import { TRACKING_RGB } from '../lib/stationVibe'
 import {
   computeCameraFocus,
   mapLandmarkToMirror,
@@ -26,6 +28,8 @@ const SPARSE_FACE_TOPOLOGY = sampleFaceTopologyConnections(
 )
 
 export function MirrorCameraLayer({ mode }: { mode: MirrorOverlayMode }) {
+  const [vibe] = useStationVibe()
+  const trackingRgb = TRACKING_RGB[vibe]
   const camera = useMirrorCamera()
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const focusMode: CameraFocusMode = mode === 'eyes' ? 'eyes' : mode === 'none' ? 'full' : 'face'
@@ -48,11 +52,11 @@ export function MirrorCameraLayer({ mode }: { mode: MirrorOverlayMode }) {
     if (!canvas || !video || mode === 'none') return
 
     const draw = () =>
-      drawLandmarks(canvas, video, camera.landmarks, camera.signals, mode)
+      drawLandmarks(canvas, video, camera.landmarks, camera.signals, mode, trackingRgb)
     draw()
     window.addEventListener('resize', draw)
     return () => window.removeEventListener('resize', draw)
-  }, [camera.landmarks, camera.signals, camera.videoRef, mode])
+  }, [camera.landmarks, camera.signals, camera.videoRef, mode, trackingRgb])
 
   return (
     <div
@@ -78,6 +82,7 @@ function drawLandmarks(
   landmarks: NormalizedLandmark[],
   signals: MirrorFaceSignals,
   mode: MirrorOverlayMode,
+  trackingRgb: string,
 ) {
   const width = canvas.clientWidth
   const height = canvas.clientHeight
@@ -106,7 +111,7 @@ function drawLandmarks(
     context.moveTo(points[0].x, points[0].y)
     points.slice(1).forEach((item) => context.lineTo(item.x, item.y))
     context.closePath()
-    context.strokeStyle = `rgba(185, 220, 235, ${alpha})`
+    context.strokeStyle = `rgba(${trackingRgb}, ${alpha})`
     context.lineWidth = lineWidth
     context.stroke()
   }
@@ -124,7 +129,7 @@ function drawLandmarks(
       topologyEdges += 1
     })
     if (topologyEdges > 0) {
-      context.strokeStyle = `rgba(185, 220, 235, ${dissolve ? 0.04 : 0.16})`
+      context.strokeStyle = `rgba(${trackingRgb}, ${dissolve ? 0.04 : 0.16})`
       context.lineWidth = 0.55
       context.stroke()
     }
@@ -142,7 +147,7 @@ function drawLandmarks(
     context.beginPath()
     context.moveTo(left.x, left.y - 20)
     context.lineTo(right.x, right.y - 20)
-    context.strokeStyle = 'rgba(185, 220, 235, .84)'
+    context.strokeStyle = `rgba(${trackingRgb}, .84)`
     context.setLineDash([4, 7])
     context.stroke()
     context.setLineDash([])
@@ -161,7 +166,7 @@ function drawLandmarks(
       0,
       Math.PI * 2,
     )
-    context.strokeStyle = 'rgba(185, 220, 235, .76)'
+    context.strokeStyle = `rgba(${trackingRgb}, .76)`
     context.lineWidth = 1.2
     context.stroke()
   })

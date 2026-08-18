@@ -13,13 +13,19 @@ import { DebraVoice } from './DebraVoice'
 import { JourneyHeadline } from './JourneyHeadline'
 import { MirrorChoice } from './MirrorChoice'
 import { MirrorStationShell } from './MirrorStationShell'
+import { useStationVibe } from '../hooks/useStationVibe'
 
 const AUTO_PHASE_DURATIONS_MS: Partial<Record<StationTwoPhase, number>> = {
   percentile: 3000,
   'companion-intro': 3000,
   'debra-brief': 3000,
 }
-const QUESTION_LINES = [
+const QUESTION_LINES_WARM = [
+  ['Is attractiveness', 'important to you?'],
+  ['Should your companion', 'challenge you?'],
+  ['Would you choose', 'companionship over', 'independence?'],
+]
+const QUESTION_LINES_ORIGINAL = [
   ['IS ATTRACTIVENESS', 'IMPORTANT TO YOU?'],
   ['SHOULD YOUR COMPANION', 'CHALLENGE YOU?'],
   ['WOULD YOU CHOOSE', 'COMPANIONSHIP OVER', 'INDEPENDENCE?'],
@@ -32,6 +38,8 @@ export function StationTwo({
   phaseDurationMs?: number
   visitorSeed?: string
 }) {
+  const [vibe] = useStationVibe()
+  const warm = vibe === 'warm'
   const [state, dispatch] = useReducer(stationTwoReducer, undefined, createStationTwoState)
   const seed = useMemo(
     () => visitorSeed ?? `visitor-${Math.round(performance.timeOrigin)}`,
@@ -59,7 +67,7 @@ export function StationTwo({
       cameraMode="none"
       statusLeft={
         <span className="journey-recording">
-          <i /> RECORDING IN PROGRESS
+          <i /> {warm ? 'Listening' : 'RECORDING IN PROGRESS'}
         </span>
       }
     >
@@ -75,24 +83,38 @@ export function StationTwo({
       {state.phase === 'percentile' ? (
         <div className="journey-message journey-message-bottom">
           <JourneyHeadline
-            lines={['OUR SYSTEMS HAVE', 'FOUND YOU TO BE A', `${percentile}TH PERCENTILE SPECIMEN.`]}
+            lines={
+              warm
+                ? ['You landed in the', `${percentile}th percentile.`, "That's quite something."]
+                : ['OUR SYSTEMS HAVE', 'FOUND YOU TO BE A', `${percentile}TH PERCENTILE SPECIMEN.`]
+            }
           >
-            {`Our systems have found you to be a ${percentile}th percentile specimen.`}
+            {warm
+              ? `You landed in the ${percentile}th percentile. That's quite something.`
+              : `Our systems have found you to be a ${percentile}th percentile specimen.`}
           </JourneyHeadline>
         </div>
       ) : null}
 
       {state.phase === 'companion-intro' ? (
         <div className="journey-message journey-message-bottom">
-          <JourneyHeadline lines={['YOU WILL NOW BE', 'MATCHED WITH AN', 'AI COMPANION.']}>
-            You will now be matched with an AI companion.
+          <JourneyHeadline
+            lines={
+              warm
+                ? ["You'll be matched", 'with an AI', 'companion now.']
+                : ['YOU WILL NOW BE', 'MATCHED WITH AN', 'AI COMPANION.']
+            }
+          >
+            {warm
+              ? "You'll be matched with an AI companion now."
+              : 'You will now be matched with an AI companion.'}
           </JourneyHeadline>
         </div>
       ) : null}
 
       {state.phase === 'debra-brief' ? (
         <div className="journey-debra-copy">
-          <JourneyHeadline lines={["LET'S GET", 'STARTED.']}>
+          <JourneyHeadline lines={warm ? ["Let's get", 'started.'] : ["LET'S GET", 'STARTED.']}>
             Let&apos;s get started.
           </JourneyHeadline>
         </div>
@@ -100,7 +122,7 @@ export function StationTwo({
 
       {state.phase === 'question' ? (
         <div className="journey-question">
-          <JourneyHeadline lines={QUESTION_LINES[state.questionIndex]}>
+          <JourneyHeadline lines={(warm ? QUESTION_LINES_WARM : QUESTION_LINES_ORIGINAL)[state.questionIndex]}>
             {STATION_TWO_QUESTIONS[state.questionIndex].prompt}
           </JourneyHeadline>
           <MirrorChoice onAnswer={answer} />
@@ -111,7 +133,9 @@ export function StationTwo({
         <div className="journey-height-phase">
           <CompanionOutline height={state.height} />
           <div className="journey-height-control">
-            <JourneyHeadline lines={['HOW TALL IS YOUR', 'IDEAL PARTNER?']}>
+            <JourneyHeadline
+              lines={warm ? ['How tall is your', 'ideal partner?'] : ['HOW TALL IS YOUR', 'IDEAL PARTNER?']}
+            >
               How tall is your ideal partner?
             </JourneyHeadline>
             <label>
@@ -134,7 +158,7 @@ export function StationTwo({
               type="button"
               onClick={() => dispatch({ type: 'ADVANCE' })}
             >
-              Confirm height
+              {warm ? 'That feels right' : 'Confirm height'}
             </button>
           </div>
         </div>
@@ -142,8 +166,8 @@ export function StationTwo({
 
       {state.phase === 'complete' ? (
         <div className="journey-complete">
-          <JourneyHeadline lines={['PROCEED TO THE', 'NEXT STATION']}>
-            Proceed to the next station
+          <JourneyHeadline lines={warm ? ["When you're", 'ready'] : ['PROCEED TO THE', 'NEXT STATION']}>
+            {warm ? "When you're ready" : 'Proceed to the next station'}
           </JourneyHeadline>
           <a href="#/mirror">Continue to Station III</a>
         </div>

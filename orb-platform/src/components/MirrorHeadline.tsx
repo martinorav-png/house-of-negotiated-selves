@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef } from 'react'
+import { useStationVibe } from '../hooks/useStationVibe'
 import { drawGrainyText } from '../lib/grainyText'
 import { mirrorSettings } from '../dev/mirrorSettingsStore'
 
@@ -15,8 +16,12 @@ const CANVAS_HEIGHT = 280
  * flat screen-space UI, not a room you're looking into.
  */
 export function MirrorHeadline({ lines, className }: { lines: string[]; className?: string }) {
+  const [vibe] = useStationVibe()
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const text = useMemo(() => lines.join('\n').toUpperCase(), [lines])
+  const text = useMemo(
+    () => (vibe === 'original' ? lines.join('\n').toUpperCase() : lines.join('\n')),
+    [lines, vibe],
+  )
   const fadeIn = useRef(0)
 
   useEffect(() => {

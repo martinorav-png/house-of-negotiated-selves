@@ -17,6 +17,7 @@ vi.mock('../hooks/useMirrorCamera', () => ({
 }))
 
 import { StationOne } from './StationOne'
+import { applyStationVibe } from '../lib/stationVibe'
 
 function setInput(input: HTMLInputElement, value: string) {
   const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set
@@ -40,6 +41,7 @@ describe('StationOne', () => {
     document.body.append(container)
     root = createRoot(container)
     vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockImplementation(() => null)
+    applyStationVibe('warm')
   })
 
   afterEach(() => {
@@ -56,7 +58,7 @@ describe('StationOne', () => {
     act(() => root.render(<StationOne phaseDurationMs={20} />))
 
     expect(container.querySelectorAll('.journey-status > span')).toHaveLength(1)
-    expect(container.querySelector('.journey-status')?.textContent).toBe('STATION I')
+    expect(container.querySelector('.journey-status')?.textContent).toBe('Station I · Welcome')
     expect(container.querySelector('label .journey-headline-canvas')).not.toBeNull()
     const name = container.querySelector<HTMLInputElement>('input[name="name"]')!
     expect(name.getAttribute('aria-label')).toBe('Your name')
@@ -71,7 +73,7 @@ describe('StationOne', () => {
       setInput(age, '34')
       submit(age.form!)
     })
-    expect(container.textContent).toContain('Proceeding with facial analysis')
+    expect(container.textContent).toContain("Let's have a look at you")
     expect(container.querySelector('.journey-message .journey-headline-canvas')).not.toBeNull()
     expect(container.textContent).not.toContain('FACIAL ANALYSIS')
 
@@ -102,9 +104,19 @@ describe('StationOne', () => {
         await Promise.resolve()
       })
     }
-    expect(container.textContent).toContain('Proceed to the next station')
+    expect(container.textContent).toContain("When you're ready")
     expect(container.querySelector('.journey-complete h1 .journey-headline-canvas')).not.toBeNull()
     expect(container.textContent).not.toContain('ANALYSIS COMPLETE')
     expect(container.querySelector('a')?.getAttribute('href')).toBe('#/station-2')
+  })
+
+  it('restores the original station chrome when the warm look is off', () => {
+    applyStationVibe('original')
+    vi.spyOn(HTMLMediaElement.prototype, 'play').mockResolvedValue()
+    vi.spyOn(HTMLMediaElement.prototype, 'pause').mockImplementation(() => {})
+    act(() => root.render(<StationOne phaseDurationMs={20} />))
+
+    expect(container.querySelector('.journey-status')?.textContent).toBe('STATION I')
+    expect(container.textContent).toContain('HOUSE OF NEGOTIATED SELVES')
   })
 })

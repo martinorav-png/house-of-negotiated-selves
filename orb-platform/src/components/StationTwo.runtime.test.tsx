@@ -21,6 +21,7 @@ vi.mock('./MirrorGuideOrb', () => ({
 }))
 
 import { StationTwo } from './StationTwo'
+import { applyStationVibe } from '../lib/stationVibe'
 
 describe('StationTwo', () => {
   let container: HTMLDivElement
@@ -36,6 +37,7 @@ describe('StationTwo', () => {
     vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockImplementation(() => null)
     vi.spyOn(HTMLMediaElement.prototype, 'play').mockResolvedValue()
     vi.spyOn(HTMLMediaElement.prototype, 'pause').mockImplementation(() => {})
+    applyStationVibe('warm')
   })
 
   afterEach(() => {
@@ -49,10 +51,10 @@ describe('StationTwo', () => {
   it('moves from percentile result through questions and live height choice', async () => {
     act(() => root.render(<StationTwo phaseDurationMs={20} visitorSeed="Ada:34" />))
 
-    expect(container.textContent).toMatch(/percentile specimen/i)
+    expect(container.textContent).toMatch(/percentile/i)
     expect(container.querySelector('.journey-message .journey-headline-canvas')).not.toBeNull()
     expect(container.textContent).not.toContain('ASSESSMENT COMPLETE')
-    expect(container.textContent).toContain('RECORDING IN PROGRESS')
+    expect(container.textContent).toContain('Listening')
     expect(container.querySelectorAll('.journey-status > span')).toHaveLength(1)
     expect(container.textContent).not.toMatch(/\b\d{2}:\d{2}\b/)
     expect(container.querySelector('.journey-debra-introduction')).toBeNull()
@@ -64,7 +66,7 @@ describe('StationTwo', () => {
     })
     expect(container.textContent).not.toContain('MATCHING PROTOCOL')
     expect(container.querySelector('[aria-label="Debra, companion guide"]')).not.toBeNull()
-    expect(container.textContent).toContain('DEBRA')
+    expect(container.textContent).toContain('Debra')
     expect(container.querySelector('audio')?.getAttribute('src')).toBe(
       '/audio/debra/09-i-will-help-you-describe-the-companion-you-believe-you-want.mp3',
     )
@@ -122,7 +124,7 @@ describe('StationTwo', () => {
     )
 
     act(() => container.querySelector<HTMLButtonElement>('.journey-height-confirm')!.click())
-    expect(container.textContent).toContain('Proceed to the next station')
+    expect(container.textContent).toContain("When you're ready")
     expect(container.querySelector('.journey-complete h1 .journey-headline-canvas')).not.toBeNull()
     expect(container.textContent).not.toContain('COMPANION PROFILE COMPLETE')
     expect(container.querySelector('a')?.getAttribute('href')).toBe('#/mirror')
@@ -138,7 +140,7 @@ describe('StationTwo', () => {
       vi.advanceTimersByTime(2999)
       await Promise.resolve()
     })
-    expect(container.textContent).toMatch(/percentile specimen/i)
+    expect(container.textContent).toMatch(/percentile/i)
 
     await act(async () => {
       vi.advanceTimersByTime(1)

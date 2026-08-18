@@ -10,6 +10,7 @@ import { ThirdStation } from './components/ThirdStation'
 import { StationOne } from './components/StationOne'
 import { StationTwo } from './components/StationTwo'
 import { MirrorPreviewFrame } from './components/MirrorPreviewToggle'
+import { StationVibeToggle } from './components/StationVibeToggle'
 import { useMediaSensors } from './hooks/useMediaSensors'
 import { usePrefersReducedMotion } from './hooks/usePrefersReducedMotion'
 import { QUESTIONS } from './lib/questions'
@@ -255,6 +256,9 @@ export default function App() {
           Avatars
         </a>
       </nav>
+      {station === 'station-1' || station === 'station-2' || station === 'mirror' ? (
+        <StationVibeToggle />
+      ) : null}
 
       {station === 'station-1' ? (
         <MirrorPreviewFrame showToggle={import.meta.env.DEV}>

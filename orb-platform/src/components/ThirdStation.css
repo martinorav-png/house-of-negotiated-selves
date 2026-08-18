@@ -12,14 +12,14 @@
  * ancestor's value. Keeping the single declaration site here avoids that.
  */
 .third-station {
-  --mirror-bg-top: #2b2e2f;
-  --mirror-bg-bottom: #020303;
-  --mirror-accent: #6fd6c4;
+  --mirror-bg-top: #2c241c;
+  --mirror-bg-bottom: #0a0806;
+  --mirror-accent: #e4b67a;
   position: relative;
   min-height: 100svh;
   overflow: hidden;
   background: linear-gradient(180deg, var(--mirror-bg-top) 0%, var(--mirror-bg-bottom) 78%);
-  color: #eef1f0;
+  color: #fff4e8;
   font-family: system-ui, sans-serif;
 }
 
@@ -85,8 +85,9 @@
   gap: 8px;
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   font-size: 11px;
-  letter-spacing: 0.16em;
-  color: rgba(238, 241, 240, 0.5);
+  letter-spacing: 0.08em;
+  color: rgba(255, 244, 232, 0.52);
+  text-transform: none;
 }
 
 .mirror-status-marker {
@@ -175,7 +176,7 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  border: 1px solid rgba(238, 241, 240, 0.5);
+  border: 1px solid rgba(255, 244, 232, 0.48);
   background: transparent;
   transition: background 0.3s ease, border-color 0.3s ease, transform 0.3s ease;
 }
@@ -210,7 +211,7 @@
   position: relative;
   width: min(78vw, 360px);
   aspect-ratio: 3 / 4;
-  border: 1px dashed rgba(238, 241, 240, 0.45);
+  border: 1px dashed rgba(255, 244, 232, 0.4);
   border-radius: 6px;
 }
 
@@ -259,7 +260,7 @@
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   font-size: 12px;
   letter-spacing: 0.14em;
-  color: rgba(238, 241, 240, 0.85);
+  color: rgba(255, 244, 232, 0.86);
 }
 
 .mirror-rec-dot {
@@ -301,7 +302,7 @@
 
 .mirror-record-timer-track {
   fill: none;
-  stroke: rgba(238, 241, 240, 0.18);
+  stroke: rgba(255, 244, 232, 0.18);
   stroke-width: 3;
 }
 
@@ -318,7 +319,7 @@
   position: relative;
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   font-size: 15px;
-  color: rgba(238, 241, 240, 0.92);
+  color: rgba(255, 244, 232, 0.92);
 }
 
 /* Loading — headline, guide orb wrapped in a Detroit-style segmented
@@ -357,8 +358,8 @@
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   font-size: 11px;
   letter-spacing: 0.12em;
-  color: color-mix(in srgb, var(--mirror-accent) 70%, rgba(238, 241, 240, 0.8));
-  text-transform: uppercase;
+  color: color-mix(in srgb, var(--mirror-accent) 70%, rgba(255, 244, 232, 0.8));
+  text-transform: none;
 }
 
 .mirror-horizon {
@@ -370,8 +371,8 @@
   background: linear-gradient(
     90deg,
     transparent,
-    rgba(238, 241, 240, 0.16) 20%,
-    rgba(238, 241, 240, 0.16) 80%,
+    rgba(255, 244, 232, 0.16) 20%,
+    rgba(255, 244, 232, 0.16) 80%,
     transparent
   );
 }
@@ -386,6 +387,7 @@
   position: absolute;
   inset: 0;
   pointer-events: none;
+  opacity: 0.52;
 }
 
 .mirror-code-panel {
@@ -395,7 +397,7 @@
   font-size: 5.5px;
   line-height: 1.75;
   letter-spacing: 0.01em;
-  color: rgba(238, 241, 240, 0.55);
+  color: rgba(255, 244, 232, 0.52);
   white-space: nowrap;
 }
 
@@ -450,7 +452,7 @@
   position: absolute;
   width: 38px;
   height: 1.5px;
-  background: rgba(238, 241, 240, 0.12);
+  background: rgba(255, 244, 232, 0.12);
   overflow: hidden;
 }
 
@@ -483,4 +485,63 @@
   .mirror-mini-bar::after {
     animation: none;
   }
+}
+
+:root[data-station-vibe="original"] .third-station {
+  --mirror-bg-top: #2b2e2f;
+  --mirror-bg-bottom: #020303;
+  --mirror-accent: #6fd6c4;
+  color: #eef1f0;
+}
+
+:root[data-station-vibe="original"] .mirror-status-label {
+  letter-spacing: 0.16em;
+  color: rgba(238, 241, 240, 0.5);
+}
+
+:root[data-station-vibe="original"] .mirror-dot {
+  border-color: rgba(238, 241, 240, 0.5);
+}
+
+:root[data-station-vibe="original"] .mirror-record-frame {
+  border-color: rgba(238, 241, 240, 0.45);
+}
+
+:root[data-station-vibe="original"] .mirror-rec-indicator {
+  color: rgba(238, 241, 240, 0.85);
+}
+
+:root[data-station-vibe="original"] .mirror-record-timer-track {
+  stroke: rgba(238, 241, 240, 0.18);
+}
+
+:root[data-station-vibe="original"] .mirror-record-timer-value {
+  color: rgba(238, 241, 240, 0.92);
+}
+
+:root[data-station-vibe="original"] .mirror-loading-readout {
+  color: color-mix(in srgb, var(--mirror-accent) 70%, rgba(238, 241, 240, 0.8));
+  text-transform: uppercase;
+}
+
+:root[data-station-vibe="original"] .mirror-horizon {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(238, 241, 240, 0.16) 20%,
+    rgba(238, 241, 240, 0.16) 80%,
+    transparent
+  );
+}
+
+:root[data-station-vibe="original"] .mirror-hud-debris {
+  opacity: 1;
+}
+
+:root[data-station-vibe="original"] .mirror-code-panel {
+  color: rgba(238, 241, 240, 0.55);
+}
+
+:root[data-station-vibe="original"] .mirror-mini-bar {
+  background: rgba(238, 241, 240, 0.12);
 }

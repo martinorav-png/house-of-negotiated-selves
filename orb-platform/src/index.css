@@ -10,7 +10,7 @@ body,
   margin: 0;
   width: 100%;
   height: 100%;
-  background: #050607;
+  background: #120d0a;
 }
 
 .experience {
@@ -38,16 +38,16 @@ body,
 
 .station-switcher a {
   padding: 7px 10px;
-  border: 1px solid rgba(200, 220, 205, 0.2);
+  border: 1px solid rgba(232, 184, 140, 0.22);
   border-radius: 999px;
-  background: rgba(8, 12, 10, 0.42);
-  color: rgba(232, 244, 234, 0.62);
+  background: rgba(18, 13, 10, 0.5);
+  color: rgba(255, 246, 235, 0.66);
   text-decoration: none;
 }
 
 .station-switcher a[aria-current='page'] {
-  border-color: rgba(210, 181, 127, 0.62);
-  color: rgba(232, 244, 234, 0.92);
+  border-color: rgba(232, 184, 140, 0.62);
+  color: rgba(255, 246, 235, 0.94);
 }
 
 .station-switcher-cards a {
@@ -68,10 +68,10 @@ body,
   right: 8px;
   min-width: 112px;
   padding: 9px 12px;
-  border: 1px solid #b9dceb;
+  border: 1px solid #e8b88c;
   border-radius: 0;
-  background: #000;
-  color: #d6eef7;
+  background: #120d0a;
+  color: #fff4e8;
   font: 500 10px/1 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -79,9 +79,9 @@ body,
 
 .mirror-preview-toggle:hover,
 .mirror-preview-toggle:focus-visible {
-  background: #fff;
-  color: #000;
-  outline: 2px solid #000;
+  background: #fff6eb;
+  color: #2a1a10;
+  outline: 2px solid #2a1a10;
   outline-offset: -4px;
 }
 
@@ -91,25 +91,25 @@ body,
 }
 
 .station-switcher-avatars a {
-  border-color: rgba(210, 181, 127, 0.2);
-  background: rgba(8, 12, 10, 0.54);
-  color: rgba(229, 239, 222, 0.66);
+  border-color: rgba(232, 184, 140, 0.22);
+  background: rgba(18, 13, 10, 0.54);
+  color: rgba(255, 246, 235, 0.66);
 }
 
 .station-switcher-avatars a[aria-current='page'] {
-  border-color: rgba(210, 181, 127, 0.62);
-  color: rgba(229, 239, 222, 0.94);
+  border-color: rgba(232, 184, 140, 0.62);
+  color: rgba(255, 246, 235, 0.94);
 }
 
 .station-switcher-mirror a {
-  border-color: rgba(111, 214, 196, 0.22);
-  background: rgba(4, 8, 8, 0.5);
-  color: rgba(238, 241, 240, 0.62);
+  border-color: rgba(232, 184, 140, 0.22);
+  background: rgba(18, 13, 10, 0.5);
+  color: rgba(255, 246, 235, 0.66);
 }
 
 .station-switcher-mirror a[aria-current='page'] {
-  border-color: rgba(111, 214, 196, 0.68);
-  color: rgba(238, 241, 240, 0.95);
+  border-color: rgba(232, 184, 140, 0.68);
+  color: rgba(255, 246, 235, 0.95);
 }
 
 .viewport {
@@ -143,4 +143,83 @@ body,
   font-size: 11px;
   letter-spacing: 0.04em;
   color: rgba(170, 190, 210, 0.55);
+}
+
+.station-vibe-toggle {
+  position: fixed;
+  z-index: 120;
+  bottom: 10px;
+  left: 10px;
+  min-width: 112px;
+  padding: 9px 12px;
+  border: 1px solid #e8b88c;
+  border-radius: 0;
+  background: #120d0a;
+  color: #fff4e8;
+  font: 500 10px/1 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.station-vibe-toggle:hover,
+.station-vibe-toggle:focus-visible {
+  background: #fff6eb;
+  color: #2a1a10;
+  outline: 2px solid #2a1a10;
+  outline-offset: -4px;
+}
+
+:root[data-station-vibe="original"],
+:root[data-station-vibe="original"] body,
+:root[data-station-vibe="original"] #root {
+  background: #050607;
+}
+
+:root[data-station-vibe="original"] .station-switcher a {
+  border: 1px solid rgba(200, 220, 205, 0.2);
+  background: rgba(8, 12, 10, 0.42);
+  color: rgba(232, 244, 234, 0.62);
+}
+
+:root[data-station-vibe="original"] .station-switcher a[aria-current='page'] {
+  border-color: rgba(210, 181, 127, 0.62);
+  color: rgba(232, 244, 234, 0.92);
+}
+
+:root[data-station-vibe="original"] .station-switcher-avatars a {
+  border-color: rgba(210, 181, 127, 0.2);
+  background: rgba(8, 12, 10, 0.54);
+  color: rgba(229, 239, 222, 0.66);
+}
+
+:root[data-station-vibe="original"] .station-switcher-avatars a[aria-current='page'] {
+  border-color: rgba(210, 181, 127, 0.62);
+  color: rgba(229, 239, 222, 0.94);
+}
+
+:root[data-station-vibe="original"] .station-switcher-mirror a {
+  border-color: rgba(111, 214, 196, 0.22);
+  background: rgba(4, 8, 8, 0.5);
+  color: rgba(238, 241, 240, 0.62);
+}
+
+:root[data-station-vibe="original"] .station-switcher-mirror a[aria-current='page'] {
+  border-color: rgba(111, 214, 196, 0.68);
+  color: rgba(238, 241, 240, 0.95);
+}
+
+:root[data-station-vibe="original"] .mirror-preview-toggle,
+:root[data-station-vibe="original"] .station-vibe-toggle {
+  border-color: #b9dceb;
+  background: #000;
+  color: #d6eef7;
+}
+
+:root[data-station-vibe="original"] .mirror-preview-toggle:hover,
+:root[data-station-vibe="original"] .mirror-preview-toggle:focus-visible,
+:root[data-station-vibe="original"] .station-vibe-toggle:hover,
+:root[data-station-vibe="original"] .station-vibe-toggle:focus-visible {
+  background: #fff;
+  color: #000;
+  outline-color: #000;
 }

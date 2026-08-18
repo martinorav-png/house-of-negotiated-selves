@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useReducer, useState, type FormEvent } from 'react'
+import { useStationVibe } from '../hooks/useStationVibe'
 import { createStationOneState, stationOneReducer, type BinaryAnswer } from '../lib/mirrorJourney'
 import { DebraVoiceClip, stationOneDebraClipFor } from './DebraVoice'
 import { JourneyHeadline } from './JourneyHeadline'
@@ -15,6 +16,8 @@ const AUTO_PHASES = new Set([
 ])
 
 export function StationOne({ phaseDurationMs = 2200 }: { phaseDurationMs?: number }) {
+  const [vibe] = useStationVibe()
+  const warm = vibe === 'warm'
   const [state, dispatch] = useReducer(stationOneReducer, undefined, createStationOneState)
   const [draft, setDraft] = useState('')
 
@@ -49,7 +52,15 @@ export function StationOne({ phaseDurationMs = 2200 }: { phaseDurationMs?: numbe
           <label htmlFor={`station-one-${state.phase}`}>
             <JourneyHeadline
               as="span"
-              lines={state.phase === 'name' ? ['WHAT IS YOUR', 'NAME?'] : ['WHAT IS YOUR', 'AGE?']}
+              lines={
+                state.phase === 'name'
+                  ? warm
+                    ? ['What is your', 'name?']
+                    : ['WHAT IS YOUR', 'NAME?']
+                  : warm
+                    ? ['What is your', 'age?']
+                    : ['WHAT IS YOUR', 'AGE?']
+              }
             >
               {state.phase === 'name' ? 'What is your name?' : 'What is your age?'}
             </JourneyHeadline>
@@ -71,49 +82,59 @@ export function StationOne({ phaseDurationMs = 2200 }: { phaseDurationMs?: numbe
       ) : null}
 
       {state.phase === 'analysis-intro' ? (
-        <JourneyMessage lines={['PROCEEDING WITH', 'FACIAL ANALYSIS']}>
-          Proceeding with facial analysis
+        <JourneyMessage
+          lines={warm ? ["Let's have", 'a look at you'] : ['PROCEEDING WITH', 'FACIAL ANALYSIS']}
+        >
+          {warm ? "Let's have a look at you" : 'Proceeding with facial analysis'}
         </JourneyMessage>
       ) : null}
       {state.phase === 'scan-face' ? (
-        <JourneyMessage lines={['HOLD STILL,', state.name.toUpperCase()]}>
+        <JourneyMessage lines={warm ? ['Hold still,', state.name] : ['HOLD STILL,', state.name.toUpperCase()]}>
           {`Hold still, ${state.name}`}
         </JourneyMessage>
       ) : null}
       {state.phase === 'scan-eyes' ? (
-        <JourneyMessage lines={['KEEP YOUR EYES ON', 'YOUR REFLECTION']}>
+        <JourneyMessage
+          lines={warm ? ['Keep your eyes on', 'your reflection'] : ['KEEP YOUR EYES ON', 'YOUR REFLECTION']}
+        >
           Keep your eyes on your reflection
         </JourneyMessage>
       ) : null}
       {state.phase === 'scan-focus' ? (
-        <JourneyMessage lines={['FACIAL PROFILE', 'ASSEMBLED']}>
-          Facial profile assembled
+        <JourneyMessage
+          lines={warm ? ["I've got", 'a sense of you'] : ['FACIAL PROFILE', 'ASSEMBLED']}
+        >
+          {warm ? "I've got a sense of you" : 'Facial profile assembled'}
         </JourneyMessage>
       ) : null}
       {state.phase === 'self-check' ? (
         <div className="journey-question">
-          <JourneyHeadline lines={['DO YOU LIKE', 'WHAT YOU SEE?']}>
+          <JourneyHeadline lines={warm ? ['Do you like', 'what you see?'] : ['DO YOU LIKE', 'WHAT YOU SEE?']}>
             Do you like what you see?
           </JourneyHeadline>
           <MirrorChoice onAnswer={answer} />
         </div>
       ) : null}
       {state.phase === 'dissolve' ? (
-        <JourneyMessage lines={['RELEASING', 'ANALYSIS LAYERS']}>
-          Releasing analysis layers
+        <JourneyMessage
+          lines={warm ? ['Letting the', 'overlay fade'] : ['RELEASING', 'ANALYSIS LAYERS']}
+        >
+          {warm ? 'Letting the overlay fade' : 'Releasing analysis layers'}
         </JourneyMessage>
       ) : null}
       {state.phase === 'calculating' ? (
         <div className="journey-calculating">
-          <div className="journey-loader" />
-          <JourneyHeadline lines={['CALCULATING']}>Calculating</JourneyHeadline>
-          <p>Only your reflection remains.</p>
+          {warm ? null : <div className="journey-loader" />}
+          <JourneyHeadline lines={warm ? ['A moment'] : ['CALCULATING']}>
+            {warm ? 'A moment' : 'Calculating'}
+          </JourneyHeadline>
+          <p>{warm ? 'Just you, for a moment.' : 'Only your reflection remains.'}</p>
         </div>
       ) : null}
       {state.phase === 'complete' ? (
         <div className="journey-complete">
-          <JourneyHeadline lines={['PROCEED TO THE', 'NEXT STATION']}>
-            Proceed to the next station
+          <JourneyHeadline lines={warm ? ["When you're", 'ready'] : ['PROCEED TO THE', 'NEXT STATION']}>
+            {warm ? "When you're ready" : 'Proceed to the next station'}
           </JourneyHeadline>
           <a href="#/station-2">Continue to Station II</a>
         </div>

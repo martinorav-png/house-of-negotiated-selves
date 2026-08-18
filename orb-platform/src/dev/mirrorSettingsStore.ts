@@ -18,17 +18,17 @@ export const mirrorSettings = {
     heartbeatRipple: 0.5,
     breathAmplitude: 0.03,
     breathSpeed: 1,
-    colorCore: '#f2fbf8',
-    colorMid: '#bcffd0',
-    colorRim: '#3fa8c9',
+    colorCore: '#fff6e8',
+    colorMid: '#f0c48a',
+    colorRim: '#c47848',
   },
   background: {
-    top: '#000000',
-    bottom: '#141616',
+    top: '#1a1410',
+    bottom: '#0c0907',
   },
   text: {
-    color: '#f4f6f5',
-    smudgeColor: '#ebebeb',
+    color: '#fff4e8',
+    smudgeColor: '#f0d4b8',
     fontPx: 64,
     crispAlpha: 0.78,
     smudgeAlpha: 0.75,
@@ -42,7 +42,7 @@ export const mirrorSettings = {
     edgeFade: 0,
   },
   accent: {
-    color: '#ffffff',
+    color: '#e8b88c',
   },
   timing: {
     introSeconds: 20,

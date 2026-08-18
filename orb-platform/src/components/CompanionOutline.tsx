@@ -1,8 +1,10 @@
 import { useEffect, useRef } from 'react'
+import { useStationVibe } from '../hooks/useStationVibe'
 import { normalizeCompanionHeight } from '../lib/mirrorLandmarks'
 
 export function CompanionOutline({ height }: { height: number }) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const [vibe] = useStationVibe()
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -24,7 +26,7 @@ export function CompanionOutline({ height }: { height: number }) {
     context.translate(centerX, baseY)
     context.scale(scale, scale)
     context.translate(-centerX, -baseY)
-    context.strokeStyle = 'rgba(255, 255, 255, .92)'
+    context.strokeStyle = vibe === 'original' ? 'rgba(255, 255, 255, .92)' : 'rgba(255, 246, 235, .92)'
     context.lineWidth = 1.8
     context.beginPath()
     context.ellipse(centerX, canvasHeight * 0.28, width * 0.13, width * 0.16, 0, 0, Math.PI * 2)
@@ -48,7 +50,7 @@ export function CompanionOutline({ height }: { height: number }) {
     )
     context.stroke()
     context.restore()
-  }, [height])
+  }, [height, vibe])
 
   return <canvas ref={canvasRef} className="journey-companion-outline" aria-label="Companion silhouette" />
 }
