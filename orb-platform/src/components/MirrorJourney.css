@@ -8,12 +8,15 @@
 }
 
 .mirror-preview-frame {
-  min-height: 100svh;
+  height: 100svh;
+  max-height: 100svh;
+  overflow: hidden;
   background: #120d0a;
 }
 
 .journey-station {
-  min-height: 100svh;
+  height: 100svh;
+  max-height: 100svh;
   display: grid;
   place-items: center;
   overflow: hidden;
@@ -26,7 +29,7 @@
   position: relative;
   width: min(100vw, calc(100svh * 0.5625));
   height: 100svh;
-  min-height: 620px;
+  max-height: 100svh;
   overflow: hidden;
   background: var(--mirror-frost);
   border-inline: 1px solid rgba(255, 246, 235, 0.18);

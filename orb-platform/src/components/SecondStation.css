@@ -1,6 +1,7 @@
 .second-station {
   position: relative;
-  min-height: 100svh;
+  height: 100svh;
+  max-height: 100svh;
   overflow: hidden;
   background: #030406;
   color: var(--holo-mint, rgba(232, 244, 234, 0.9));

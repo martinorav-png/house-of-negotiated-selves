@@ -16,7 +16,8 @@
   --mirror-bg-bottom: #0a0806;
   --mirror-accent: #e4b67a;
   position: relative;
-  min-height: 100svh;
+  height: 100svh;
+  max-height: 100svh;
   overflow: hidden;
   background: linear-gradient(180deg, var(--mirror-bg-top) 0%, var(--mirror-bg-bottom) 78%);
   color: #fff4e8;
@@ -26,7 +27,9 @@
 .mirror-frame {
   position: relative;
   width: min(100vw, 620px);
-  min-height: 100svh;
+  height: 100svh;
+  max-height: 100svh;
+  overflow: hidden;
   margin-inline: auto;
   display: flex;
   flex-direction: column;

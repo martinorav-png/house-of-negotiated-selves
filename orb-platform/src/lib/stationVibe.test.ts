@@ -6,6 +6,7 @@ import {
   applyStationVibe,
   readStationVibe,
   setStationVibe,
+  subscribeStationVibe,
   writeStationVibe,
 } from './stationVibe'
 
@@ -43,5 +44,10 @@ describe('station vibe', () => {
     expect(document.documentElement.dataset.stationVibe).toBe('warm')
     expect(mirrorSettings.accent.color).toBe('#e8b88c')
     expect(mirrorSettings.orb.colorRim).toBe('#c47848')
+  })
+
+  it('unsubscribes without returning a boolean from Set.delete', () => {
+    const unsubscribe = subscribeStationVibe(() => {})
+    expect(unsubscribe()).toBeUndefined()
   })
 })

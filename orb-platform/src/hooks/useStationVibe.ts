@@ -14,7 +14,10 @@ export function useStationVibe() {
     return next
   })
 
-  useEffect(() => subscribeStationVibe(() => setVibe(getStationVibe())), [])
+  useEffect(() => {
+    const unsubscribe = subscribeStationVibe(() => setVibe(getStationVibe()))
+    return unsubscribe
+  }, [])
 
   return [vibe, setStationVibe] as const
 }
