@@ -47,6 +47,7 @@ function useLiveJourneyTheme() {
         root.setProperty('--mirror-ink', journeySettings.colors.ink)
         root.setProperty('--mirror-quiet', journeySettings.colors.quiet)
         root.setProperty('--mirror-frost', journeySettings.colors.frost)
+        root.setProperty('--journey-orb-size', `${journeySettings.orbSizePx}px`)
       }
       raf = requestAnimationFrame(tick)
     }

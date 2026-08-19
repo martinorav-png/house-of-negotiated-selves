@@ -257,11 +257,11 @@ export default function App() {
       </nav>
 
       {station === 'station-1' ? (
-        <MirrorPreviewFrame showToggle={import.meta.env.DEV}>
+        <MirrorPreviewFrame showToggle={false}>
           <StationOne />
         </MirrorPreviewFrame>
       ) : station === 'station-2' ? (
-        <MirrorPreviewFrame showToggle={import.meta.env.DEV}>
+        <MirrorPreviewFrame showToggle={false}>
           <StationTwo />
         </MirrorPreviewFrame>
       ) : station === 'orb' ? (

@@ -23,7 +23,6 @@ export function MirrorStationShell({
         <div className="journey-content">{children}</div>
         <footer className="journey-folio">
           <span>{station}</span>
-          <span>HOUSE OF NEGOTIATED SELVES</span>
         </footer>
       </div>
     </section>

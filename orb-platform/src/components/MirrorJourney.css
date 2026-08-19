@@ -24,14 +24,10 @@
 
 .journey-portrait {
   position: relative;
-  width: min(100vw, calc(100svh * 0.5625));
+  width: 100vw;
   height: 100svh;
   overflow: hidden;
   background: var(--mirror-frost);
-}
-
-.experience-mirror-preview-fill .journey-portrait {
-  width: 100vw;
 }
 
 .journey-camera-stage {
@@ -105,8 +101,17 @@
 
 .journey-status {
   justify-content: flex-start;
-  top: 24px;
+  top: 40px;
   padding-bottom: 12px;
+}
+
+/* The station-switcher nav (index.css, fixed top-right) is visible on
+   these routes now — below this width it wraps to a second row, which
+   would otherwise sit on top of this status readout. */
+@media (max-width: 700px) {
+  .journey-status {
+    top: 64px;
+  }
 }
 
 .journey-folio {
@@ -350,19 +355,19 @@
 .journey-debra {
   position: absolute;
   z-index: 2;
-  width: min(280px, calc(100vw - 48px));
+  width: min(420px, calc(100vw - 48px));
   transition: inset 1400ms cubic-bezier(0.19, 1, 0.22, 1);
   animation: journey-float 7s ease-in-out infinite;
 }
 
-.journey-debra-upper { top: 12%; left: calc(50% - min(140px, calc((100vw - 48px) / 2))); }
+.journey-debra-upper { top: 12%; left: calc(50% - min(210px, calc((100vw - 48px) / 2))); }
 .journey-debra-left { top: 26%; left: 7%; }
 .journey-debra-right { top: 22%; right: 6%; }
 
 .journey-debra-orb-wrap {
   position: relative;
-  width: 150px;
-  height: 150px;
+  width: var(--journey-orb-size, 260px);
+  height: var(--journey-orb-size, 260px);
   margin: 0 auto;
 }
 
@@ -412,7 +417,7 @@
 }
 
 @media (max-height: 700px) {
-  .journey-status { top: 16px; }
+  .journey-status { top: 32px; }
   .journey-folio { bottom: 14px; }
   .journey-content { inset-block: 58px; }
   .journey-intake { margin-bottom: 8vh; }

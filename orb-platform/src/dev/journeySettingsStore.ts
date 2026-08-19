@@ -18,4 +18,7 @@ export const journeySettings = {
     companionIntroMs: 3000,
     debraBriefMs: 3000,
   },
+  /** CSS px — .journey-debra-orb-wrap's width/height, bridged to
+   * --journey-orb-size by StationTwo's useLiveJourneyTheme. */
+  orbSizePx: 260,
 }
