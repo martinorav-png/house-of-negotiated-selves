@@ -25,7 +25,7 @@
 
 .mirror-frame {
   position: relative;
-  width: min(100vw, 620px);
+  width: 100vw;
   min-height: 100svh;
   margin-inline: auto;
   display: flex;
@@ -35,51 +35,17 @@
   padding: 8vh 24px;
 }
 
-/* Persistent outer HUD chrome — corner brackets, status readout, and the
-   floor line stay mounted across every phase instead of fading with the
-   .mirror-screen content, so the station reads as one continuous scanning
-   apparatus with the phase content changing inside it, Detroit-HUD style
-   layering rather than four disconnected full-screen slides. */
-.mirror-frame-corner {
-  position: absolute;
-  width: 28px;
-  height: 28px;
-  border: 1px solid color-mix(in srgb, var(--mirror-accent) 45%, transparent);
-  opacity: 0.55;
-}
-
-.mirror-frame-corner-tl {
-  top: 18px;
-  left: 18px;
-  border-right: none;
-  border-bottom: none;
-}
-
-.mirror-frame-corner-tr {
-  top: 18px;
-  right: 18px;
-  border-left: none;
-  border-bottom: none;
-}
-
-.mirror-frame-corner-bl {
-  bottom: 18px;
-  left: 18px;
-  border-right: none;
-  border-top: none;
-}
-
-.mirror-frame-corner-br {
-  bottom: 18px;
-  right: 18px;
-  border-left: none;
-  border-top: none;
-}
-
+/* Persistent outer HUD chrome — just the status readout now (the corner
+   brackets that used to frame the whole viewport were removed; the
+   recording phase's own brackets around its dashed viewfinder,
+   .mirror-hud-corner-*, are unrelated and stay). Stays mounted across
+   every phase instead of fading with the .mirror-screen content, so the
+   station reads as one continuous scanning apparatus with the phase
+   content changing inside it. */
 .mirror-status-label {
   position: absolute;
   top: 22px;
-  left: 54px;
+  left: 20px;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -101,11 +67,6 @@
    top-right) runs out of room and wraps to a second row, which would
    otherwise sit on top of this chrome — push it down to clear that. */
 @media (max-width: 700px) {
-  .mirror-frame-corner-tl,
-  .mirror-frame-corner-tr {
-    top: 58px;
-  }
-
   .mirror-status-label {
     top: 62px;
   }

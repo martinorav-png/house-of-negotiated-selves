@@ -28,6 +28,20 @@
   width: 158px;
 }
 
+/* Mirror station only (ThirdStation.tsx always passes `big`) — scales the
+ * type itself up, independent of is-lg's width-only "large" variant.
+ * font-size * line-height must keep matching CODE_LINE_PX_BIG in
+ * HudDebris.tsx, which sizes the scroll window from it. */
+.mirror-code-panel.is-big {
+  width: 180px;
+  font-size: 7.5px;
+  line-height: 1.8;
+}
+
+.mirror-code-panel.is-big.is-lg {
+  width: 220px;
+}
+
 .mirror-code-panel.is-ghost {
   filter: blur(0.2px);
 }

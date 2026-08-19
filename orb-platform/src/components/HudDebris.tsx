@@ -53,18 +53,24 @@ export const CODE_ALERTS = [
 
 export const LINES_PER_BLOCK = 10
 export const CODE_LINE_PX = 9.6
+/** Line height for the `big` variant (Mirror station only, see
+ * ThirdStation.tsx's HudDebrisField) — matches .mirror-code-panel.is-big's
+ * font-size/line-height in HudDebris.css. */
+export const CODE_LINE_PX_BIG = 13.5
 
 /** A small, mostly-illegible "log panel" — a fixed key/value header over a
  * body that jump-cuts a whole block of lines at a time (steps() timing, no
  * interpolation in between) rather than scrolling smoothly. Body content
  * is doubled so the loop is seamless. One row can render as a dim red
  * "alert" line. Large panels show more blocks at once (a dense wall of
- * text) while ghost/secondary ones stay compact. */
+ * text) while ghost/secondary ones stay compact; `big` scales the type
+ * itself up (independent of `large`, which only widens the panel). */
 export function CodePanel({
   seed,
   blockCount = 3,
   visibleRows = 5,
   large = false,
+  big = false,
   style,
   ghost = false,
   duration = 5,
@@ -74,6 +80,7 @@ export function CodePanel({
   blockCount?: number
   visibleRows?: number
   large?: boolean
+  big?: boolean
   style?: CSSProperties
   ghost?: boolean
   duration?: number
@@ -92,12 +99,17 @@ export function CodePanel({
     rows.slice(b * LINES_PER_BLOCK, b * LINES_PER_BLOCK + LINES_PER_BLOCK),
   )
 
+  const className = [
+    'mirror-code-panel',
+    ghost ? 'is-ghost' : null,
+    large ? 'is-lg' : null,
+    big ? 'is-big' : null,
+  ]
+    .filter(Boolean)
+    .join(' ')
+
   return (
-    <div
-      className={ghost ? 'mirror-code-panel is-ghost' : large ? 'mirror-code-panel is-lg' : 'mirror-code-panel'}
-      style={style}
-      aria-hidden="true"
-    >
+    <div className={className} style={style} aria-hidden="true">
       <div className="mirror-code-header">
         <span>{h1}</span>
         <span>{h2}</span>
@@ -108,7 +120,7 @@ export function CodePanel({
           {
             '--dur': `${duration}s`,
             '--steps': blockCount,
-            '--h': `${visibleRows * CODE_LINE_PX}px`,
+            '--h': `${visibleRows * (big ? CODE_LINE_PX_BIG : CODE_LINE_PX)}px`,
           } as CSSProperties
         }
       >

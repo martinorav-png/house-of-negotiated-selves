@@ -287,7 +287,7 @@ function HudDebrisField({ phase }: { phase: Phase }) {
   return (
     <div className="mirror-hud-debris" aria-hidden="true">
       {layout.panels.map((p, i) => (
-        <CodePanel key={i} {...p} />
+        <CodePanel key={i} {...p} big />
       ))}
       {layout.bars.map((b, i) => (
         <MiniBar key={i} style={b.style} fill={b.fill} />
@@ -421,10 +421,6 @@ export function ThirdStation() {
     <section className="third-station" aria-label="Mirror station" ref={rootRef}>
       <DebraVoiceClip src={thirdStationDebraClipFor(phase)} />
       <div className="mirror-frame">
-        <span className="mirror-frame-corner mirror-frame-corner-tl" aria-hidden="true" />
-        <span className="mirror-frame-corner mirror-frame-corner-tr" aria-hidden="true" />
-        <span className="mirror-frame-corner mirror-frame-corner-bl" aria-hidden="true" />
-        <span className="mirror-frame-corner mirror-frame-corner-br" aria-hidden="true" />
         <div className="mirror-status-label" aria-hidden="true">
           <span className="mirror-status-marker" />
           {STATUS_LABEL[phase]}
