@@ -355,12 +355,12 @@
 .journey-debra {
   position: absolute;
   z-index: 2;
-  width: min(420px, calc(100vw - 48px));
+  width: min(680px, calc(100vw - 48px));
   transition: inset 1400ms cubic-bezier(0.19, 1, 0.22, 1);
   animation: journey-float 7s ease-in-out infinite;
 }
 
-.journey-debra-upper { top: 12%; left: calc(50% - min(210px, calc((100vw - 48px) / 2))); }
+.journey-debra-upper { top: 12%; left: calc(50% - min(340px, calc((100vw - 48px) / 2))); }
 .journey-debra-left { top: 26%; left: 7%; }
 .journey-debra-right { top: 22%; right: 6%; }
 
