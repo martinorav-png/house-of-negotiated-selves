@@ -1,4 +1,4 @@
-import { useEffect, useRef, type CSSProperties } from 'react'
+import { lazy, Suspense, useEffect, useRef, type CSSProperties } from 'react'
 import { FaceLandmarker } from '@mediapipe/tasks-vision'
 import { useMirrorCamera } from '../hooks/useMirrorCamera'
 import type { MirrorFaceSignals } from '../lib/mirrorFaceSignals'
@@ -12,6 +12,10 @@ import {
   type NormalizedLandmark,
 } from '../lib/mirrorLandmarks'
 import { MirrorScanOverlay } from './MirrorScanOverlay'
+
+const CameraDevPanel = lazy(() =>
+  import('../dev/CameraDevPanel').then((m) => ({ default: m.CameraDevPanel })),
+)
 
 export type MirrorOverlayMode = 'none' | 'face' | 'eyes' | 'dissolve'
 
@@ -77,6 +81,14 @@ export function MirrorCameraLayer({ mode }: { mode: MirrorOverlayMode }) {
           chrome (fake profile panel + debris) should stay put as the
           camera focus zooms in/out on eyes vs. face, not scale with it. */}
       <MirrorScanOverlay mode={mode} />
+      {/* Also excluded in Vitest (MODE === 'test'): leva's stitches-based
+          styling can't run in jsdom, and MirrorCameraLayer.runtime.test.tsx/
+          StationOne.runtime.test.tsx both fully mount this component. */}
+      {import.meta.env.DEV && import.meta.env.MODE !== 'test' ? (
+        <Suspense fallback={null}>
+          <CameraDevPanel camera={camera} />
+        </Suspense>
+      ) : null}
     </>
   )
 }
