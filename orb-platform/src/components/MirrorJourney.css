@@ -28,12 +28,10 @@
   height: 100svh;
   overflow: hidden;
   background: var(--mirror-frost);
-  border-inline: 1px solid rgba(255, 255, 255, 0.28);
 }
 
 .experience-mirror-preview-fill .journey-portrait {
   width: 100vw;
-  border-inline: 0;
 }
 
 .journey-camera-stage {
@@ -109,13 +107,11 @@
   justify-content: flex-start;
   top: 24px;
   padding-bottom: 12px;
-  border-bottom: 1px solid var(--mirror-line);
 }
 
 .journey-folio {
   bottom: 22px;
   padding-top: 12px;
-  border-top: 1px solid var(--mirror-line);
 }
 
 .journey-folio span:first-child {
@@ -188,7 +184,6 @@
 .journey-intake input {
   width: 100%;
   border: 0;
-  border-bottom: 1px solid var(--mirror-line);
   border-radius: 0;
   outline: 0;
   padding: 10px 0 14px;
@@ -197,21 +192,16 @@
   font: 300 clamp(36px, 7vh, 72px)/1 "Helvetica Neue", sans-serif;
 }
 
-.journey-intake input:focus {
-  border-bottom-color: var(--mirror-ice);
-  box-shadow: 0 2px 0 rgba(185, 220, 235, 0.28);
-}
-
 .journey-intake button,
 .journey-choice button {
-  border: 1px solid var(--mirror-line);
+  border: 0;
   border-radius: 0;
-  background: #000;
+  background: transparent;
   color: var(--mirror-ink);
   font: 500 12px/1 "Helvetica Neue", sans-serif;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  transition: background 180ms ease, color 180ms ease, border-color 180ms ease;
+  transition: background 180ms ease, color 180ms ease;
 }
 
 .journey-intake button {
@@ -224,7 +214,6 @@
 .journey-choice button:focus-visible,
 .journey-height-confirm:hover,
 .journey-height-confirm:focus-visible {
-  border-color: var(--mirror-ice);
   background: var(--mirror-ice);
   color: #000;
 }
@@ -252,10 +241,6 @@
 .journey-choice button {
   min-height: 60px;
   padding: 18px;
-}
-
-.journey-choice button + button {
-  border-left: 0;
 }
 
 .journey-choice p {
@@ -297,7 +282,6 @@
 .journey-recording i {
   width: 7px;
   height: 7px;
-  border: 1px solid var(--mirror-ice);
   border-radius: 50%;
   background: var(--mirror-ice);
   box-shadow: 0 0 12px rgba(185, 220, 235, 0.5);
@@ -331,7 +315,6 @@
   bottom: 3vh;
   padding: 24px 0 0;
   background: rgba(0, 0, 0, 0.88);
-  border-top: 1px solid var(--mirror-line);
 }
 
 .journey-height-control label {
@@ -354,13 +337,14 @@
 .journey-height-confirm {
   margin-top: 20px;
   padding: 13px 24px;
-  border: 1px solid var(--mirror-line);
+  border: 0;
   border-radius: 0;
-  background: #000;
+  background: transparent;
   color: var(--mirror-ink);
   font: 500 11px/1 "Helvetica Neue", sans-serif;
   letter-spacing: 0.12em;
   text-transform: uppercase;
+  transition: background 180ms ease, color 180ms ease;
 }
 
 .journey-debra {

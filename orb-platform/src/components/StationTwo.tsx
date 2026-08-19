@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useReducer } from 'react'
+import { lazy, Suspense, useCallback, useEffect, useMemo, useReducer } from 'react'
 import {
   STATION_TWO_QUESTIONS,
   createStationTwoState,
@@ -7,6 +7,7 @@ import {
   type BinaryAnswer,
   type StationTwoPhase,
 } from '../lib/mirrorJourney'
+import { journeySettings } from '../dev/journeySettingsStore'
 import { CompanionOutline } from './CompanionOutline'
 import { DebraGuide } from './DebraGuide'
 import { DebraVoice } from './DebraVoice'
@@ -14,11 +15,46 @@ import { JourneyHeadline } from './JourneyHeadline'
 import { MirrorChoice } from './MirrorChoice'
 import { MirrorStationShell } from './MirrorStationShell'
 
-const AUTO_PHASE_DURATIONS_MS: Partial<Record<StationTwoPhase, number>> = {
-  percentile: 3000,
-  'companion-intro': 3000,
-  'debra-brief': 3000,
+const JourneyDevPanel = lazy(() =>
+  import('../dev/JourneyDevPanel').then((m) => ({ default: m.JourneyDevPanel })),
+)
+
+const LIVE_POLL_MS = 150
+
+/** Reads live so tuning the panel mid-phase takes effect next cycle
+ * rather than needing a remount, same pattern as ThirdStation's timing. */
+function getAutoPhaseDurationMs(phase: StationTwoPhase): number | undefined {
+  if (phase === 'percentile') return journeySettings.timing.percentileMs
+  if (phase === 'companion-intro') return journeySettings.timing.companionIntroMs
+  if (phase === 'debra-brief') return journeySettings.timing.debraBriefMs
+  return undefined
 }
+
+/** Bridges journeySettings.colors (plain object, no leva dependency, safe
+ * for production) into the :root custom properties MirrorJourney.css
+ * reads — set directly on documentElement (the actual :root), not
+ * redeclared on any descendant, so there's no risk of the local-
+ * declaration-shadows-ancestor bug that broke the Cards station once. */
+function useLiveJourneyTheme() {
+  useEffect(() => {
+    let raf = 0
+    let last = 0
+    const tick = (now: number) => {
+      if (now - last >= LIVE_POLL_MS) {
+        last = now
+        const root = document.documentElement.style
+        root.setProperty('--mirror-ice', journeySettings.colors.ice)
+        root.setProperty('--mirror-ink', journeySettings.colors.ink)
+        root.setProperty('--mirror-quiet', journeySettings.colors.quiet)
+        root.setProperty('--mirror-frost', journeySettings.colors.frost)
+      }
+      raf = requestAnimationFrame(tick)
+    }
+    raf = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(raf)
+  }, [])
+}
+
 const QUESTION_LINES = [
   ['IS ATTRACTIVENESS', 'IMPORTANT TO YOU?'],
   ['SHOULD YOUR COMPANION', 'CHALLENGE YOU?'],
@@ -38,9 +74,10 @@ export function StationTwo({
     [visitorSeed],
   )
   const percentile = sessionPercentile(seed)
+  useLiveJourneyTheme()
 
   useEffect(() => {
-    const automaticDurationMs = AUTO_PHASE_DURATIONS_MS[state.phase]
+    const automaticDurationMs = getAutoPhaseDurationMs(state.phase)
     if (automaticDurationMs === undefined) return
     const timer = window.setTimeout(
       () => dispatch({ type: 'ADVANCE' }),
@@ -54,6 +91,18 @@ export function StationTwo({
     state.phase === 'debra-brief' ? 'left' : state.phase === 'question' ? 'right' : 'upper'
 
   return (
+    <>
+    {/* Also excluded in Vitest (MODE === 'test'): leva's stitches-based
+        styling tries to insert a custom-property-only rule that jsdom's
+        CSS parser can't handle, which would otherwise crash any test that
+        fully mounts <StationTwo/>. Cards/Mirror have the same lazy-panel
+        shape but happen to never be runtime-tested at their station-root
+        level, so they've never hit this. */}
+    {import.meta.env.DEV && import.meta.env.MODE !== 'test' ? (
+      <Suspense fallback={null}>
+        <JourneyDevPanel />
+      </Suspense>
+    ) : null}
     <MirrorStationShell
       station="II"
       cameraMode="none"
@@ -149,5 +198,6 @@ export function StationTwo({
         </div>
       ) : null}
     </MirrorStationShell>
+    </>
   )
 }
