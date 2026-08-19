@@ -22,7 +22,7 @@ export function MirrorStationShell({
       <div className="journey-portrait">
         <MirrorCameraLayer mode={cameraMode} />
         <header className="journey-status">
-          <span>{statusLeft ?? (warm ? `Station ${station} · Welcome` : `STATION ${station}`)}</span>
+          <span>{statusLeft ?? (warm ? `Welcome to Station ${station}` : `STATION ${station}`)}</span>
         </header>
         <div className="journey-content">{children}</div>
         <footer className="journey-folio">

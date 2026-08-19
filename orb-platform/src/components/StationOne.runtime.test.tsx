@@ -58,7 +58,7 @@ describe('StationOne', () => {
     act(() => root.render(<StationOne phaseDurationMs={20} />))
 
     expect(container.querySelectorAll('.journey-status > span')).toHaveLength(1)
-    expect(container.querySelector('.journey-status')?.textContent).toBe('Station I · Welcome')
+    expect(container.querySelector('.journey-status')?.textContent).toBe('Welcome to Station I')
     expect(container.querySelector('label .journey-headline-canvas')).not.toBeNull()
     const name = container.querySelector<HTMLInputElement>('input[name="name"]')!
     expect(name.getAttribute('aria-label')).toBe('Your name')
