@@ -9,6 +9,25 @@ import {
 import type { NormalizedLandmark } from '../lib/mirrorLandmarks'
 import { readSelectedCameraId, writeSelectedCameraId } from '../lib/mirrorCameraDevice'
 
+/**
+ * Was requesting a portrait 1080x1920 (~2MP) stream with no frameRate
+ * hint at all — most webcams, especially external USB ones, are
+ * landscape-native and either fake portrait via a slow software
+ * rotate/crop/scale, or only hit that pixel count at a low capped frame
+ * rate, and with no frameRate constraint the browser has no signal to
+ * prefer motion smoothness over resolution. mapLandmarkToMirror already
+ * does cover-style cropping from the video's *actual* dimensions, so it
+ * doesn't care whether the raw stream is portrait or landscape — asking
+ * for a smaller, landscape, universally-supported mode with an explicit
+ * frameRate floor fixes the lag without touching how the video is
+ * displayed or tracked.
+ */
+const VIDEO_QUALITY = {
+  width: { ideal: 1280 },
+  height: { ideal: 720 },
+  frameRate: { ideal: 30, min: 15 },
+}
+
 export type MirrorCameraStatus =
   | 'starting'
   | 'active'
@@ -123,16 +142,8 @@ export function useMirrorCamera(): MirrorCameraHandle {
         stream = await navigator.mediaDevices.getUserMedia({
           audio: false,
           video: selectedDeviceId
-            ? {
-                deviceId: { exact: selectedDeviceId },
-                width: { ideal: 1080 },
-                height: { ideal: 1920 },
-              }
-            : {
-                facingMode: 'user',
-                width: { ideal: 1080 },
-                height: { ideal: 1920 },
-              },
+            ? { deviceId: { exact: selectedDeviceId }, ...VIDEO_QUALITY }
+            : { facingMode: 'user', ...VIDEO_QUALITY },
         })
         clearTimeout(permissionTimer)
         permissionTimer = undefined
