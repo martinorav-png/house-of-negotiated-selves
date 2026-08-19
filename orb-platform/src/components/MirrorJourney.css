@@ -26,7 +26,6 @@
   position: relative;
   width: min(100vw, calc(100svh * 0.5625));
   height: 100svh;
-  min-height: 620px;
   overflow: hidden;
   background: var(--mirror-frost);
   border-inline: 1px solid rgba(255, 255, 255, 0.28);

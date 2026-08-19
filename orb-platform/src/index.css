@@ -29,8 +29,11 @@ body,
   position: fixed;
   top: 10px;
   right: 10px;
+  left: 10px;
   z-index: 100;
   display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
   gap: 4px;
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   font-size: 10px;
@@ -43,6 +46,21 @@ body,
   background: rgba(8, 12, 10, 0.42);
   color: rgba(232, 244, 234, 0.62);
   text-decoration: none;
+  white-space: nowrap;
+}
+
+/* At narrow widths six pills can't fit on one line — this shrinks them
+   first, and if they still wrap, flex-wrap above lets whole pills drop to
+   a second row (right-aligned) instead of squeezing text within a pill. */
+@media (max-width: 520px) {
+  .station-switcher {
+    font-size: 9px;
+    gap: 3px;
+  }
+
+  .station-switcher a {
+    padding: 6px 8px;
+  }
 }
 
 .station-switcher a[aria-current='page'] {

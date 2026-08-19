@@ -97,6 +97,20 @@
   opacity: 0.85;
 }
 
+/* Below this width the six-item station-switcher nav (index.css, fixed
+   top-right) runs out of room and wraps to a second row, which would
+   otherwise sit on top of this chrome — push it down to clear that. */
+@media (max-width: 700px) {
+  .mirror-frame-corner-tl,
+  .mirror-frame-corner-tr {
+    top: 58px;
+  }
+
+  .mirror-status-label {
+    top: 62px;
+  }
+}
+
 .mirror-screen {
   display: flex;
   flex-direction: column;
