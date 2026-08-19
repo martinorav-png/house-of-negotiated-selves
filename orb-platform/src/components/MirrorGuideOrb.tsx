@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
-import { RENDERER } from '../config'
 import { heartbeat } from '../lib/heartbeat'
+import { kioskOrbCounts, webGlMaxDpr, getDeviceQuality } from '../lib/deviceQuality'
 import { sampleSphere, buildPointGeometry } from '../lib/samplePoints'
 import { orbPointVertexShader, orbPointFragmentShader } from '../shaders/pointCloudShaders'
 import { mirrorSettings } from '../dev/mirrorSettingsStore'
@@ -17,7 +17,7 @@ function makeUniforms() {
     uHover: { value: 0 },
     uPulse: { value: 0 },
     uActivation: { value: 0 },
-    uReducedMotion: { value: 0 },
+    uReducedMotion: { value: getDeviceQuality() === 'kiosk' ? 1 : 0 },
     uPointScale: { value: o.pointScale },
     uRadius: { value: o.radius },
     uAudio: { value: 0 },
@@ -33,7 +33,11 @@ function makeUniforms() {
 
 function readCounts() {
   const o = mirrorSettings.orb
-  return { shell: o.shellCount, volume: o.volumeCount, halo: o.haloCount }
+  return kioskOrbCounts({
+    shell: o.shellCount,
+    volume: o.volumeCount,
+    halo: o.haloCount,
+  })
 }
 
 /**
@@ -49,9 +53,23 @@ function readCounts() {
  * same bridging pattern as CardsPostBridge/useLiveCardSettings.
  */
 export function MirrorGuideOrb({ className }: { className?: string }) {
+  if (getDeviceQuality() === 'kiosk') {
+    return (
+      <div
+        className={[className, 'mirror-guide-orb-lite'].filter(Boolean).join(' ')}
+        aria-hidden="true"
+      />
+    )
+  }
+
+  return <MirrorGuideOrbCanvas className={className} />
+}
+
+function MirrorGuideOrbCanvas({ className }: { className?: string }) {
   const [counts, setCounts] = useState(readCounts)
 
   useEffect(() => {
+    if (!import.meta.env.DEV) return
     let raf = 0
     let last = 0
     const tick = (now: number) => {
@@ -105,7 +123,7 @@ export function MirrorGuideOrb({ className }: { className?: string }) {
   return (
     <div className={className}>
       <Canvas
-        dpr={[1, RENDERER.maxDpr]}
+        dpr={[1, webGlMaxDpr()]}
         gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
         camera={{ fov: 32, near: 0.1, far: 20, position: [0, 0, mirrorSettings.orb.cameraDistance] }}
       >

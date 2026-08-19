@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef } from 'react'
 import { useStationVibe } from '../hooks/useStationVibe'
+import { isKioskQuality } from '../lib/deviceQuality'
 import { drawGrainyText } from '../lib/grainyText'
 import { mirrorSettings } from '../dev/mirrorSettingsStore'
 
@@ -30,21 +31,38 @@ export function MirrorHeadline({ lines, className }: { lines: string[]; classNam
     const ctx = canvas.getContext('2d')
     if (!ctx) return
 
-    let raf = 0
-    let lastDraw = -1
     fadeIn.current = 0
     canvas.style.opacity = '0'
     const start = performance.now()
+    const parts = text.split('\n')
+    const s = mirrorSettings.text
+
+    if (isKioskQuality()) {
+      ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
+      ctx.textAlign = 'center'
+      ctx.textBaseline = 'middle'
+      ctx.fillStyle = s.color
+      const lineHeight = s.fontPx * 1.08
+      const totalHeight = lineHeight * parts.length
+      const startY = CANVAS_HEIGHT / 2 - totalHeight / 2 + lineHeight / 2
+      ctx.font = `350 ${s.fontPx}px "Helvetica Neue", "Nimbus Sans", sans-serif`
+      parts.forEach((line, i) => {
+        ctx.fillText(line, CANVAS_WIDTH / 2, startY + i * lineHeight, CANVAS_WIDTH * 0.94)
+      })
+      canvas.style.opacity = '1'
+      return
+    }
+
+    let raf = 0
+    let lastDraw = -1
 
     const draw = (now: number) => {
-      const s = mirrorSettings.text
       const t = (now - start) / 1000
       fadeIn.current = Math.min(1, (now - start) / FADE_IN_MS)
       canvas.style.opacity = String(fadeIn.current)
 
       if (lastDraw < 0 || now - lastDraw >= REDRAW_INTERVAL_MS) {
         lastDraw = now
-        const parts = text.split('\n')
         ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
         const lineHeight = s.fontPx * 1.08
         const totalHeight = lineHeight * parts.length

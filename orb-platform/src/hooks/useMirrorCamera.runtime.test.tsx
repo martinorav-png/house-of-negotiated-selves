@@ -24,8 +24,14 @@ vi.mock('@mediapipe/tasks-vision', () => ({
 
 import { useMirrorCamera } from './useMirrorCamera'
 
-function Harness({ onStatus }: { onStatus: (status: string) => void }) {
-  const camera = useMirrorCamera()
+function Harness({
+  onStatus,
+  tracking = true,
+}: {
+  onStatus: (status: string) => void
+  tracking?: boolean
+}) {
+  const camera = useMirrorCamera({ tracking })
   useEffect(() => {
     onStatus(camera.status)
   }, [camera.status, onStatus])
@@ -89,6 +95,8 @@ describe('useMirrorCamera', () => {
       await Promise.resolve()
       await Promise.resolve()
       await Promise.resolve()
+      await Promise.resolve()
+      await Promise.resolve()
     })
 
     const video = container.querySelector('video')!
@@ -132,6 +140,8 @@ describe('useMirrorCamera', () => {
 
     await act(async () => {
       root.render(<Harness onStatus={() => undefined} />)
+      await Promise.resolve()
+      await Promise.resolve()
       await Promise.resolve()
       await Promise.resolve()
       await Promise.resolve()
@@ -188,5 +198,24 @@ describe('useMirrorCamera', () => {
     expect(statuses.at(-1)).toBe('unavailable')
     expect(container.querySelector('video')?.dataset.status).toBe('unavailable')
     vi.useRealTimers()
+  })
+
+  it('keeps the live camera but skips MediaPipe when tracking is off', async () => {
+    const stream = { getTracks: () => [{ stop: vi.fn() }] } as unknown as MediaStream
+    Object.defineProperty(navigator, 'mediaDevices', {
+      configurable: true,
+      value: { getUserMedia: vi.fn().mockResolvedValue(stream) },
+    })
+
+    await act(async () => {
+      root.render(<Harness tracking={false} onStatus={() => undefined} />)
+      await Promise.resolve()
+      await Promise.resolve()
+      await Promise.resolve()
+      await Promise.resolve()
+    })
+
+    expect(container.querySelector('video')?.srcObject).toBe(stream)
+    expect(vision.create).not.toHaveBeenCalled()
   })
 })

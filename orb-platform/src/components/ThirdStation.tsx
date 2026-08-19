@@ -8,6 +8,7 @@ import {
   type RefObject,
 } from 'react'
 import { mirrorSettings } from '../dev/mirrorSettingsStore'
+import { getDeviceQuality } from '../lib/deviceQuality'
 import { useStationVibe } from '../hooks/useStationVibe'
 import { MirrorGuideOrb } from './MirrorGuideOrb'
 import { MirrorHeadline } from './MirrorHeadline'
@@ -49,17 +50,22 @@ const STATUS_LABEL_ORIGINAL: Record<Phase, string> = {
  */
 function useLiveMirrorTheme(rootRef: RefObject<HTMLElement | null>) {
   useEffect(() => {
+    const apply = () => {
+      const root = rootRef.current
+      if (!root) return
+      root.style.setProperty('--mirror-bg-top', mirrorSettings.background.top)
+      root.style.setProperty('--mirror-bg-bottom', mirrorSettings.background.bottom)
+      root.style.setProperty('--mirror-accent', mirrorSettings.accent.color)
+    }
+    apply()
+    if (!import.meta.env.DEV) return
+
     let raf = 0
     let last = 0
     const tick = (now: number) => {
       if (now - last >= LIVE_POLL_MS) {
         last = now
-        const root = rootRef.current
-        if (root) {
-          root.style.setProperty('--mirror-bg-top', mirrorSettings.background.top)
-          root.style.setProperty('--mirror-bg-bottom', mirrorSettings.background.bottom)
-          root.style.setProperty('--mirror-accent', mirrorSettings.accent.color)
-        }
+        apply()
       }
       raf = requestAnimationFrame(tick)
     }
@@ -586,7 +592,7 @@ export function ThirdStation() {
           <span className="mirror-status-marker" />
           {(warm ? STATUS_LABEL_WARM : STATUS_LABEL_ORIGINAL)[phase]}
         </div>
-        <HudDebrisField phase={phase} key={phase} />
+        {getDeviceQuality() === 'kiosk' ? null : <HudDebrisField phase={phase} key={phase} />}
 
         {phase === 'intro' ? (
           <div className="mirror-screen mirror-screen-intro">

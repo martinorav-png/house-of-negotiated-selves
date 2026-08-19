@@ -5,6 +5,7 @@ import { useStationVibe } from '../hooks/useStationVibe'
 import type { MirrorFaceSignals } from '../lib/mirrorFaceSignals'
 import { sampleFaceTopologyConnections } from '../lib/mirrorFaceTopology'
 import { TRACKING_RGB } from '../lib/stationVibe'
+import { canvasPixelRatio, isKioskQuality } from '../lib/deviceQuality'
 import {
   computeCameraFocus,
   mapLandmarkToMirror,
@@ -30,7 +31,7 @@ const SPARSE_FACE_TOPOLOGY = sampleFaceTopologyConnections(
 export function MirrorCameraLayer({ mode }: { mode: MirrorOverlayMode }) {
   const [vibe] = useStationVibe()
   const trackingRgb = TRACKING_RGB[vibe]
-  const camera = useMirrorCamera()
+  const camera = useMirrorCamera({ tracking: mode !== 'none' })
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const focusMode: CameraFocusMode = mode === 'eyes' ? 'eyes' : mode === 'none' ? 'full' : 'face'
   const focus = computeCameraFocus(camera.landmarks, focusMode)
@@ -86,7 +87,7 @@ function drawLandmarks(
 ) {
   const width = canvas.clientWidth
   const height = canvas.clientHeight
-  const ratio = Math.min(window.devicePixelRatio || 1, 2)
+  const ratio = canvasPixelRatio()
   canvas.width = Math.max(1, Math.round(width * ratio))
   canvas.height = Math.max(1, Math.round(height * ratio))
   const context = canvas.getContext('2d')
@@ -117,7 +118,8 @@ function drawLandmarks(
   }
 
   const dissolve = mode === 'dissolve'
-  if (mode !== 'none') {
+  const drawMesh = mode !== 'none' && !isKioskQuality()
+  if (drawMesh) {
     context.beginPath()
     let topologyEdges = 0
     SPARSE_FACE_TOPOLOGY.forEach(({ start, end }) => {

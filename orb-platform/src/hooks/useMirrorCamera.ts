@@ -2,6 +2,11 @@ import { useEffect, useRef, useState, type RefObject } from 'react'
 import { FaceLandmarker, FilesetResolver } from '@mediapipe/tasks-vision'
 import { PARALLAX } from '../config'
 import {
+  detectIntervalMs,
+  getDeviceQuality,
+  mirrorCameraConstraints,
+} from '../lib/deviceQuality'
+import {
   deriveMirrorFaceSignals,
   NEUTRAL_MIRROR_FACE_SIGNALS,
   type MirrorFaceSignals,
@@ -21,7 +26,11 @@ export type MirrorCameraHandle = {
   signals: MirrorFaceSignals
 }
 
-export function useMirrorCamera(): MirrorCameraHandle {
+export function useMirrorCamera({
+  tracking = true,
+}: {
+  tracking?: boolean
+} = {}): MirrorCameraHandle {
   const videoRef = useRef<HTMLVideoElement>(null)
   const [status, setStatus] = useState<MirrorCameraStatus>('starting')
   const [landmarks, setLandmarks] = useState<NormalizedLandmark[]>([])
@@ -32,11 +41,83 @@ export function useMirrorCamera(): MirrorCameraHandle {
   useEffect(() => {
     let cancelled = false
     let stream: MediaStream | null = null
+    let permissionTimer: ReturnType<typeof setTimeout> | undefined
+    let permissionTimedOut = false
+
+    const start = async () => {
+      if (!navigator.mediaDevices?.getUserMedia) {
+        if (!cancelled) setStatus('unavailable')
+        return
+      }
+
+      try {
+        permissionTimer = setTimeout(() => {
+          permissionTimedOut = true
+          if (!cancelled) setStatus('unavailable')
+        }, 4_000)
+        stream = await navigator.mediaDevices.getUserMedia({
+          audio: false,
+          video: mirrorCameraConstraints(),
+        })
+        clearTimeout(permissionTimer)
+        permissionTimer = undefined
+        if (permissionTimedOut) {
+          stream.getTracks().forEach((track) => track.stop())
+          stream = null
+          return
+        }
+        if (cancelled) {
+          stream.getTracks().forEach((track) => track.stop())
+          return
+        }
+
+        const video = videoRef.current
+        if (!video) throw new Error('Camera view is unavailable')
+        video.srcObject = stream
+        await video.play()
+
+        if (!cancelled) setStatus('active')
+      } catch (error) {
+        clearTimeout(permissionTimer)
+        permissionTimer = undefined
+        if (cancelled) return
+        setStatus(
+          error instanceof DOMException && error.name === 'NotAllowedError'
+            ? 'denied'
+            : 'unavailable',
+        )
+      }
+    }
+
+    void start()
+
+    return () => {
+      cancelled = true
+      clearTimeout(permissionTimer)
+      stream?.getTracks().forEach((track) => track.stop())
+      const video = videoRef.current
+      if (video) {
+        video.pause()
+        video.srcObject = null
+      }
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!tracking || status !== 'active') {
+      if (!tracking) {
+        setLandmarks([])
+        setSignals(NEUTRAL_MIRROR_FACE_SIGNALS)
+      }
+      return
+    }
+
+    let cancelled = false
     let landmarker: FaceLandmarker | null = null
     let raf = 0
     let lastDetection = 0
-    let permissionTimer: ReturnType<typeof setTimeout> | undefined
-    let permissionTimedOut = false
+    const interval = detectIntervalMs()
+    const quality = getDeviceQuality()
 
     const detect = (now: number) => {
       if (cancelled) return
@@ -45,7 +126,7 @@ export function useMirrorCamera(): MirrorCameraHandle {
         video &&
         landmarker &&
         video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA &&
-        now - lastDetection >= PARALLAX.detectIntervalMs
+        now - lastDetection >= interval
       ) {
         lastDetection = now
         const result = landmarker.detectForVideo(video, now)
@@ -66,98 +147,50 @@ export function useMirrorCamera(): MirrorCameraHandle {
 
     const createLandmarker = async () => {
       const vision = await FilesetResolver.forVisionTasks(PARALLAX.wasmBase)
+      const options = {
+        runningMode: 'VIDEO' as const,
+        numFaces: 1,
+        outputFaceBlendshapes: true,
+        outputFacialTransformationMatrixes: true,
+      }
+      if (quality === 'kiosk') {
+        return FaceLandmarker.createFromOptions(vision, {
+          baseOptions: { modelAssetPath: PARALLAX.modelUrl, delegate: 'CPU' },
+          ...options,
+        })
+      }
       try {
         return await FaceLandmarker.createFromOptions(vision, {
           baseOptions: { modelAssetPath: PARALLAX.modelUrl, delegate: 'GPU' },
-          runningMode: 'VIDEO',
-          numFaces: 1,
-          outputFaceBlendshapes: true,
-          outputFacialTransformationMatrixes: true,
+          ...options,
         })
       } catch {
         return FaceLandmarker.createFromOptions(vision, {
           baseOptions: { modelAssetPath: PARALLAX.modelUrl, delegate: 'CPU' },
-          runningMode: 'VIDEO',
-          numFaces: 1,
-          outputFaceBlendshapes: true,
-          outputFacialTransformationMatrixes: true,
+          ...options,
         })
       }
     }
 
-    const start = async () => {
-      if (!navigator.mediaDevices?.getUserMedia) {
-        if (!cancelled) setStatus('unavailable')
-        return
-      }
-
-      try {
-        permissionTimer = setTimeout(() => {
-          permissionTimedOut = true
-          if (!cancelled) setStatus('unavailable')
-        }, 4_000)
-        stream = await navigator.mediaDevices.getUserMedia({
-          audio: false,
-          video: {
-            facingMode: 'user',
-            width: { ideal: 1080 },
-            height: { ideal: 1920 },
-          },
-        })
-        clearTimeout(permissionTimer)
-        permissionTimer = undefined
-        if (permissionTimedOut) {
-          stream.getTracks().forEach((track) => track.stop())
-          stream = null
-          return
-        }
+    void createLandmarker()
+      .then((created) => {
         if (cancelled) {
-          stream.getTracks().forEach((track) => track.stop())
+          created.close()
           return
         }
-
-        const video = videoRef.current
-        if (!video) throw new Error('Camera view is unavailable')
-        video.srcObject = stream
-        await video.play()
-
-        try {
-          landmarker = await createLandmarker()
-        } catch {
-          landmarker = null
-        }
-
-        if (!cancelled) {
-          setStatus('active')
-          raf = requestAnimationFrame(detect)
-        }
-      } catch (error) {
-        clearTimeout(permissionTimer)
-        permissionTimer = undefined
-        if (cancelled) return
-        setStatus(
-          error instanceof DOMException && error.name === 'NotAllowedError'
-            ? 'denied'
-            : 'unavailable',
-        )
-      }
-    }
-
-    void start()
+        landmarker = created
+        raf = requestAnimationFrame(detect)
+      })
+      .catch(() => {
+        landmarker = null
+      })
 
     return () => {
       cancelled = true
-      clearTimeout(permissionTimer)
       cancelAnimationFrame(raf)
       landmarker?.close()
-      stream?.getTracks().forEach((track) => track.stop())
-      const video = videoRef.current
-      if (video) {
-        video.pause()
-        video.srcObject = null
-      }
     }
-  }, [])
+  }, [status, tracking])
 
   return { videoRef, status, landmarks, signals }
 }

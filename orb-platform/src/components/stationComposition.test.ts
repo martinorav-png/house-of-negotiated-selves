@@ -13,8 +13,8 @@ import appSource from '../App.tsx?raw'
 
 describe('station composition', () => {
   it('routes the two new mirror journeys without removing the existing showcases', () => {
-    expect(appSource).toContain("import { StationOne } from './components/StationOne'")
-    expect(appSource).toContain("import { StationTwo } from './components/StationTwo'")
+    expect(appSource).toContain("import('./components/StationOne')")
+    expect(appSource).toContain("import('./components/StationTwo')")
     expect(appSource).toContain("station === 'station-1'")
     expect(appSource).toContain("station === 'station-2'")
     expect(appSource).toContain('<StationOne />')

@@ -9,6 +9,7 @@ import { heartbeat } from '../lib/heartbeat'
 import { typingState } from '../lib/typingState'
 import { settings } from '../dev/settingsStore'
 import { sampleSphere, buildPointGeometry } from '../lib/samplePoints'
+import { kioskOrbCounts } from '../lib/deviceQuality'
 import {
   orbPointVertexShader,
   orbPointFragmentShader,
@@ -32,10 +33,15 @@ export function Orb() {
     useOrbContext()
 
   const geometry = useMemo(() => {
+    const counts = kioskOrbCounts({
+      shell: SCAN.orbShell,
+      volume: SCAN.orbVolume,
+      halo: SCAN.orbHalo,
+    })
     const data = sampleSphere(ORB.radius, {
-      shellCount: SCAN.orbShell,
-      volumeCount: SCAN.orbVolume,
-      haloCount: SCAN.orbHalo,
+      shellCount: counts.shell,
+      volumeCount: counts.volume,
+      haloCount: counts.halo,
     })
     return buildPointGeometry(data)
   }, [])

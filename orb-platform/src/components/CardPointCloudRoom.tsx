@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
-import { CAMERA, RENDERER, ROOM } from '../config'
+import { CAMERA, ROOM } from '../config'
+import { getDeviceQuality, webGlMaxDpr } from '../lib/deviceQuality'
 import {
   SECOND_STATION_POINT_CLOUD_CONFIG,
   buildSecondStationPlatformCloud,
@@ -151,8 +152,9 @@ function CardsPostBridge() {
 }
 
 export function CardPointCloudRoom() {
+  const kiosk = getDeviceQuality() === 'kiosk'
   const [quality] = useState<PointCloudQuality>(() =>
-    typeof window !== 'undefined' && window.innerWidth < CAMERA.narrowBreakpoint
+    kiosk || (typeof window !== 'undefined' && window.innerWidth < CAMERA.narrowBreakpoint)
       ? 'mobile'
       : 'desktop',
   )
@@ -160,7 +162,7 @@ export function CardPointCloudRoom() {
   return (
     <div className="card-point-room" aria-hidden="true">
       <Canvas
-        dpr={[1, RENDERER.maxDpr]}
+        dpr={[1, webGlMaxDpr()]}
         camera={{
           fov: 34,
           near: CAMERA.near,
@@ -168,8 +170,8 @@ export function CardPointCloudRoom() {
           position: [0, 2.28, 7.4],
         }}
         gl={{
-          antialias: true,
-          powerPreference: 'high-performance',
+          antialias: !kiosk,
+          powerPreference: kiosk ? 'low-power' : 'high-performance',
           toneMapping: THREE.NoToneMapping,
           toneMappingExposure: 1,
         }}
@@ -179,7 +181,7 @@ export function CardPointCloudRoom() {
         <CardRoomCamera />
         <ScannedInstallation quality={quality} />
         <CardScanSweep />
-        <CardsPostBridge />
+        {kiosk ? null : <CardsPostBridge />}
       </Canvas>
     </div>
   )
