@@ -1,30 +1,31 @@
 import { useEffect, useRef } from 'react'
 import type { StationOnePhase, StationTwoPhase } from '../lib/mirrorJourney'
+import { base } from '../config'
 
 const STATION_ONE_PHASE_CLIPS: Partial<Record<StationOnePhase, string>> = {
-  'self-check': '/audio/debra/08-do-you-like-what-you-see.mp3',
+  'self-check': base('/audio/debra/08-do-you-like-what-you-see.mp3'),
 }
 
 const PHASE_CLIPS: Partial<Record<StationTwoPhase, string>> = {
   'companion-intro':
-    '/audio/debra/09-i-will-help-you-describe-the-companion-you-believe-you-want.mp3',
+    base('/audio/debra/09-i-will-help-you-describe-the-companion-you-believe-you-want.mp3'),
   'debra-brief':
-    '/audio/debra/09-i-will-help-you-describe-the-companion-you-believe-you-want.mp3',
-  height: '/audio/debra/04-how-tall-is-your-ideal-partner.mp3',
-  complete: '/audio/debra/05-youre-good-to-go-now.mp3',
+    base('/audio/debra/09-i-will-help-you-describe-the-companion-you-believe-you-want.mp3'),
+  height: base('/audio/debra/04-how-tall-is-your-ideal-partner.mp3'),
+  complete: base('/audio/debra/05-youre-good-to-go-now.mp3'),
 }
 
 const QUESTION_CLIPS = [
-  '/audio/debra/01-is-attractiveness-important-to-you.mp3',
-  '/audio/debra/02-should-your-companion-challenge-you.mp3',
-  '/audio/debra/03-would-you-choose-companionship-over-independence.mp3',
+  base('/audio/debra/01-is-attractiveness-important-to-you.mp3'),
+  base('/audio/debra/02-should-your-companion-challenge-you.mp3'),
+  base('/audio/debra/03-would-you-choose-companionship-over-independence.mp3'),
 ]
 
 export type ThirdStationVoicePhase = 'intro' | 'prompt' | 'recording' | 'loading'
 
 const THIRD_STATION_CLIPS: Partial<Record<ThirdStationVoicePhase, string>> = {
-  intro: '/audio/debra/06-now-is-your-chance.mp3',
-  prompt: '/audio/debra/07-introduce-yourself-to-your-future-partner.mp3',
+  intro: base('/audio/debra/06-now-is-your-chance.mp3'),
+  prompt: base('/audio/debra/07-introduce-yourself-to-your-future-partner.mp3'),
 }
 
 export function debraVoiceClipFor(phase: StationTwoPhase, questionIndex: number) {

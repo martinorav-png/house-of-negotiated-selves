@@ -1,6 +1,11 @@
 /**
  * Scene tuning knobs — adjust these first when iterating on look & feel.
  */
+
+/** Prefix a root-absolute path with the Vite base URL (e.g. "/orb/"). */
+export const base = (path: string) =>
+  `${import.meta.env.BASE_URL.replace(/\/$/, '')}${path}`
+
 export const ROOM = {
   width: 8,
   height: 5.2,

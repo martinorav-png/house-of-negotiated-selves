@@ -1,3 +1,5 @@
+import { base } from '../config'
+
 export type AvatarPortrait = {
   image: string
   caption: string
@@ -11,27 +13,27 @@ export type AvatarPortrait = {
 export const avatarPortraits: AvatarPortrait[] = [
   {
     id: 'persona-1',
-    image: '/assets/personas/persona-1.png',
+    image: base('/assets/personas/persona-1.png'),
     caption: 'Persona 01',
   },
   {
     id: 'persona-2',
-    image: '/assets/personas/persona-2.png',
+    image: base('/assets/personas/persona-2.png'),
     caption: 'Persona 02',
   },
   {
     id: 'persona-3',
-    image: '/assets/personas/persona-3.png',
+    image: base('/assets/personas/persona-3.png'),
     caption: 'Persona 03',
   },
   {
     id: 'persona-4',
-    image: '/assets/personas/persona-4.png',
+    image: base('/assets/personas/persona-4.png'),
     caption: 'Persona 04',
   },
   {
     id: 'persona-5',
-    image: '/assets/personas/persona-5.png',
+    image: base('/assets/personas/persona-5.png'),
     caption: 'Persona 05',
   },
 ]

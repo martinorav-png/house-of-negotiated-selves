@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
+  base: '/orb/',
   test: {
     css: true,
   },
@@ -10,5 +11,9 @@ export default defineConfig({
     port: 5176,
     host: true,
     open: true,
+  },
+  build: {
+    outDir: '../../visualizer/public/orb',
+    emptyOutDir: true,
   },
 })
